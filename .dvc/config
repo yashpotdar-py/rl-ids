@@ -1,0 +1,4 @@
+[core]
+    remote = storage
+['remote "storage"']
+    url = ssh://git@github.com/yashpotdar-py/rl-ids-dvc.git
