@@ -11,6 +11,7 @@ numpy
 pandas
 pip
 pytest
+pytest-cov
 python-dotenv
 scikit-learn
 tqdm
@@ -20,3 +21,5 @@ gymnasium
 torch 
 torchvision 
 torchaudio
+prometheus-client
+seaborn

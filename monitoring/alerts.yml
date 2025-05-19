@@ -1,0 +1,10 @@
+groups:
+- name: rl-ids-alerts
+  rules:
+  - alert: LowEpisodeReward                 # :contentReference[oaicite:13]{index=13}
+    expr: avg_over_time(episode_reward[5m]) < 0
+    for: 10m
+    labels:
+      severity: warning
+    annotations:
+      summary: "RL agent reward below zero for 10 minutes"

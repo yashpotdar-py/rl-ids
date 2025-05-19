@@ -6,7 +6,7 @@ a network intrusion detection system making binary decisions on network flows.
 """
 import os
 from pathlib import Path
-from typing import Dict, Tuple, Union, Optional, Any, List, NamedTuple
+from typing import Dict, Tuple, Union, Optional, Any, List
 
 import gymnasium as gym
 import numpy as np
@@ -14,19 +14,25 @@ import pandas as pd
 from gymnasium import spaces
 from loguru import logger
 from sklearn.preprocessing import StandardScaler
+from dataclasses import dataclass
 
 
-class EnvMetrics(NamedTuple):
+@dataclass
+class EnvMetrics:
     """Container for environment performance metrics."""
-    true_positives: int
-    false_positives: int
-    true_negatives: int
-    false_negatives: int
-    accuracy: float
-    precision: float
-    recall: float
-    f1_score: float
-    total_reward: float
+    true_positives: int = 0
+    false_positives: int = 0
+    true_negatives: int = 0
+    false_negatives: int = 0
+    accuracy: float = 0.0
+    precision: float = 0.0
+    recall: float = 0.0
+    f1_score: float = 0.0
+    total_reward: float = 0.0
+
+    def _asdict(self):
+        """Make it compatible with existing code that expects a NamedTuple."""
+        return {field: getattr(self, field) for field in self.__dataclass_fields__}
 
 
 class IntrusionEnv(gym.Env):
@@ -149,54 +155,61 @@ class IntrusionEnv(gym.Env):
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Reset the environment to start a new episode.
-
+        
         Args:
             seed: Optional seed for reproducibility
             options: Optional configuration dictionary with keys:
                 - "max_steps": Override the default episode length
                 - "start_idx": Start from a specific index in the dataset
-
+    
         Returns:
             Tuple of (observation, info_dict)
         """
         super().reset(seed=seed)
-
+        
         # Process options
         if options is not None:
             if "max_steps" in options:
                 self._episode_length = min(options["max_steps"], len(self._X))
                 logger.debug(f"Setting episode length to {self._episode_length}")
-
+                
             if "start_idx" in options and not self._random_sampling:
                 self._idx = max(0, min(options["start_idx"], len(self._X) - 1))
                 logger.debug(f"Starting episode from index {self._idx}")
-
+    
         # Reset internal state if random sampling
         if self._random_sampling:
-            self._idx = np.random.randint(0, len(self._X) - self._episode_length)
-
+            # Ensure we don't exceed array bounds
+            max_start_idx = max(0, len(self._X) - self._episode_length)
+            self._idx = np.random.randint(0, max_start_idx + 1)
+        else:
+            # For sequential access, wrap around if at the end
+            if self._idx + self._episode_length > len(self._X):
+                logger.debug("End of dataset reached, wrapping around to beginning")
+                self._idx = 0
+    
         self._episode_step = 0
         self._done = False
         self._metrics = self._init_metrics()
         self._current_trajectory = []
-
+    
         # Get initial observation
         obs = self._get_obs()
         info = self._get_info()
-
+    
         logger.debug(f"Environment reset, starting from index {self._idx}")
         return obs, info
 
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
         """
         Execute an action in the environment.
-
+        
         Args:
             action: Integer action to take (0 = allow, 1 = block)
-
+            
         Returns:
             Tuple of (observation, reward, terminated, truncated, info)
-
+            
         Raises:
             RuntimeError: If step is called on a done environment
         """
@@ -204,11 +217,17 @@ class IntrusionEnv(gym.Env):
             logger.warning("Step called on a done environment, call reset first")
             return np.zeros_like(self._X[0]), 0.0, True, False, {}
 
+        # Safety check to prevent index out of bounds
+        if self._idx >= len(self._X):
+            logger.warning(f"Index {self._idx} out of bounds for dataset of size {len(self._X)}")
+            self._done = True
+            return np.zeros_like(self._X[0]), 0.0, True, False, self._get_info()
+        
         # Validate action
         if not self.action_space.contains(action):
             logger.warning(f"Invalid action {action}, using 0 instead")
             action = 0
-
+    
         # Ground truth and current state
         label = self._y[self._idx]
         current_obs = self._get_obs()
@@ -217,34 +236,70 @@ class IntrusionEnv(gym.Env):
         if action == label:
             reward = self._reward_correct
             if action == 1:  # True positive
-                self._metrics.true_positives += 1
+                # Create new EnvMetrics with updated true_positives
+                self._metrics = EnvMetrics(
+                    true_positives=self._metrics.true_positives + 1,
+                    false_positives=self._metrics.false_positives,
+                    true_negatives=self._metrics.true_negatives,
+                    false_negatives=self._metrics.false_negatives,
+                    accuracy=self._metrics.accuracy,
+                    precision=self._metrics.precision,
+                    recall=self._metrics.recall,
+                    f1_score=self._metrics.f1_score,
+                    total_reward=self._metrics.total_reward + reward
+                )
             else:  # True negative
-                self._metrics.true_negatives += 1
+                # Create new EnvMetrics with updated true_negatives
+                self._metrics = EnvMetrics(
+                    true_positives=self._metrics.true_positives,
+                    false_positives=self._metrics.false_positives,
+                    true_negatives=self._metrics.true_negatives + 1,
+                    false_negatives=self._metrics.false_negatives,
+                    accuracy=self._metrics.accuracy,
+                    precision=self._metrics.precision,
+                    recall=self._metrics.recall,
+                    f1_score=self._metrics.f1_score,
+                    total_reward=self._metrics.total_reward + reward
+                )
         else:
             reward = self._reward_incorrect
             if action == 1:  # False positive
-                self._metrics.false_positives += 1
+                # Create new EnvMetrics with updated false_positives
+                self._metrics = EnvMetrics(
+                    true_positives=self._metrics.true_positives,
+                    false_positives=self._metrics.false_positives + 1,
+                    true_negatives=self._metrics.true_negatives,
+                    false_negatives=self._metrics.false_negatives,
+                    accuracy=self._metrics.accuracy,
+                    precision=self._metrics.precision,
+                    recall=self._metrics.recall,
+                    f1_score=self._metrics.f1_score,
+                    total_reward=self._metrics.total_reward + reward
+                )
             else:  # False negative
-                self._metrics.false_negatives += 1
-
-        self._metrics.total_reward += reward
-
-        # Save current step in trajectory
-        self._current_trajectory.append((current_obs.copy(), action, reward, label))
+                # Create new EnvMetrics with updated false_negatives
+                self._metrics = EnvMetrics(
+                    true_positives=self._metrics.true_positives,
+                    false_positives=self._metrics.false_positives,
+                    true_negatives=self._metrics.true_negatives,
+                    false_negatives=self._metrics.false_negatives + 1,
+                    accuracy=self._metrics.accuracy,
+                    precision=self._metrics.precision,
+                    recall=self._metrics.recall,
+                    f1_score=self._metrics.f1_score,
+                    total_reward=self._metrics.total_reward + reward
+                )
 
         # Update internal state
         self._idx += 1
         self._episode_step += 1
         self._done = (self._idx >= len(self._X)) or (self._episode_step >= self._episode_length)
 
-        # Get next observation
-        observation = self._get_obs()
-
         # Update accuracy metrics when done
         if self._done:
             self._update_metrics()
 
-        return observation, reward, self._done, False, self._get_info()
+        return self._get_obs(), reward, self._done, False, self._get_info()
 
     def render(self):
         """
@@ -303,7 +358,7 @@ class IntrusionEnv(gym.Env):
         return {
             "step": self._episode_step,
             "total_steps": self._episode_length,
-            "metrics": {k: v for k, v in self._metrics.__dict__.items()},
+            "metrics": self._metrics._asdict(),  # Use _asdict() method from NamedTuple
         }
 
     def _init_metrics(self) -> EnvMetrics:

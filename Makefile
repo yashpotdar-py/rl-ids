@@ -18,8 +18,6 @@ requirements:
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt --no-cache-dir
 	
 
-
-
 ## Delete all compiled Python files
 .PHONY: clean
 clean:
@@ -95,3 +93,9 @@ run-mlflow:
 
 dvc-push:
 	bash scripts/dvc_push.sh
+
+train:
+	python -m rl_ids.modeling.train
+
+run-prometheus:
+	./prometheus/prometheus --config.file=monitoring/prometheus.yml

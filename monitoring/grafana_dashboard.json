@@ -1,0 +1,21 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "rl_ids_metrics",
+    "title": "RL-IDS Metrics",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Episode Reward",
+        "targets": [{ "expr": "episode_reward" }]
+      },
+      {
+        "type": "graph",
+        "title": "Detections per Minute",
+        "targets": [{ "expr": "rate(detections_total[1m])" }]
+      }
+    ],
+    "schemaVersion": 27,
+    "version": 0
+  }
+}

@@ -6,6 +6,16 @@
 !/data/**/*.dvc
 !/data/**/*.gitkeep
 
+# Model and model checkpoints
+models/**/*.tar
+
+# MLflow local runs
+/mlruns/
+/mlflow.db
+
+# Logs
+/logs
+
 # Mac OS-specific storage files
 .DS_Store
 
@@ -193,3 +203,6 @@ cython_debug/
 
 # VSCode
 .vscode/
+
+# Prometheus
+prometheus/

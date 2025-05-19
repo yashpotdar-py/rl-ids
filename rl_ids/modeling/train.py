@@ -2,7 +2,7 @@
 Training script for reinforcement learning-based intrusion detection models.
 
 This module provides training procedures for DQN and Policy Gradient agents
-on the network intrusion detection environment.
+on the network intrusion detection environment with Prometheus monitoring.
 """
 import argparse
 import json
@@ -16,12 +16,23 @@ from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import torch
 from loguru import logger
-from tqdm import tqdm
+from tqdm import tqdm, trange
+from prometheus_client import start_http_server, Summary, Counter, Gauge
 
 from rl_ids.environment import IntrusionEnv
 from rl_ids.modeling.dqn_agent import DQNAgent
 from rl_ids.modeling.pg_agent import PGAgent
 from rl_ids.config import PROCESSED_DATA_DIR, MODELS_DIR
+
+# Prometheus metrics
+EPISODE_REWARD = Summary('episode_reward', 'Total reward per episode')
+EPISODE_DURATION = Summary('episode_duration', 'Duration of episode in seconds')
+TRAINING_LOSS = Summary('training_loss', 'Training loss per optimization step')
+DETECTIONS = Counter('detections_total', 'Number of correct detections')
+FALSE_ALARMS = Counter('false_alarms_total', 'Number of false alarms')
+EPSILON = Gauge('exploration_epsilon', 'Current epsilon value for exploration')
+MEMORY_USAGE = Gauge('memory_usage_mb', 'Current GPU memory usage in MB')
+LEARNING_RATE = Gauge('learning_rate', 'Current learning rate')
 
 
 def setup_logger(log_file: Optional[str] = None):
@@ -50,6 +61,24 @@ def setup_logger(log_file: Optional[str] = None):
             format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}",
             level="DEBUG"
         )
+
+
+def update_memory_metrics():
+    """Update GPU memory usage metrics if CUDA is available."""
+    if torch.cuda.is_available():
+        # Get current GPU memory usage in MB
+        memory_allocated = torch.cuda.memory_allocated() / 1024 / 1024
+        memory_reserved = torch.cuda.memory_reserved() / 1024 / 1024
+        MEMORY_USAGE.set(memory_allocated)
+
+        if memory_reserved > memory_allocated * 2:
+            # Memory fragmentation might be occurring
+            logger.warning(
+                f"High memory reservation detected: {memory_reserved:.1f}MB allocated, "
+                f"{memory_reserved:.1f}MB reserved"
+            )
+            # Force garbage collection and empty cache
+            torch.cuda.empty_cache()
 
 
 def evaluate_agent(
@@ -113,9 +142,10 @@ def train_dqn(
     checkpoint_interval: int = 50,
     checkpoint_dir: Optional[str] = None,
     experiment_name: str = "dqn_experiment",
+    max_steps: Optional[int] = None,
 ) -> Dict[str, List[Any]]:
     """
-    Train DQN agent on the environment.
+    Train DQN agent on the environment with Prometheus monitoring.
 
     Args:
         env: Environment to train on
@@ -128,6 +158,7 @@ def train_dqn(
         checkpoint_interval: Episodes between checkpoints
         checkpoint_dir: Directory to save checkpoints
         experiment_name: Name of this experiment
+        max_steps: Maximum steps per episode
 
     Returns:
         Dictionary containing training history
@@ -153,10 +184,15 @@ def train_dqn(
     eps = eps_start
     episode_rewards = []
 
-    progress_bar = tqdm(range(episodes), desc="Training DQN")
+    # Update epsilon gauge
+    EPSILON.set(eps)
+
+    progress_bar = trange(episodes, desc="Training DQN")
     for episode in progress_bar:
-        # Reset environment
-        state, _ = env.reset()
+        episode_start_time = time.time()
+
+        # Reset environment with max_steps option
+        state, _ = env.reset(options={"max_steps": max_steps})
         done = False
         episode_reward = 0
         episode_length = 0
@@ -168,6 +204,12 @@ def train_dqn(
             action = agent.select_action(state, eps)
             next_state, reward, done, _, _ = env.step(action)
 
+            # Update Prometheus metrics for detections
+            if reward > 0:
+                DETECTIONS.inc()
+            else:
+                FALSE_ALARMS.inc()
+
             # Store transition
             agent.store_transition(state, action, reward, next_state, done)
 
@@ -175,14 +217,20 @@ def train_dqn(
             loss = agent.optimize()
             if loss is not None:
                 episode_loss.append(loss)
+                TRAINING_LOSS.observe(loss)
 
-            # Update state
+            # Update state and metrics
             state = next_state
             episode_reward += reward
             episode_length += 1
 
+            # Clear unnecessary tensors from GPU memory
+            if torch.cuda.is_available() and episode_length % 100 == 0:
+                update_memory_metrics()
+
         # Decay epsilon
         eps = max(eps_end, eps * eps_decay)
+        EPSILON.set(eps)
 
         # Update history
         history["episode_rewards"].append(episode_reward)
@@ -190,6 +238,10 @@ def train_dqn(
         history["epsilon"].append(eps)
         if episode_loss:
             history["losses"].append(np.mean(episode_loss))
+
+        # Update Prometheus episode metrics
+        EPISODE_REWARD.observe(episode_reward)
+        EPISODE_DURATION.observe(time.time() - episode_start_time)
 
         # Update progress bar
         progress_bar.set_postfix(reward=f"{episode_reward:.1f}", eps=f"{eps:.2f}")
@@ -218,24 +270,28 @@ def train_dqn(
 
         # Save checkpoint periodically
         if checkpoint_dir and (episode + 1) % checkpoint_interval == 0:
+            checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_ep{episode + 1}.tar")
             agent.save_checkpoint(
                 episode=episode + 1,
                 epsilon=eps,
                 rewards=episode_rewards,
-                path=os.path.join(checkpoint_dir, f"checkpoint_ep{episode + 1}.pt")
+                path=checkpoint_path
             )
 
             # Save training history
             with open(os.path.join(checkpoint_dir, "training_history.json"), "w") as f:
                 json.dump(history, f, indent=2)
 
+            logger.info(f"Saved checkpoint to {checkpoint_path}")
+
     # Final checkpoint
     if checkpoint_dir:
+        final_path = os.path.join(checkpoint_dir, f"final_model.tar")
         agent.save_checkpoint(
             episode=episodes,
             epsilon=eps,
             rewards=episode_rewards,
-            path=os.path.join(checkpoint_dir, f"final_model.pt")
+            path=final_path
         )
 
     logger.info(f"Training completed in {time.time() - start_time:.2f} seconds")
@@ -252,7 +308,7 @@ def train_pg(
     experiment_name: str = "pg_experiment",
 ) -> Dict[str, List[Any]]:
     """
-    Train Policy Gradient agent on the environment.
+    Train Policy Gradient agent on the environment with Prometheus monitoring.
 
     Args:
         env: Environment to train on
@@ -287,8 +343,10 @@ def train_pg(
     # Training loop
     episode_rewards = []
 
-    progress_bar = tqdm(range(episodes), desc="Training PG")
+    progress_bar = trange(episodes, desc="Training PG")
     for episode in progress_bar:
+        episode_start_time = time.time()
+
         # Reset environment
         state, _ = env.reset()
         done = False
@@ -301,6 +359,12 @@ def train_pg(
             action, log_prob = agent.select_action(state)
             next_state, reward, done, _, _ = env.step(action)
 
+            # Update Prometheus metrics for detections
+            if reward > 0:
+                DETECTIONS.inc()
+            else:
+                FALSE_ALARMS.inc()
+
             # Store transition
             agent.store_transition(state, action, reward, next_state, done, log_prob)
 
@@ -309,8 +373,17 @@ def train_pg(
             episode_reward += reward
             episode_length += 1
 
+            # Clear unnecessary tensors from GPU memory
+            if torch.cuda.is_available() and episode_length % 100 == 0:
+                update_memory_metrics()
+
         # Perform update at end of episode
         update_stats = agent.update()
+
+        # Update Prometheus metrics
+        EPISODE_REWARD.observe(episode_reward)
+        EPISODE_DURATION.observe(time.time() - episode_start_time)
+        TRAINING_LOSS.observe(update_stats["total_loss"])
 
         # Update history
         history["episode_rewards"].append(episode_reward)
@@ -346,22 +419,26 @@ def train_pg(
 
         # Save checkpoint periodically
         if checkpoint_dir and (episode + 1) % checkpoint_interval == 0:
+            checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_ep{episode + 1}.tar")
             agent.save_checkpoint(
                 episode=episode + 1,
                 rewards=episode_rewards,
-                path=os.path.join(checkpoint_dir, f"checkpoint_ep{episode + 1}.pt")
+                path=checkpoint_path
             )
 
             # Save training history
             with open(os.path.join(checkpoint_dir, "training_history.json"), "w") as f:
                 json.dump(history, f, indent=2)
 
+            logger.info(f"Saved checkpoint to {checkpoint_path}")
+
     # Final checkpoint
     if checkpoint_dir:
+        final_path = os.path.join(checkpoint_dir, f"final_model.tar")
         agent.save_checkpoint(
             episode=episodes,
             rewards=episode_rewards,
-            path=os.path.join(checkpoint_dir, f"final_model.pt")
+            path=final_path
         )
 
     logger.info(f"Training completed in {time.time() - start_time:.2f} seconds")
@@ -498,6 +575,18 @@ def parse_arguments():
         default="cuda" if torch.cuda.is_available() else "cpu",
         help="Device to run on (cuda or cpu)"
     )
+    parser.add_argument(
+        "--prometheus_port",
+        type=int,
+        default=8000,
+        help="Port for Prometheus metrics server"
+    )
+    parser.add_argument(
+        "--max_steps",
+        type=int,
+        default=1000,
+        help="Maximum steps per episode"
+    )
 
     return parser.parse_args()
 
@@ -515,12 +604,29 @@ def main():
 
     # Create experiment name if not provided
     if not args.experiment_name:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        args.experiment_name = f"{args.method}_{timestamp}"
+        # Use method name without timestamp
+        args.experiment_name = args.method
+
+        # Check if experiment directory already exists and add suffix if needed
+        base_name = args.experiment_name
+        checkpoint_dir = os.path.join(args.checkpoint_dir, args.experiment_name)
+        counter = 1
+
+        while os.path.exists(checkpoint_dir):
+            args.experiment_name = f"{base_name}_{counter}"
+            checkpoint_dir = os.path.join(args.checkpoint_dir, args.experiment_name)
+            counter += 1
 
     # Setup logging
     log_file = os.path.join(args.log_dir, f"{args.experiment_name}.log")
     setup_logger(log_file)
+
+    # Start Prometheus metrics server
+    try:
+        start_http_server(args.prometheus_port)
+        logger.info(f"Prometheus metrics exposed on port {args.prometheus_port}")
+    except Exception as e:
+        logger.warning(f"Failed to start Prometheus metrics server: {e}")
 
     # Log arguments
     logger.info(f"Starting experiment: {args.experiment_name}")
@@ -554,6 +660,10 @@ def main():
             checkpoint_dir=checkpoint_dir
         )
 
+        # Set learning rate gauge
+        current_lr = agent.scheduler.get_last_lr()[0]
+        LEARNING_RATE.set(current_lr)
+
         # Train agent
         history = train_dqn(
             env=env,
@@ -565,19 +675,32 @@ def main():
             eval_interval=args.eval_interval,
             checkpoint_interval=20,
             checkpoint_dir=checkpoint_dir,
-            experiment_name=args.experiment_name
+            experiment_name=args.experiment_name,
+            max_steps=args.max_steps  # Pass this parameter
         )
 
     elif args.method == "pg":
         agent = PGAgent(
             state_dim=state_dim,
             action_dim=action_dim,
-            hidden_dim=args.hidden_dim,
-            lr=args.lr,
-            device=args.device
+            hidden_dims=[args.hidden_dim, args.hidden_dim],
+            lr_policy=args.lr,
+            lr_value=args.lr * 3,  # Value function often benefits from higher learning rate
+            gamma=args.gamma,
+            device=args.device,
+            checkpoint_dir=checkpoint_dir
         )
 
-        train_pg(env, agent, args.episodes)
+        # Train agent
+        history = train_pg(
+            env=env,
+            agent=agent,
+            episodes=args.episodes,
+            eval_interval=args.eval_interval,
+            checkpoint_interval=20,
+            checkpoint_dir=checkpoint_dir,
+            experiment_name=args.experiment_name
+        )
 
     else:
         raise ValueError(f"Unsupported method: {args.method}")
@@ -591,6 +714,10 @@ def main():
     metrics_file = os.path.join(checkpoint_dir, "final_metrics.json")
     with open(metrics_file, "w") as f:
         json.dump(final_metrics, f, indent=2)
+
+    # Clean up any remaining resources
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     logger.info(f"Experiment {args.experiment_name} completed successfully")
 
