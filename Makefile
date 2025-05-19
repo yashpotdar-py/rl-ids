@@ -47,6 +47,10 @@ format:
 test:
 	python -m pytest tests --verbose
 
+.PHONY: test-cov
+test-cov:
+	python -m pytest tests --verbose --cov=rl_ids --cov-report=term
+
 
 ## Set up Python interpreter environment
 .PHONY: create_environment
