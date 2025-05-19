@@ -88,3 +88,6 @@ help:
 
 run-mlflow:
 	bash scripts/run_mlflow.sh
+
+dvc-push:
+	bash scripts/dvc_push.sh
