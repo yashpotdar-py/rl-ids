@@ -1,5 +1,10 @@
-# Data
-/data/
+# Ignore all data files but NOT their DVC metadata or .gitkeep
+/data/*
+/data/**/*.csv
+/data/**/*.parquet
+!/data/**/
+!/data/**/*.dvc
+!/data/**/*.gitkeep
 
 # Mac OS-specific storage files
 .DS_Store
