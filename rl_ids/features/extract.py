@@ -5,26 +5,16 @@ This script normalizes and cleans CICIDS2017 network traffic data,
 extracting specific features and converting attack labels to binary format.
 """
 
-import os
-import sys
-import logging
-import argparse
 from pathlib import Path
 from typing import List, Optional
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+from loguru import logger
+from tqdm import tqdm
+import typer
 
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+from rl_ids.config import RAW_DATA_DIR, PROCESSED_DATA_DIR
 
 # Default columns to keep in preprocessing
 DEFAULT_COLUMNS = [
@@ -46,36 +36,10 @@ DEFAULT_COLUMNS = [
 
 LABEL_COLUMN = "Label"
 
-
-def parse_arguments() -> argparse.Namespace:
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Preprocess CICIDS2017 network traffic data for machine learning'
-    )
-    parser.add_argument(
-        '--input', '-i',
-        type=str,
-        required=False,
-        default="data/raw/CICIDS2017/Wednesday-workingHours.pcap_ISCX.csv",
-        help='Path to input CSV file'
-    )
-    parser.add_argument(
-        '--output', '-o',
-        type=str,
-        required=False,
-        default="data/processed/cleaned.parquet",
-        help='Path to output Parquet file'
-    )
-    parser.add_argument(
-        '--columns', '-c',
-        type=str,
-        nargs='+',
-        help='Optional list of columns to keep (defaults to predefined set)'
-    )
-    return parser.parse_args()
+app = typer.Typer()
 
 
-def load_dataset(csv_path: str, columns: Optional[List[str]] = None) -> pd.DataFrame:
+def load_dataset(csv_path: Path, columns: Optional[List[str]] = None) -> pd.DataFrame:
     """
     Load CICIDS2017 CSV dataset with specified columns.
 
@@ -96,7 +60,6 @@ def load_dataset(csv_path: str, columns: Optional[List[str]] = None) -> pd.DataF
         columns = DEFAULT_COLUMNS
 
     # Validate input file
-    csv_path = Path(csv_path)
     if not csv_path.exists():
         raise FileNotFoundError(f"Input file not found: {csv_path}")
 
@@ -179,7 +142,7 @@ def preprocess_dataset(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def save_parquet(df: pd.DataFrame, out_path: str) -> None:
+def save_parquet(df: pd.DataFrame, out_path: Path) -> None:
     """
     Write DataFrame to Parquet for fast downstream loading.
 
@@ -195,9 +158,8 @@ def save_parquet(df: pd.DataFrame, out_path: str) -> None:
         raise ValueError("Cannot save empty DataFrame to Parquet")
 
     # Create output directory if it doesn't exist
-    out_path = Path(out_path)
     try:
-        os.makedirs(out_path.parent, exist_ok=True)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
     except OSError as e:
         logger.error(f"Failed to create output directory: {e}")
         raise
@@ -210,33 +172,51 @@ def save_parquet(df: pd.DataFrame, out_path: str) -> None:
             index=False,
             compression='snappy'  # Good balance of compression/speed
         )
-        logger.info(f"Successfully saved data to {out_path}")
+        logger.success(f"Successfully saved data to {out_path}")
     except Exception as e:
         logger.error(f"Failed to save Parquet file: {e}")
         raise
 
 
-def main() -> None:
-    """Main execution function."""
+@app.command()
+def main(
+    input_path: Path = RAW_DATA_DIR / "CICIDS2017/Wednesday-workingHours.pcap_ISCX.csv",
+    output_path: Path = PROCESSED_DATA_DIR / "cleaned.parquet",
+    columns: Optional[List[str]] = None,
+):
+    """
+    Preprocess CICIDS2017 network traffic data for machine learning.
+    
+    Loads raw CSV data, normalizes labels to binary format (0 for benign, 1 for attacks),
+    handles invalid values, and saves the cleaned dataset in Parquet format.
+    """
     try:
-        # Parse command line arguments
-        args = parse_arguments()
-
         # Load dataset
-        df = load_dataset(args.input, args.columns)
-
-        # Preprocess dataset
-        df = preprocess_dataset(df)
-
-        # Save to Parquet
-        save_parquet(df, args.output)
-
-        logger.info("Preprocessing completed successfully")
+        logger.info("Loading and preprocessing dataset...")
+        df = load_dataset(input_path, columns)
+        
+        # Process with progress tracking
+        with tqdm(total=3, desc="Preprocessing") as progress:
+            # Preprocess dataset
+            progress.set_description("Normalizing data")
+            df = preprocess_dataset(df)
+            progress.update(1)
+            
+            # Save to Parquet
+            progress.set_description("Saving to Parquet")
+            save_parquet(df, output_path)
+            progress.update(1)
+            
+            # Final step
+            progress.set_description("Finalizing")
+            progress.update(1)
+        
+        logger.success("Preprocessing completed successfully")
 
     except Exception as e:
         logger.error(f"Preprocessing failed: {e}")
-        sys.exit(1)
+        raise
 
 
 if __name__ == "__main__":
-    main()
+    app()

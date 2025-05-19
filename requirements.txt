@@ -15,4 +15,4 @@ python-dotenv
 scikit-learn
 tqdm
 typer
--e .
+scapy
