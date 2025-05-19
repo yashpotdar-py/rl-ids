@@ -16,3 +16,7 @@ scikit-learn
 tqdm
 typer
 scapy
+gymnasium
+torch 
+torchvision 
+torchaudio
