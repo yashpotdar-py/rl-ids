@@ -97,5 +97,8 @@ dvc-push:
 train:
 	python -m rl_ids.modeling.train
 
+evaluate:
+	python -m rl_ids.modeling.evaluate
+
 run-prometheus:
 	./prometheus/prometheus --config.file=monitoring/prometheus.yml
