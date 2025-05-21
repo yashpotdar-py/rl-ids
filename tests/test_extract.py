@@ -1,13 +1,14 @@
 """
-Tests for the extract module that handles CICIDS2017 network traffic data preprocessing.
+Test suite for the CICIDS2017 data extraction and preprocessing module.
 """
+
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-import numpy as np
 import pandas as pd
+import numpy as np
 import pytest
 from pandas.testing import assert_frame_equal
 
@@ -15,209 +16,266 @@ from rl_ids.features.extract import (
     load_dataset,
     preprocess_dataset,
     save_parquet,
-    DEFAULT_COLUMNS,
+    main,
     LABEL_COLUMN,
+    app
 )
 
 
 @pytest.fixture
-def sample_data():
-    """Create a sample DataFrame for testing."""
+def sample_df():
+    """Create a sample DataFrame mimicking CICIDS2017 data."""
     return pd.DataFrame({
-        'Destination Port': [80, 443, 53],
-        'Flow Duration': [100, 200, 300],
-        'Total Fwd Packets': [5, 10, 15],
-        'Total Length of Fwd Packets': [500, 1000, 1500],
-        'Label': ['BENIGN', 'DoS', 'BENIGN']
+        'Destination Port': [80, 443, 22, 8080],
+        'Flow Duration': [100, 200, 300, 400],
+        'Total Fwd Packets': [10, 20, 30, 40],
+        'Total Backward Packets': [5, 10, 15, 20],
+        'Total Length of Fwd Packets': [1000, 2000, 3000, 4000],
+        'Total Length of Bwd Packets': [500, 600, 700, 800],
+        'Fwd Packet Length Max': [100, 200, 300, 400],
+        'Fwd Packet Length Min': [10, 20, 30, 40],
+        'Fwd Packet Length Mean': [50, 60, 70, 80],
+        'Fwd Packet Length Std': [5, 10, 15, 20],
+        'Bwd Packet Length Max': [100, 200, 300, 400],
+        'Bwd Packet Length Min': [10, 20, 30, 40],
+        'Bwd Packet Length Mean': [50, 60, 70, 80],
+        'Bwd Packet Length Std': [5, 10, 15, 20],
+        'Flow Bytes/s': [1000, 2000, 3000, 4000],
+        'Flow Packets/s': [10, 20, 30, 40],
+        'Fwd PSH Flags': [0, 1, 0, 1],
+        'Bwd PSH Flags': [0, 0, 1, 1],
+        'Fwd URG Flags': [0, 0, 0, 1],
+        'Bwd URG Flags': [0, 0, 0, 1],
+        'Label': ['BENIGN', 'DoS', 'BENIGN', 'PortScan']
     })
 
 
 @pytest.fixture
-def sample_csv(tmp_path, sample_data):
-    """Create a sample CSV file with test data."""
-    csv_path = tmp_path / "test_data.csv"
-    sample_data.to_csv(csv_path, index=False)
-    return csv_path
+def temp_csv_path():
+    """Create a temporary CSV file for testing."""
+    with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as tf:
+        filepath = Path(tf.name)
+    yield filepath
+    # Clean up after test
+    if filepath.exists():
+        os.unlink(filepath)
 
 
 @pytest.fixture
-def mock_logger():
-    """Mock logger to avoid console output during tests."""
-    with patch('rl_ids.features.extract.logger') as mock:
-        yield mock
+def temp_parquet_path():
+    """Create a temporary parquet filepath for testing."""
+    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as tf:
+        filepath = Path(tf.name)
+    yield filepath
+    # Clean up after test
+    if filepath.exists():
+        os.unlink(filepath)
 
 
 class TestLoadDataset:
     """Tests for the load_dataset function."""
 
-    def test_successful_load_default_columns(self, sample_csv, mock_logger):
+    def test_load_dataset_default_columns(self, sample_df, temp_csv_path):
         """Test loading dataset with default columns."""
-        # Only use columns that exist in our test data
-        test_columns = [col for col in DEFAULT_COLUMNS if col in ['Destination Port', 'Flow Duration', 
-                                                                 'Total Fwd Packets', 'Total Length of Fwd Packets', 'Label']]
-        
-        with patch('rl_ids.features.extract.DEFAULT_COLUMNS', test_columns):
-            df = load_dataset(sample_csv)
-            
-        assert len(df) == 3
-        assert list(df.columns) == test_columns
-        mock_logger.info.assert_called()
+        sample_df.to_csv(temp_csv_path, index=False)
 
-    def test_custom_columns(self, sample_csv, mock_logger):
+        with patch('rl_ids.features.extract.DEFAULT_COLUMNS', list(sample_df.columns)) as mock_default_cols, \
+                patch('rl_ids.features.extract.logger') as mock_logger:
+            result = load_dataset(temp_csv_path)
+
+            # Verify all default columns were loaded
+            for col in sample_df.columns:
+                assert col in result.columns
+
+            # Verify logger was called
+            mock_logger.info.assert_any_call(f"Loading data from {temp_csv_path}")
+
+    def test_load_dataset_custom_columns(self, sample_df, temp_csv_path):
         """Test loading dataset with custom columns."""
-        custom_columns = ['Destination Port', 'Label']
-        df = load_dataset(sample_csv, custom_columns)
-        
-        assert len(df) == 3
-        assert list(df.columns) == custom_columns
+        sample_df.to_csv(temp_csv_path, index=False)
 
-    def test_file_not_found(self, tmp_path):
-        """Test handling of missing file."""
-        non_existent_path = tmp_path / "does_not_exist.csv"
-        
+        custom_columns = ['Destination Port', 'Flow Duration', 'Label']
+        result = load_dataset(temp_csv_path, custom_columns)
+
+        # Verify only specified columns were loaded
+        assert list(result.columns) == custom_columns
+        assert len(result.columns) == 3
+
+    def test_file_not_found(self):
+        """Test handling of non-existent file."""
+        non_existent_path = Path("/tmp/non_existent_file.csv")
+
         with pytest.raises(FileNotFoundError):
             load_dataset(non_existent_path)
 
-    def test_missing_columns(self, sample_csv):
-        """Test error when required columns are missing."""
-        missing_columns = ['Missing Column 1', 'Missing Column 2']
-        
-        with pytest.raises(ValueError) as excinfo:
-            load_dataset(sample_csv, missing_columns)
-        
-        assert "Missing required columns" in str(excinfo.value)
+    def test_empty_file(self, temp_csv_path):
+        """Test handling of empty file."""
+        # Create empty file
+        with open(temp_csv_path, 'w') as f:
+            pass
+
+        with pytest.raises(pd.errors.EmptyDataError):
+            load_dataset(temp_csv_path)
+
+    def test_missing_columns(self, temp_csv_path):
+        """Test handling of missing required columns."""
+        # Create a CSV with just a subset of required columns
+        df = pd.DataFrame({
+            'Destination Port': [80, 443],
+            'Flow Duration': [100, 200]
+            # Missing 'Label' column
+        })
+        df.to_csv(temp_csv_path, index=False)
+
+        with pytest.raises(ValueError, match="Missing required columns"):
+            load_dataset(temp_csv_path, ['Destination Port', 'Flow Duration', 'Label'])
 
 
 class TestPreprocessDataset:
     """Tests for the preprocess_dataset function."""
 
-    def test_label_conversion(self, sample_data, mock_logger):
-        """Test conversion of labels to binary format."""
-        df = preprocess_dataset(sample_data)
-        
-        assert df[LABEL_COLUMN].tolist() == [0, 1, 0]
-        mock_logger.info.assert_called()
+    def test_successful_preprocessing(self, sample_df):
+        """Test successful preprocessing with all necessary columns."""
+        with patch('rl_ids.features.extract.logger') as mock_logger:
+            result = preprocess_dataset(sample_df)
 
-    def test_handle_inf_values(self, mock_logger):
-        """Test handling of infinite values."""
-        test_data = pd.DataFrame({
-            'Destination Port': [80, 443, 53],
-            'Flow Duration': [100, np.inf, 300],
-            'Total Fwd Packets': [5, 10, -np.inf],
-            'Label': ['BENIGN', 'DoS', 'BENIGN']
-        })
-        
-        df = preprocess_dataset(test_data)
-        
-        # Should drop rows with inf/-inf
-        assert len(df) == 1
-        assert df['Destination Port'].iloc[0] == 80
+            # Verify labels were converted to binary
+            assert set(result[LABEL_COLUMN].unique()) <= {0, 1}
+
+            # Check binary conversion logic
+            assert result.iloc[0][LABEL_COLUMN] == 0  # First row was 'BENIGN'
+            assert result.iloc[1][LABEL_COLUMN] == 1  # Second row was 'DoS'
+
+            # Verify no NaNs remain
+            assert not result.isna().any().any()
 
     def test_empty_dataframe(self):
         """Test handling of empty DataFrame."""
-        empty_df = pd.DataFrame()
-        
-        with pytest.raises(ValueError) as excinfo:
-            preprocess_dataset(empty_df)
-        
-        assert "Cannot preprocess empty DataFrame" in str(excinfo.value)
+        with pytest.raises(ValueError, match="Cannot preprocess empty DataFrame"):
+            preprocess_dataset(pd.DataFrame())
 
     def test_missing_label_column(self):
         """Test handling of DataFrame without Label column."""
-        df_no_label = pd.DataFrame({
-            'Destination Port': [80, 443, 53],
-            'Flow Duration': [100, 200, 300]
+        df = pd.DataFrame({'Destination Port': [80, 443]})
+
+        with pytest.raises(ValueError, match=f"Required column '{LABEL_COLUMN}' missing"):
+            preprocess_dataset(df)
+
+    def test_handle_infinite_values(self):
+        """Test handling of infinite values."""
+        df = pd.DataFrame({
+            'Destination Port': [80, 443],
+            'Flow Duration': [100, np.inf],  # Infinite value
+            'Label': ['BENIGN', 'DoS']
         })
-        
-        with pytest.raises(ValueError) as excinfo:
-            preprocess_dataset(df_no_label)
-        
-        assert f"Required column '{LABEL_COLUMN}'" in str(excinfo.value)
+
+        with patch('rl_ids.features.extract.logger'):
+            result = preprocess_dataset(df)
+
+            # Verify infinite value was handled (row dropped)
+            assert len(result) == 1
+            assert result['Destination Port'].iloc[0] == 80
+
+    def test_handle_nan_values(self):
+        """Test handling of NaN values."""
+        df = pd.DataFrame({
+            'Destination Port': [80, 443],
+            'Flow Duration': [100, np.nan],  # NaN value
+            'Label': ['BENIGN', 'DoS']
+        })
+
+        with patch('rl_ids.features.extract.logger'):
+            result = preprocess_dataset(df)
+
+            # Verify NaN value was handled (row dropped)
+            assert len(result) == 1
+            assert result['Destination Port'].iloc[0] == 80
 
 
 class TestSaveParquet:
     """Tests for the save_parquet function."""
 
-    def test_successful_save(self, sample_data, tmp_path, mock_logger):
-        """Test successful saving to Parquet."""
-        out_path = tmp_path / "test_output" / "data.parquet"
-        
-        save_parquet(sample_data, out_path)
-        
-        assert out_path.exists()
-        mock_logger.success.assert_called_once()
-        
-        # Verify the saved data can be loaded back
-        loaded_df = pd.read_parquet(out_path)
-        assert_frame_equal(loaded_df, sample_data)
+    def test_successful_save(self, sample_df, temp_parquet_path):
+        """Test successful saving of DataFrame to Parquet."""
+        with patch('rl_ids.features.extract.logger') as mock_logger:
+            save_parquet(sample_df, temp_parquet_path)
 
-    def test_empty_dataframe(self, tmp_path):
+            # Verify file was created
+            assert temp_parquet_path.exists()
+
+            # Verify data integrity
+            saved_df = pd.read_parquet(temp_parquet_path)
+            assert_frame_equal(sample_df, saved_df)
+
+            # Verify logger was called
+            mock_logger.success.assert_any_call(f"Successfully saved data to {temp_parquet_path}")
+
+    def test_empty_dataframe(self, temp_parquet_path):
         """Test handling of empty DataFrame."""
-        empty_df = pd.DataFrame()
-        out_path = tmp_path / "empty.parquet"
-        
-        with pytest.raises(ValueError) as excinfo:
-            save_parquet(empty_df, out_path)
-        
-        assert "Cannot save empty DataFrame" in str(excinfo.value)
-        assert not out_path.exists()
+        with pytest.raises(ValueError, match="Cannot save empty DataFrame"):
+            save_parquet(pd.DataFrame(), temp_parquet_path)
 
-    def test_directory_creation_error(self, sample_data):
-        """Test handling of directory creation errors."""
-        # Create a path where directory creation will fail
-        with tempfile.NamedTemporaryFile() as tmp_file:
-            invalid_dir_path = Path(tmp_file.name) / "impossible_subdir" / "data.parquet"
-            
-            with pytest.raises(OSError):
-                save_parquet(sample_data, invalid_dir_path)
+    def test_create_parent_directories(self, sample_df):
+        """Test parent directories are created if they don't exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            complex_path = Path(tmpdir) / "nested" / "directories" / "file.parquet"
+
+            with patch('rl_ids.features.extract.logger'):
+                save_parquet(sample_df, complex_path)
+
+                # Verify file was created with parent directories
+                assert complex_path.exists()
 
 
-@patch('rl_ids.features.extract.load_dataset')
-@patch('rl_ids.features.extract.preprocess_dataset')
-@patch('rl_ids.features.extract.save_parquet')
-def test_main_integration(mock_save, mock_preprocess, mock_load, sample_data, mock_logger):
-    """Integration test for the main function."""
-    from rl_ids.features.extract import main
-    
-    # Configure mocks
-    mock_load.return_value = sample_data
-    mock_preprocess.return_value = sample_data
-    mock_save.return_value = None
-    
-    # Call with test paths
-    test_input = Path("test_input.csv")
-    test_output = Path("test_output.parquet")
-    
-    # Run main function
-    main(input_path=test_input, output_path=test_output)
-    
-    # Verify function calls
-    mock_load.assert_called_once_with(test_input, None)
-    mock_preprocess.assert_called_once_with(sample_data)
-    mock_save.assert_called_once_with(sample_data, test_output)
-    mock_logger.success.assert_called_with("Preprocessing completed successfully")
+class TestMain:
+    """Tests for the main function."""
+
+    def test_successful_execution(self, sample_df, temp_csv_path, temp_parquet_path):
+        """Test successful end-to-end execution of main function."""
+        # Set up sample data
+        sample_df.to_csv(temp_csv_path, index=False)
+
+        # Mock dependent functions to isolate test
+        with patch('rl_ids.features.extract.load_dataset', return_value=sample_df) as mock_load, \
+                patch('rl_ids.features.extract.preprocess_dataset', return_value=sample_df) as mock_preprocess, \
+                patch('rl_ids.features.extract.save_parquet') as mock_save, \
+                patch('rl_ids.features.extract.logger'):
+
+            # Execute main function
+            main(input_path=temp_csv_path, output_path=temp_parquet_path)
+
+            # Verify function calls
+            mock_load.assert_called_once_with(temp_csv_path, None)
+            mock_preprocess.assert_called_once_with(sample_df)
+            mock_save.assert_called_once_with(sample_df, temp_parquet_path)
+
+    def test_error_handling(self, temp_csv_path, temp_parquet_path):
+        """Test error handling in main function."""
+        # Set up mocks to simulate error
+        with patch('rl_ids.features.extract.load_dataset', side_effect=ValueError("Test error")), \
+                patch('rl_ids.features.extract.logger') as mock_logger:
+
+            # Execute with error expectation
+            with pytest.raises(ValueError, match="Test error"):
+                main(input_path=temp_csv_path, output_path=temp_parquet_path)
+
+            # Verify logger recorded error
+            mock_logger.error.assert_called_with("Preprocessing failed: Test error")
 
 
-@pytest.mark.skip(reason="Integration test that requires actual files")
-def test_actual_csv_processing():
-    """
-    Real integration test with actual CSV files.
-    
-    This test is skipped by default as it requires actual data files.
-    Remove the skip decorator to run this test with real data.
-    """
-    from rl_ids.features.extract import main
-    
-    # Paths to actual test files (adjust as needed)
-    test_input = Path("tests/test_data/sample_cicids.csv")
-    test_output = Path("tests/test_data/output.parquet")
-    
-    # Run the main function
-    main(input_path=test_input, output_path=test_output)
-    
-    # Verify output file exists and has expected properties
-    assert test_output.exists()
-    df = pd.read_parquet(test_output)
-    assert not df.empty
-    assert LABEL_COLUMN in df.columns
-    assert set(df[LABEL_COLUMN].unique()).issubset({0, 1})
+@pytest.mark.parametrize("label,expected", [
+    ("BENIGN", 0),
+    ("DoS", 1),
+    ("PortScan", 1),
+    ("FTP-Patator", 1),
+    ("SSH-Patator", 1),
+    ("benign", 1),  # Case matters
+    ("", 1),        # Empty string isn't "BENIGN"
+])
+def test_label_conversion(label, expected):
+    """Test label conversion logic for different attack types."""
+    df = pd.DataFrame({'Label': [label]})
+
+    with patch('rl_ids.features.extract.logger'):
+        result = preprocess_dataset(df)
+        assert result['Label'].iloc[0] == expected

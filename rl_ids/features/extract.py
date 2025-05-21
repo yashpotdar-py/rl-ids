@@ -186,7 +186,7 @@ def main(
 ):
     """
     Preprocess CICIDS2017 network traffic data for machine learning.
-    
+
     Loads raw CSV data, normalizes labels to binary format (0 for benign, 1 for attacks),
     handles invalid values, and saves the cleaned dataset in Parquet format.
     """
@@ -194,23 +194,23 @@ def main(
         # Load dataset
         logger.info("Loading and preprocessing dataset...")
         df = load_dataset(input_path, columns)
-        
+
         # Process with progress tracking
         with tqdm(total=3, desc="Preprocessing") as progress:
             # Preprocess dataset
             progress.set_description("Normalizing data")
             df = preprocess_dataset(df)
             progress.update(1)
-            
+
             # Save to Parquet
             progress.set_description("Saving to Parquet")
             save_parquet(df, output_path)
             progress.update(1)
-            
+
             # Final step
             progress.set_description("Finalizing")
             progress.update(1)
-        
+
         logger.success("Preprocessing completed successfully")
 
     except Exception as e:
