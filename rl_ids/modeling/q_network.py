@@ -1,10 +1,10 @@
 """
 Neural network architecture for Q-value approximation in reinforcement learning.
 
-This module defines network architectures used by DQN agents for approximating 
+This module defines network architectures used by DQN agents for approximating
 state-action values in the intrusion detection environment.
 """
-from typing import List, Optional, Dict, Any, Union, Tuple
+from typing import List, Union
 
 import torch
 import torch.nn as nn
