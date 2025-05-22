@@ -4,6 +4,7 @@ Policy Gradient (PG) agent for reinforcement learning-based intrusion detection.
 This module implements the REINFORCE algorithm with baseline for policy-based
 learning in the intrusion detection environment.
 """
+
 import os
 import time
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -85,8 +86,10 @@ class PolicyNetwork(nn.Module):
         # Apply custom weight initialization
         self._initialize_weights()
 
-        logger.debug(f"Created PolicyNetwork with input_dim={input_dim}, "
-                     f"hidden_dims={hidden_dims}, output_dim={output_dim}")
+        logger.debug(
+            f"Created PolicyNetwork with input_dim={input_dim}, "
+            f"hidden_dims={hidden_dims}, output_dim={output_dim}"
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -105,7 +108,7 @@ class PolicyNetwork(nn.Module):
         for module in self.modules():
             if isinstance(module, nn.Linear):
                 # He initialization for ReLU networks
-                nn.init.kaiming_uniform_(module.weight, nonlinearity='relu')
+                nn.init.kaiming_uniform_(module.weight, nonlinearity="relu")
                 if module.bias is not None:
                     nn.init.zeros_(module.bias)
 
@@ -185,7 +188,7 @@ class ValueNetwork(nn.Module):
         """Initialize weights for faster training convergence."""
         for module in self.modules():
             if isinstance(module, nn.Linear):
-                nn.init.kaiming_uniform_(module.weight, nonlinearity='relu')
+                nn.init.kaiming_uniform_(module.weight, nonlinearity="relu")
                 if module.bias is not None:
                     nn.init.zeros_(module.bias)
 
@@ -216,7 +219,7 @@ class PGAgent:
         max_grad_norm: float = 0.5,
         device: str = "cuda",
         checkpoint_dir: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the Policy Gradient agent.
@@ -247,13 +250,11 @@ class PGAgent:
             input_dim=state_dim,
             hidden_dims=hidden_dims,
             output_dim=action_dim,
-            dropout_rate=0.1  # Small dropout for regularization
+            dropout_rate=0.1,  # Small dropout for regularization
         ).to(self.device)
 
         self.value_net = ValueNetwork(
-            input_dim=state_dim,
-            hidden_dims=hidden_dims,
-            dropout_rate=0.1
+            input_dim=state_dim, hidden_dims=hidden_dims, dropout_rate=0.1
         ).to(self.device)
 
         # Optimizers
@@ -293,9 +294,7 @@ class PGAgent:
         )
 
     def select_action(
-        self,
-        state: np.ndarray,
-        deterministic: bool = False
+        self, state: np.ndarray, deterministic: bool = False
     ) -> Union[int, Tuple[int, torch.Tensor]]:
         """
         Select action based on current policy.
@@ -341,7 +340,7 @@ class PGAgent:
         reward: float,
         next_state: np.ndarray,
         done: bool,
-        log_prob: torch.Tensor
+        log_prob: torch.Tensor,
     ) -> None:
         """
         Store transition in episode memory.
@@ -377,12 +376,7 @@ class PGAgent:
         # Skip update if no experience
         if not self.rewards:
             logger.warning("No experience to update from")
-            return {
-                "policy_loss": 0.0,
-                "value_loss": 0.0,
-                "entropy": 0.0,
-                "total_loss": 0.0
-            }
+            return {"policy_loss": 0.0, "value_loss": 0.0, "entropy": 0.0, "total_loss": 0.0}
 
         start_time = time.time()
 
@@ -456,7 +450,7 @@ class PGAgent:
             "policy_loss": policy_loss_val,
             "value_loss": value_loss_val,
             "entropy": entropy_val,
-            "total_loss": total_loss_val
+            "total_loss": total_loss_val,
         }
 
     def _compute_returns(self, rewards: List[float], dones: List[bool]) -> List[float]:
@@ -490,10 +484,7 @@ class PGAgent:
         self.dones = []
 
     def save_checkpoint(
-        self,
-        episode: int,
-        rewards: List[float],
-        path: Optional[str] = None
+        self, episode: int, rewards: List[float], path: Optional[str] = None
     ) -> str:
         """
         Save checkpoint of agent state.
@@ -512,21 +503,21 @@ class PGAgent:
             path = os.path.join(self.checkpoint_dir, f"pg_checkpoint_ep{episode}.pt")
 
         checkpoint = {
-            'episode': episode,
-            'policy_net_state_dict': self.policy_net.state_dict(),
-            'value_net_state_dict': self.value_net.state_dict(),
-            'policy_optimizer_state_dict': self.policy_optimizer.state_dict(),
-            'value_optimizer_state_dict': self.value_optimizer.state_dict(),
-            'policy_losses': self.policy_losses,
-            'value_losses': self.value_losses,
-            'entropies': self.entropies,
-            'update_counter': self.update_counter,
-            'recent_rewards': rewards,
-            'hyperparams': {
-                'gamma': self.gamma,
-                'entropy_coef': self.entropy_coef,
-                'value_coef': self.value_coef
-            }
+            "episode": episode,
+            "policy_net_state_dict": self.policy_net.state_dict(),
+            "value_net_state_dict": self.value_net.state_dict(),
+            "policy_optimizer_state_dict": self.policy_optimizer.state_dict(),
+            "value_optimizer_state_dict": self.value_optimizer.state_dict(),
+            "policy_losses": self.policy_losses,
+            "value_losses": self.value_losses,
+            "entropies": self.entropies,
+            "update_counter": self.update_counter,
+            "recent_rewards": rewards,
+            "hyperparams": {
+                "gamma": self.gamma,
+                "entropy_coef": self.entropy_coef,
+                "value_coef": self.value_coef,
+            },
         }
 
         torch.save(checkpoint, path)
@@ -546,24 +537,21 @@ class PGAgent:
         checkpoint = torch.load(path, map_location=self.device)
 
         # Restore network weights
-        self.policy_net.load_state_dict(checkpoint['policy_net_state_dict'])
-        self.value_net.load_state_dict(checkpoint['value_net_state_dict'])
+        self.policy_net.load_state_dict(checkpoint["policy_net_state_dict"])
+        self.value_net.load_state_dict(checkpoint["value_net_state_dict"])
 
         # Restore optimizer states
-        self.policy_optimizer.load_state_dict(checkpoint['policy_optimizer_state_dict'])
-        self.value_optimizer.load_state_dict(checkpoint['value_optimizer_state_dict'])
+        self.policy_optimizer.load_state_dict(checkpoint["policy_optimizer_state_dict"])
+        self.value_optimizer.load_state_dict(checkpoint["value_optimizer_state_dict"])
 
         # Restore counters
-        self.update_counter = checkpoint['update_counter']
-        self.policy_losses = checkpoint.get('policy_losses', [])
-        self.value_losses = checkpoint.get('value_losses', [])
-        self.entropies = checkpoint.get('entropies', [])
+        self.update_counter = checkpoint["update_counter"]
+        self.policy_losses = checkpoint.get("policy_losses", [])
+        self.value_losses = checkpoint.get("value_losses", [])
+        self.entropies = checkpoint.get("entropies", [])
 
         logger.info(f"Loaded checkpoint from {path} (episode {checkpoint['episode']})")
-        return {
-            'episode': checkpoint['episode'],
-            'rewards': checkpoint.get('recent_rewards', [])
-        }
+        return {"episode": checkpoint["episode"], "rewards": checkpoint.get("recent_rewards", [])}
 
     def get_stats(self) -> Dict[str, Any]:
         """
@@ -573,9 +561,9 @@ class PGAgent:
             Dictionary containing training statistics
         """
         return {
-            'updates': self.update_counter,
-            'avg_policy_loss': np.mean(self.policy_losses[-100:]) if self.policy_losses else 0,
-            'avg_value_loss': np.mean(self.value_losses[-100:]) if self.value_losses else 0,
-            'avg_entropy': np.mean(self.entropies[-100:]) if self.entropies else 0,
-            'training_time': self.training_time
+            "updates": self.update_counter,
+            "avg_policy_loss": np.mean(self.policy_losses[-100:]) if self.policy_losses else 0,
+            "avg_value_loss": np.mean(self.value_losses[-100:]) if self.value_losses else 0,
+            "avg_entropy": np.mean(self.entropies[-100:]) if self.entropies else 0,
+            "training_time": self.training_time,
         }

@@ -4,6 +4,7 @@ Deep Q-Network (DQN) agent for reinforcement learning-based intrusion detection.
 This module implements the DQN algorithm with experience replay, target networks,
 and other improvements for stable training.
 """
+
 from collections import deque, namedtuple
 import os
 import random
@@ -19,7 +20,7 @@ import torch.optim as optim
 from rl_ids.modeling.q_network import QNetwork
 
 # Define experience tuple type
-Experience = namedtuple('Experience', ['state', 'action', 'reward', 'next_state', 'done'])
+Experience = namedtuple("Experience", ["state", "action", "reward", "next_state", "done"])
 
 
 class DQNAgent:
@@ -53,7 +54,7 @@ class DQNAgent:
         gradient_clip: float = 1.0,
         device: str = "cuda",
         checkpoint_dir: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the DQN agent.
@@ -88,14 +89,14 @@ class DQNAgent:
             input_dim=state_dim,
             hidden_dims=hidden_dims,
             output_dim=action_dim,
-            dropout_rate=dropout_rate
+            dropout_rate=dropout_rate,
         )
 
         self.target_net = QNetwork(
             input_dim=state_dim,
             hidden_dims=hidden_dims,
             output_dim=action_dim,
-            dropout_rate=dropout_rate
+            dropout_rate=dropout_rate,
         )
 
         # Make sure both networks are in the same mode
@@ -121,9 +122,7 @@ class DQNAgent:
         # Optimizer
         self.optimizer = optim.Adam(self.q_net.parameters(), lr=lr)
         self.scheduler = optim.lr_scheduler.StepLR(
-            self.optimizer,
-            step_size=lr_decay_steps,
-            gamma=lr_decay_rate
+            self.optimizer, step_size=lr_decay_steps, gamma=lr_decay_rate
         )
 
         # Experience replay
@@ -175,12 +174,7 @@ class DQNAgent:
         return action
 
     def store_transition(
-        self,
-        state: np.ndarray,
-        action: int,
-        reward: float,
-        next_state: np.ndarray,
-        done: bool
+        self, state: np.ndarray, action: int, reward: float, next_state: np.ndarray, done: bool
     ) -> None:
         """
         Store transition in replay buffer.
@@ -217,8 +211,12 @@ class DQNAgent:
         # Convert to tensors
         states = torch.tensor(np.array(experiences.state), dtype=torch.float32).to(self.device)
         actions = torch.tensor(experiences.action, dtype=torch.long).to(self.device).unsqueeze(1)
-        rewards = torch.tensor(experiences.reward, dtype=torch.float32).to(self.device).unsqueeze(1)
-        next_states = torch.tensor(np.array(experiences.next_state), dtype=torch.float32).to(self.device)
+        rewards = (
+            torch.tensor(experiences.reward, dtype=torch.float32).to(self.device).unsqueeze(1)
+        )
+        next_states = torch.tensor(np.array(experiences.next_state), dtype=torch.float32).to(
+            self.device
+        )
         dones = torch.tensor(experiences.done, dtype=torch.float32).to(self.device).unsqueeze(1)
 
         # Current Q values
@@ -263,7 +261,9 @@ class DQNAgent:
 
         return loss_value
 
-    def save_checkpoint(self, episode: int, epsilon: float, rewards: List[float], path: Optional[str] = None) -> str:
+    def save_checkpoint(
+        self, episode: int, epsilon: float, rewards: List[float], path: Optional[str] = None
+    ) -> str:
         """
         Save checkpoint of agent state.
 
@@ -282,23 +282,23 @@ class DQNAgent:
             path = os.path.join(self.checkpoint_dir, f"dqn_checkpoint_ep{episode}.pt")
 
         checkpoint = {
-            'episode': episode,
-            'q_net_state_dict': self.q_net.state_dict(),
-            'target_net_state_dict': self.target_net.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
-            'scheduler_state_dict': self.scheduler.state_dict(),
-            'buffer': list(self.buffer)[-10000:],  # Save last 10K experiences
-            'losses': self.losses,
-            'epsilon': epsilon,
-            'update_counter': self.update_counter,
-            'recent_rewards': rewards,
-            'hyperparams': {
-                'gamma': self.gamma,
-                'batch_size': self.batch_size,
-                'lr': self.lr,
-                'target_update_freq': self.target_update_freq,
-                'double_dqn': self.double_dqn
-            }
+            "episode": episode,
+            "q_net_state_dict": self.q_net.state_dict(),
+            "target_net_state_dict": self.target_net.state_dict(),
+            "optimizer_state_dict": self.optimizer.state_dict(),
+            "scheduler_state_dict": self.scheduler.state_dict(),
+            "buffer": list(self.buffer)[-10000:],  # Save last 10K experiences
+            "losses": self.losses,
+            "epsilon": epsilon,
+            "update_counter": self.update_counter,
+            "recent_rewards": rewards,
+            "hyperparams": {
+                "gamma": self.gamma,
+                "batch_size": self.batch_size,
+                "lr": self.lr,
+                "target_update_freq": self.target_update_freq,
+                "double_dqn": self.double_dqn,
+            },
         }
 
         torch.save(checkpoint, path)
@@ -318,27 +318,27 @@ class DQNAgent:
         checkpoint = torch.load(path, map_location=self.device)
 
         # Restore network weights
-        self.q_net.load_state_dict(checkpoint['q_net_state_dict'])
-        self.target_net.load_state_dict(checkpoint['target_net_state_dict'])
+        self.q_net.load_state_dict(checkpoint["q_net_state_dict"])
+        self.target_net.load_state_dict(checkpoint["target_net_state_dict"])
 
         # Restore optimizer and scheduler
-        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        self.scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
 
         # Restore buffer if needed (optional)
-        buffer_samples = checkpoint.get('buffer', [])
+        buffer_samples = checkpoint.get("buffer", [])
         if buffer_samples:
             self.buffer = deque(buffer_samples, maxlen=self.buffer.maxlen)
 
         # Restore counters
-        self.update_counter = checkpoint['update_counter']
-        self.losses = checkpoint.get('losses', [])
+        self.update_counter = checkpoint["update_counter"]
+        self.losses = checkpoint.get("losses", [])
 
         logger.info(f"Loaded checkpoint from {path} (episode {checkpoint['episode']})")
         return {
-            'episode': checkpoint['episode'],
-            'epsilon': checkpoint.get('epsilon', 0.0),
-            'rewards': checkpoint.get('recent_rewards', [])
+            "episode": checkpoint["episode"],
+            "epsilon": checkpoint.get("epsilon", 0.0),
+            "rewards": checkpoint.get("recent_rewards", []),
         }
 
     def get_stats(self) -> Dict[str, Any]:
@@ -349,9 +349,9 @@ class DQNAgent:
             Dictionary containing training statistics
         """
         return {
-            'updates': self.update_counter,
-            'avg_loss': np.mean(self.losses[-100:]) if self.losses else 0,
-            'buffer_size': len(self.buffer),
-            'training_time': self.training_time,
-            'learning_rate': self.scheduler.get_last_lr()[0]
+            "updates": self.update_counter,
+            "avg_loss": np.mean(self.losses[-100:]) if self.losses else 0,
+            "buffer_size": len(self.buffer),
+            "training_time": self.training_time,
+            "learning_rate": self.scheduler.get_last_lr()[0],
         }

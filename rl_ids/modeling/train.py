@@ -4,6 +4,7 @@ Training script for reinforcement learning-based intrusion detection models.
 This module provides training procedures for DQN and Policy Gradient agents
 on the network intrusion detection environment with Prometheus monitoring.
 """
+
 import argparse
 import json
 import os
@@ -23,14 +24,14 @@ from rl_ids.modeling.dqn_agent import DQNAgent
 from rl_ids.modeling.pg_agent import PGAgent
 
 # Prometheus metrics
-EPISODE_REWARD = Summary('episode_reward', 'Total reward per episode')
-EPISODE_DURATION = Summary('episode_duration', 'Duration of episode in seconds')
-TRAINING_LOSS = Summary('training_loss', 'Training loss per optimization step')
-DETECTIONS = Counter('detections_total', 'Number of correct detections')
-FALSE_ALARMS = Counter('false_alarms_total', 'Number of false alarms')
-EPSILON = Gauge('exploration_epsilon', 'Current epsilon value for exploration')
-MEMORY_USAGE = Gauge('memory_usage_mb', 'Current GPU memory usage in MB')
-LEARNING_RATE = Gauge('learning_rate', 'Current learning rate')
+EPISODE_REWARD = Summary("episode_reward", "Total reward per episode")
+EPISODE_DURATION = Summary("episode_duration", "Duration of episode in seconds")
+TRAINING_LOSS = Summary("training_loss", "Training loss per optimization step")
+DETECTIONS = Counter("detections_total", "Number of correct detections")
+FALSE_ALARMS = Counter("false_alarms_total", "Number of false alarms")
+EPSILON = Gauge("exploration_epsilon", "Current epsilon value for exploration")
+MEMORY_USAGE = Gauge("memory_usage_mb", "Current GPU memory usage in MB")
+LEARNING_RATE = Gauge("learning_rate", "Current learning rate")
 
 
 def setup_logger(log_file: Optional[str] = None):
@@ -46,7 +47,7 @@ def setup_logger(log_file: Optional[str] = None):
     logger.add(
         sys.stdout,
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>",
-        level="INFO"
+        level="INFO",
     )
 
     # Add file handler if specified
@@ -55,9 +56,7 @@ def setup_logger(log_file: Optional[str] = None):
         if log_dir:
             os.makedirs(log_dir, exist_ok=True)
         logger.add(
-            log_file,
-            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}",
-            level="DEBUG"
+            log_file, format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}", level="DEBUG"
         )
 
 
@@ -80,10 +79,7 @@ def update_memory_metrics():
 
 
 def evaluate_agent(
-    env: IntrusionEnv,
-    agent: DQNAgent,
-    num_episodes: int = 5,
-    render: bool = False
+    env: IntrusionEnv, agent: DQNAgent, num_episodes: int = 5, render: bool = False
 ) -> Dict[str, float]:
     """
     Evaluate agent performance on the environment.
@@ -170,7 +166,7 @@ def train_dqn(
         "episode_lengths": [],
         "losses": [],
         "eval_metrics": [],
-        "epsilon": []
+        "epsilon": [],
     }
 
     # Set up checkpoint directory
@@ -252,10 +248,7 @@ def train_dqn(
         # Evaluate periodically
         if (episode + 1) % eval_interval == 0:
             eval_metrics = evaluate_agent(env, agent)
-            history["eval_metrics"].append({
-                "episode": episode + 1,
-                **eval_metrics
-            })
+            history["eval_metrics"].append({"episode": episode + 1, **eval_metrics})
 
             logger.info(
                 f"Episode {episode + 1}/{episodes} | "
@@ -270,10 +263,7 @@ def train_dqn(
         if checkpoint_dir and (episode + 1) % checkpoint_interval == 0:
             checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_ep{episode + 1}.tar")
             agent.save_checkpoint(
-                episode=episode + 1,
-                epsilon=eps,
-                rewards=episode_rewards,
-                path=checkpoint_path
+                episode=episode + 1, epsilon=eps, rewards=episode_rewards, path=checkpoint_path
             )
 
             # Save training history
@@ -286,10 +276,7 @@ def train_dqn(
     if checkpoint_dir:
         final_path = os.path.join(checkpoint_dir, "final_model.tar")
         agent.save_checkpoint(
-            episode=episodes,
-            epsilon=eps,
-            rewards=episode_rewards,
-            path=final_path
+            episode=episodes, epsilon=eps, rewards=episode_rewards, path=final_path
         )
 
     logger.info(f"Training completed in {time.time() - start_time:.2f} seconds")
@@ -330,7 +317,7 @@ def train_pg(
         "policy_losses": [],
         "value_losses": [],
         "entropies": [],
-        "eval_metrics": []
+        "eval_metrics": [],
     }
 
     # Set up checkpoint directory
@@ -391,7 +378,9 @@ def train_pg(
         history["entropies"].append(update_stats["entropy"])
 
         # Update progress bar
-        progress_bar.set_postfix(reward=f"{episode_reward:.1f}", loss=f"{update_stats['total_loss']:.3f}")
+        progress_bar.set_postfix(
+            reward=f"{episode_reward:.1f}", loss=f"{update_stats['total_loss']:.3f}"
+        )
 
         # Track rewards for recent episodes
         episode_rewards.append(episode_reward)
@@ -401,10 +390,7 @@ def train_pg(
         # Evaluate periodically
         if (episode + 1) % eval_interval == 0:
             eval_metrics = evaluate_agent(env, agent, num_episodes=5)
-            history["eval_metrics"].append({
-                "episode": episode + 1,
-                **eval_metrics
-            })
+            history["eval_metrics"].append({"episode": episode + 1, **eval_metrics})
 
             logger.info(
                 f"Episode {episode + 1}/{episodes} | "
@@ -419,9 +405,7 @@ def train_pg(
         if checkpoint_dir and (episode + 1) % checkpoint_interval == 0:
             checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_ep{episode + 1}.tar")
             agent.save_checkpoint(
-                episode=episode + 1,
-                rewards=episode_rewards,
-                path=checkpoint_path
+                episode=episode + 1, rewards=episode_rewards, path=checkpoint_path
             )
 
             # Save training history
@@ -433,11 +417,7 @@ def train_pg(
     # Final checkpoint
     if checkpoint_dir:
         final_path = os.path.join(checkpoint_dir, "final_model.tar")
-        agent.save_checkpoint(
-            episode=episodes,
-            rewards=episode_rewards,
-            path=final_path
-        )
+        agent.save_checkpoint(episode=episodes, rewards=episode_rewards, path=final_path)
 
     logger.info(f"Training completed in {time.time() - start_time:.2f} seconds")
     return history
@@ -452,18 +432,16 @@ def parse_arguments():
         "--data_path",
         type=str,
         default=str(PROCESSED_DATA_DIR / "cleaned.parquet"),
-        help="Path to processed data file"
+        help="Path to processed data file",
     )
     parser.add_argument(
         "--sample_limit",
         type=int,
         default=None,
-        help="Limit number of samples (for faster testing)"
+        help="Limit number of samples (for faster testing)",
     )
     parser.add_argument(
-        "--random_sampling",
-        action="store_true",
-        help="Randomly sample from dataset"
+        "--random_sampling", action="store_true", help="Randomly sample from dataset"
     )
 
     # Training parameters
@@ -472,119 +450,50 @@ def parse_arguments():
         type=str,
         choices=["dqn", "pg"],
         default="dqn",
-        help="RL method to use (dqn or pg)"
+        help="RL method to use (dqn or pg)",
     )
-    parser.add_argument(
-        "--episodes",
-        type=int,
-        default=200,
-        help="Number of training episodes"
-    )
-    parser.add_argument(
-        "--hidden_dim",
-        type=int,
-        default=128,
-        help="Hidden dimension size"
-    )
-    parser.add_argument(
-        "--gamma",
-        type=float,
-        default=0.99,
-        help="Discount factor"
-    )
-    parser.add_argument(
-        "--lr",
-        type=float,
-        default=1e-4,
-        help="Learning rate"
-    )
+    parser.add_argument("--episodes", type=int, default=200, help="Number of training episodes")
+    parser.add_argument("--hidden_dim", type=int, default=128, help="Hidden dimension size")
+    parser.add_argument("--gamma", type=float, default=0.99, help="Discount factor")
+    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
 
     # DQN specific parameters
+    parser.add_argument("--buffer_size", type=int, default=100000, help="Replay buffer size")
+    parser.add_argument("--batch_size", type=int, default=64, help="Batch size")
     parser.add_argument(
-        "--buffer_size",
-        type=int,
-        default=100000,
-        help="Replay buffer size"
+        "--eps_start", type=float, default=1.0, help="Starting epsilon for exploration"
     )
     parser.add_argument(
-        "--batch_size",
-        type=int,
-        default=64,
-        help="Batch size"
+        "--eps_end", type=float, default=0.01, help="Ending epsilon for exploration"
     )
-    parser.add_argument(
-        "--eps_start",
-        type=float,
-        default=1.0,
-        help="Starting epsilon for exploration"
-    )
-    parser.add_argument(
-        "--eps_end",
-        type=float,
-        default=0.01,
-        help="Ending epsilon for exploration"
-    )
-    parser.add_argument(
-        "--eps_decay",
-        type=float,
-        default=0.995,
-        help="Epsilon decay rate"
-    )
-    parser.add_argument(
-        "--double_dqn",
-        action="store_true",
-        help="Use double DQN algorithm"
-    )
+    parser.add_argument("--eps_decay", type=float, default=0.995, help="Epsilon decay rate")
+    parser.add_argument("--double_dqn", action="store_true", help="Use double DQN algorithm")
 
     # Experiment parameters
     parser.add_argument(
         "--experiment_name",
         type=str,
         default=None,
-        help="Name of the experiment (default: auto-generated)"
+        help="Name of the experiment (default: auto-generated)",
+    )
+    parser.add_argument("--log_dir", type=str, default="logs", help="Directory for logs")
+    parser.add_argument(
+        "--checkpoint_dir", type=str, default=str(MODELS_DIR), help="Directory to save checkpoints"
     )
     parser.add_argument(
-        "--log_dir",
-        type=str,
-        default="logs",
-        help="Directory for logs"
+        "--eval_interval", type=int, default=10, help="Episode interval between evaluations"
     )
-    parser.add_argument(
-        "--checkpoint_dir",
-        type=str,
-        default=str(MODELS_DIR),
-        help="Directory to save checkpoints"
-    )
-    parser.add_argument(
-        "--eval_interval",
-        type=int,
-        default=10,
-        help="Episode interval between evaluations"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility"
-    )
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
     parser.add_argument(
         "--device",
         type=str,
         default="cuda" if torch.cuda.is_available() else "cpu",
-        help="Device to run on (cuda or cpu)"
+        help="Device to run on (cuda or cpu)",
     )
     parser.add_argument(
-        "--prometheus_port",
-        type=int,
-        default=8000,
-        help="Port for Prometheus metrics server"
+        "--prometheus_port", type=int, default=8000, help="Port for Prometheus metrics server"
     )
-    parser.add_argument(
-        "--max_steps",
-        type=int,
-        default=1000,
-        help="Maximum steps per episode"
-    )
+    parser.add_argument("--max_steps", type=int, default=1000, help="Maximum steps per episode")
 
     return parser.parse_args()
 
@@ -635,7 +544,7 @@ def main():
     env = IntrusionEnv(
         data_path=args.data_path,
         sample_limit=args.sample_limit,
-        random_sampling=args.random_sampling
+        random_sampling=args.random_sampling,
     )
 
     # Initialize agent
@@ -655,7 +564,7 @@ def main():
             batch_size=args.batch_size,
             double_dqn=args.double_dqn,
             device=args.device,
-            checkpoint_dir=checkpoint_dir
+            checkpoint_dir=checkpoint_dir,
         )
 
         # Set learning rate gauge
@@ -674,7 +583,7 @@ def main():
             checkpoint_interval=20,
             checkpoint_dir=checkpoint_dir,
             experiment_name=args.experiment_name,
-            max_steps=args.max_steps  # Pass this parameter
+            max_steps=args.max_steps,  # Pass this parameter
         )
 
     elif args.method == "pg":
@@ -686,7 +595,7 @@ def main():
             lr_value=args.lr * 3,  # Value function often benefits from higher learning rate
             gamma=args.gamma,
             device=args.device,
-            checkpoint_dir=checkpoint_dir
+            checkpoint_dir=checkpoint_dir,
         )
 
         # Train agent
@@ -697,7 +606,7 @@ def main():
             eval_interval=args.eval_interval,
             checkpoint_interval=20,
             checkpoint_dir=checkpoint_dir,
-            experiment_name=args.experiment_name
+            experiment_name=args.experiment_name,
         )
 
         print(history)

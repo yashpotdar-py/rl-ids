@@ -18,20 +18,54 @@ from rl_ids.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
 
 # Default columns to keep in preprocessing
 DEFAULT_COLUMNS = [
-    'Destination Port', 'Flow Duration', 'Total Fwd Packets', 'Total Backward Packets',
-    'Total Length of Fwd Packets', 'Total Length of Bwd Packets',
-    'Fwd Packet Length Max', 'Fwd Packet Length Min', 'Fwd Packet Length Mean',
-    'Fwd Packet Length Std', 'Bwd Packet Length Max', 'Bwd Packet Length Min',
-    'Bwd Packet Length Mean', 'Bwd Packet Length Std', 'Flow Bytes/s', 'Flow Packets/s',
-    'Fwd PSH Flags', 'Bwd PSH Flags', 'Fwd URG Flags', 'Bwd URG Flags',
-    'Fwd Header Length', 'Bwd Header Length', 'Fwd Packets/s', 'Bwd Packets/s',
-    'Min Packet Length', 'Max Packet Length', 'Packet Length Mean',
-    'Packet Length Std', 'Packet Length Variance', 'FIN Flag Count', 'SYN Flag Count',
-    'RST Flag Count', 'PSH Flag Count', 'ACK Flag Count', 'URG Flag Count',
-    'Down/Up Ratio', 'Average Packet Size', 'Avg Fwd Segment Size',
-    'Avg Bwd Segment Size', 'Init_Win_bytes_forward', 'Init_Win_bytes_backward',
-    'act_data_pkt_fwd', 'min_seg_size_forward', 'Idle Mean', 'Idle Std', 'Idle Max',
-    'Idle Min', 'Label'
+    "Destination Port",
+    "Flow Duration",
+    "Total Fwd Packets",
+    "Total Backward Packets",
+    "Total Length of Fwd Packets",
+    "Total Length of Bwd Packets",
+    "Fwd Packet Length Max",
+    "Fwd Packet Length Min",
+    "Fwd Packet Length Mean",
+    "Fwd Packet Length Std",
+    "Bwd Packet Length Max",
+    "Bwd Packet Length Min",
+    "Bwd Packet Length Mean",
+    "Bwd Packet Length Std",
+    "Flow Bytes/s",
+    "Flow Packets/s",
+    "Fwd PSH Flags",
+    "Bwd PSH Flags",
+    "Fwd URG Flags",
+    "Bwd URG Flags",
+    "Fwd Header Length",
+    "Bwd Header Length",
+    "Fwd Packets/s",
+    "Bwd Packets/s",
+    "Min Packet Length",
+    "Max Packet Length",
+    "Packet Length Mean",
+    "Packet Length Std",
+    "Packet Length Variance",
+    "FIN Flag Count",
+    "SYN Flag Count",
+    "RST Flag Count",
+    "PSH Flag Count",
+    "ACK Flag Count",
+    "URG Flag Count",
+    "Down/Up Ratio",
+    "Average Packet Size",
+    "Avg Fwd Segment Size",
+    "Avg Bwd Segment Size",
+    "Init_Win_bytes_forward",
+    "Init_Win_bytes_backward",
+    "act_data_pkt_fwd",
+    "min_seg_size_forward",
+    "Idle Mean",
+    "Idle Std",
+    "Idle Max",
+    "Idle Min",
+    "Label",
 ]
 
 LABEL_COLUMN = "Label"
@@ -71,8 +105,8 @@ def load_dataset(csv_path: Path, columns: Optional[List[str]] = None) -> pd.Data
             csv_path,
             low_memory=False,  # Prevent mixed type inference warnings
             skipinitialspace=True,  # Handle potential whitespace in column names
-            encoding='utf-8',  # Specify encoding
-            on_bad_lines='warn'  # Warn on problematic lines
+            encoding="utf-8",  # Specify encoding
+            on_bad_lines="warn",  # Warn on problematic lines
         )
     except pd.errors.EmptyDataError:
         raise pd.errors.EmptyDataError(f"Input file is empty: {csv_path}")
@@ -122,7 +156,9 @@ def preprocess_dataset(df: pd.DataFrame) -> pd.DataFrame:
 
     # Count attack distribution
     attack_count = df[LABEL_COLUMN].value_counts()
-    logger.info(f"Attack distribution - Benign: {attack_count.get(0, 0)}, Attack: {attack_count.get(1, 0)}")
+    logger.info(
+        f"Attack distribution - Benign: {attack_count.get(0, 0)}, Attack: {attack_count.get(1, 0)}"
+    )
 
     # Handle infinite values
     logger.info("Replacing infinite values with NaN")
@@ -168,9 +204,7 @@ def save_parquet(df: pd.DataFrame, out_path: Path) -> None:
     try:
         logger.info(f"Saving {len(df)} rows to {out_path}")
         df.to_parquet(
-            out_path,
-            index=False,
-            compression='snappy'  # Good balance of compression/speed
+            out_path, index=False, compression="snappy"  # Good balance of compression/speed
         )
         logger.success(f"Successfully saved data to {out_path}")
     except Exception as e:

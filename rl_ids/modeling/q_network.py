@@ -4,6 +4,7 @@ Neural network architecture for Q-value approximation in reinforcement learning.
 This module defines network architectures used by DQN agents for approximating
 state-action values in the intrusion detection environment.
 """
+
 from typing import List, Union
 
 from loguru import logger
@@ -75,8 +76,10 @@ class QNetwork(nn.Module):
         # Apply custom weight initialization
         self._initialize_weights()
 
-        logger.debug(f"Created QNetwork with input_dim={input_dim}, "
-                     f"hidden_dims={hidden_dims}, output_dim={output_dim}")
+        logger.debug(
+            f"Created QNetwork with input_dim={input_dim}, "
+            f"hidden_dims={hidden_dims}, output_dim={output_dim}"
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -95,7 +98,7 @@ class QNetwork(nn.Module):
         for module in self.modules():
             if isinstance(module, nn.Linear):
                 # He initialization for ReLU networks
-                nn.init.kaiming_uniform_(module.weight, nonlinearity='relu')
+                nn.init.kaiming_uniform_(module.weight, nonlinearity="relu")
                 if module.bias is not None:
                     nn.init.zeros_(module.bias)
 
@@ -106,20 +109,23 @@ class QNetwork(nn.Module):
         Args:
             path: Path to save the model
         """
-        torch.save({
-            'state_dict': self.state_dict(),
-            'model_config': {
-                'input_dim': self.net[0].in_features,
-                'output_dim': self.net[-1].out_features,
-                'architecture': [
-                    module.out_features for module in self.net
-                    if isinstance(module, nn.Linear)][:-1]
-            }
-        }, path)
+        torch.save(
+            {
+                "state_dict": self.state_dict(),
+                "model_config": {
+                    "input_dim": self.net[0].in_features,
+                    "output_dim": self.net[-1].out_features,
+                    "architecture": [
+                        module.out_features for module in self.net if isinstance(module, nn.Linear)
+                    ][:-1],
+                },
+            },
+            path,
+        )
         logger.info(f"Saved QNetwork to {path}")
 
     @classmethod
-    def load(cls, path: str, device: torch.device) -> 'QNetwork':
+    def load(cls, path: str, device: torch.device) -> "QNetwork":
         """
         Load model from a saved checkpoint.
 
@@ -131,13 +137,13 @@ class QNetwork(nn.Module):
             Loaded model
         """
         checkpoint = torch.load(path, map_location=device)
-        config = checkpoint['model_config']
+        config = checkpoint["model_config"]
         model = cls(
-            input_dim=config['input_dim'],
-            hidden_dims=config['architecture'],
-            output_dim=config['output_dim']
+            input_dim=config["input_dim"],
+            hidden_dims=config["architecture"],
+            output_dim=config["output_dim"],
         )
-        model.load_state_dict(checkpoint['state_dict'])
+        model.load_state_dict(checkpoint["state_dict"])
         model.to(device)
         logger.info(f"Loaded QNetwork from {path}")
         return model

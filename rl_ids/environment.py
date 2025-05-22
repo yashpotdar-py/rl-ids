@@ -4,6 +4,7 @@ Gym environment for network intrusion detection using flow-based features.
 This module provides a reinforcement learning environment that simulates
 a network intrusion detection system making binary decisions on network flows.
 """
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -19,6 +20,7 @@ from sklearn.preprocessing import StandardScaler
 @dataclass
 class EnvMetrics:
     """Container for environment performance metrics."""
+
     true_positives: int = 0
     false_positives: int = 0
     true_negatives: int = 0
@@ -133,7 +135,7 @@ class IntrusionEnv(gym.Env):
             low=-np.inf,  # Use -inf/inf for normalized data
             high=np.inf,
             shape=self._X.shape[1:],
-            dtype=np.float32
+            dtype=np.float32,
         )
 
         self.action_space = spaces.Discrete(2)  # 0 = allow, 1 = block
@@ -147,10 +149,7 @@ class IntrusionEnv(gym.Env):
         self._current_trajectory: List[Tuple[np.ndarray, int, float, bool]] = []
 
     def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        options: Optional[Dict[str, Any]] = None
+        self, *, seed: Optional[int] = None, options: Optional[Dict[str, Any]] = None
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Reset the environment to start a new episode.
@@ -246,7 +245,7 @@ class IntrusionEnv(gym.Env):
                     precision=self._metrics.precision,
                     recall=self._metrics.recall,
                     f1_score=self._metrics.f1_score,
-                    total_reward=self._metrics.total_reward + reward
+                    total_reward=self._metrics.total_reward + reward,
                 )
             else:  # True negative
                 # Create new EnvMetrics with updated true_negatives
@@ -259,7 +258,7 @@ class IntrusionEnv(gym.Env):
                     precision=self._metrics.precision,
                     recall=self._metrics.recall,
                     f1_score=self._metrics.f1_score,
-                    total_reward=self._metrics.total_reward + reward
+                    total_reward=self._metrics.total_reward + reward,
                 )
         else:
             reward = self._reward_incorrect
@@ -274,7 +273,7 @@ class IntrusionEnv(gym.Env):
                     precision=self._metrics.precision,
                     recall=self._metrics.recall,
                     f1_score=self._metrics.f1_score,
-                    total_reward=self._metrics.total_reward + reward
+                    total_reward=self._metrics.total_reward + reward,
                 )
             else:  # False negative
                 # Create new EnvMetrics with updated false_negatives
@@ -287,7 +286,7 @@ class IntrusionEnv(gym.Env):
                     precision=self._metrics.precision,
                     recall=self._metrics.recall,
                     f1_score=self._metrics.f1_score,
-                    total_reward=self._metrics.total_reward + reward
+                    total_reward=self._metrics.total_reward + reward,
                 )
 
         # Update internal state
@@ -372,7 +371,7 @@ class IntrusionEnv(gym.Env):
             precision=0.0,
             recall=0.0,
             f1_score=0.0,
-            total_reward=0.0
+            total_reward=0.0,
         )
 
     def _update_metrics(self) -> None:
@@ -399,5 +398,5 @@ class IntrusionEnv(gym.Env):
             precision=precision,
             recall=recall,
             f1_score=f1,
-            total_reward=self._metrics.total_reward
+            total_reward=self._metrics.total_reward,
         )
