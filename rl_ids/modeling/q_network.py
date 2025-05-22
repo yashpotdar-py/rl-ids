@@ -6,9 +6,9 @@ state-action values in the intrusion detection environment.
 """
 from typing import List, Union
 
+from loguru import logger
 import torch
 import torch.nn as nn
-from loguru import logger
 
 
 class QNetwork(nn.Module):

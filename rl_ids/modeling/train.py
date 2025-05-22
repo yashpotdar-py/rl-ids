@@ -9,20 +9,18 @@ import json
 import os
 import sys
 import time
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-import numpy as np
-import torch
 from loguru import logger
-from tqdm import tqdm, trange
-from prometheus_client import start_http_server, Summary, Counter, Gauge
+import numpy as np
+from prometheus_client import Counter, Gauge, Summary, start_http_server
+import torch
+from tqdm import trange
 
+from rl_ids.config import MODELS_DIR, PROCESSED_DATA_DIR
 from rl_ids.environment import IntrusionEnv
 from rl_ids.modeling.dqn_agent import DQNAgent
 from rl_ids.modeling.pg_agent import PGAgent
-from rl_ids.config import PROCESSED_DATA_DIR, MODELS_DIR
 
 # Prometheus metrics
 EPISODE_REWARD = Summary('episode_reward', 'Total reward per episode')
@@ -286,7 +284,7 @@ def train_dqn(
 
     # Final checkpoint
     if checkpoint_dir:
-        final_path = os.path.join(checkpoint_dir, f"final_model.tar")
+        final_path = os.path.join(checkpoint_dir, "final_model.tar")
         agent.save_checkpoint(
             episode=episodes,
             epsilon=eps,
@@ -434,7 +432,7 @@ def train_pg(
 
     # Final checkpoint
     if checkpoint_dir:
-        final_path = os.path.join(checkpoint_dir, f"final_model.tar")
+        final_path = os.path.join(checkpoint_dir, "final_model.tar")
         agent.save_checkpoint(
             episode=episodes,
             rewards=episode_rewards,
@@ -701,6 +699,8 @@ def main():
             checkpoint_dir=checkpoint_dir,
             experiment_name=args.experiment_name
         )
+
+        print(history)
 
     else:
         raise ValueError(f"Unsupported method: {args.method}")

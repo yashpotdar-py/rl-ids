@@ -4,17 +4,16 @@ Gym environment for network intrusion detection using flow-based features.
 This module provides a reinforcement learning environment that simulates
 a network intrusion detection system making binary decisions on network flows.
 """
-import os
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Tuple, Union, Optional, Any, List
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import gymnasium as gym
-import numpy as np
-import pandas as pd
 from gymnasium import spaces
 from loguru import logger
+import numpy as np
+import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from dataclasses import dataclass
 
 
 @dataclass
@@ -155,28 +154,28 @@ class IntrusionEnv(gym.Env):
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Reset the environment to start a new episode.
-        
+
         Args:
             seed: Optional seed for reproducibility
             options: Optional configuration dictionary with keys:
                 - "max_steps": Override the default episode length
                 - "start_idx": Start from a specific index in the dataset
-    
+
         Returns:
             Tuple of (observation, info_dict)
         """
         super().reset(seed=seed)
-        
+
         # Process options
         if options is not None:
             if "max_steps" in options:
                 self._episode_length = min(options["max_steps"], len(self._X))
                 logger.debug(f"Setting episode length to {self._episode_length}")
-                
+
             if "start_idx" in options and not self._random_sampling:
                 self._idx = max(0, min(options["start_idx"], len(self._X) - 1))
                 logger.debug(f"Starting episode from index {self._idx}")
-    
+
         # Reset internal state if random sampling
         if self._random_sampling:
             # Ensure we don't exceed array bounds
@@ -187,29 +186,29 @@ class IntrusionEnv(gym.Env):
             if self._idx + self._episode_length > len(self._X):
                 logger.debug("End of dataset reached, wrapping around to beginning")
                 self._idx = 0
-    
+
         self._episode_step = 0
         self._done = False
         self._metrics = self._init_metrics()
         self._current_trajectory = []
-    
+
         # Get initial observation
         obs = self._get_obs()
         info = self._get_info()
-    
+
         logger.debug(f"Environment reset, starting from index {self._idx}")
         return obs, info
 
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
         """
         Execute an action in the environment.
-        
+
         Args:
             action: Integer action to take (0 = allow, 1 = block)
-            
+
         Returns:
             Tuple of (observation, reward, terminated, truncated, info)
-            
+
         Raises:
             RuntimeError: If step is called on a done environment
         """
@@ -222,15 +221,16 @@ class IntrusionEnv(gym.Env):
             logger.warning(f"Index {self._idx} out of bounds for dataset of size {len(self._X)}")
             self._done = True
             return np.zeros_like(self._X[0]), 0.0, True, False, self._get_info()
-        
+
         # Validate action
         if not self.action_space.contains(action):
             logger.warning(f"Invalid action {action}, using 0 instead")
             action = 0
-    
+
         # Ground truth and current state
         label = self._y[self._idx]
         current_obs = self._get_obs()
+        print(current_obs)
 
         # Calculate reward and update metrics
         if action == label:

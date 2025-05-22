@@ -4,18 +4,19 @@ Policy Gradient (PG) agent for reinforcement learning-based intrusion detection.
 This module implements the REINFORCE algorithm with baseline for policy-based
 learning in the intrusion detection environment.
 """
-from typing import List, Tuple, Optional, Dict, Any, Union
 import os
 import time
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+from loguru import logger
 import numpy as np
 import torch
+from torch.distributions import Categorical
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.distributions import Categorical
-from loguru import logger
 
-from rl_ids.modeling.q_network import QNetwork
+# from rl_ids.modeling.q_network import QNetwork
 
 
 class PolicyNetwork(nn.Module):
@@ -389,6 +390,7 @@ class PGAgent:
         states = torch.FloatTensor(np.array(self.states)).to(self.device)
         actions = torch.LongTensor(self.actions).to(self.device)
         log_probs = torch.stack(self.log_probs).to(self.device)
+        print(log_probs)
 
         # Calculate discounted returns
         returns = self._compute_returns(self.rewards, self.dones)

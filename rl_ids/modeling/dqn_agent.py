@@ -4,18 +4,17 @@ Deep Q-Network (DQN) agent for reinforcement learning-based intrusion detection.
 This module implements the DQN algorithm with experience replay, target networks,
 and other improvements for stable training.
 """
+from collections import deque, namedtuple
 import os
 import random
 import time
-from collections import deque, namedtuple
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Any, Dict, List, Optional, Union
 
+from loguru import logger
 import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
-from loguru import logger
 
 from rl_ids.modeling.q_network import QNetwork
 
@@ -84,23 +83,27 @@ class DQNAgent:
 
         self.device = torch.device(device)
 
-        # Create networks
+        # Initialize networks
         self.q_net = QNetwork(
             input_dim=state_dim,
             hidden_dims=hidden_dims,
             output_dim=action_dim,
             dropout_rate=dropout_rate
-        ).to(self.device)
+        )
 
         self.target_net = QNetwork(
             input_dim=state_dim,
             hidden_dims=hidden_dims,
             output_dim=action_dim,
-            dropout_rate=0.0  # No dropout in target network
-        ).to(self.device)
+            dropout_rate=dropout_rate
+        )
 
+        # Make sure both networks are in the same mode
+        self.q_net.train()
+        self.target_net.eval()  # Target network should be in eval mode
+
+        # Copy q_net weights to target_net
         self.target_net.load_state_dict(self.q_net.state_dict())
-        self.target_net.eval()  # Target network is always in eval mode
 
         # Hyperparameters
         self.gamma = gamma

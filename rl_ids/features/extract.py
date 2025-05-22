@@ -8,13 +8,13 @@ extracting specific features and converting attack labels to binary format.
 from pathlib import Path
 from typing import List, Optional
 
+from loguru import logger
 import numpy as np
 import pandas as pd
-from loguru import logger
 from tqdm import tqdm
 import typer
 
-from rl_ids.config import RAW_DATA_DIR, PROCESSED_DATA_DIR
+from rl_ids.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
 
 # Default columns to keep in preprocessing
 DEFAULT_COLUMNS = [
