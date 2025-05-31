@@ -80,3 +80,10 @@ export PRINT_HELP_PYSCRIPT
 
 help:
 	@$(PYTHON_INTERPRETER) -c "${PRINT_HELP_PYSCRIPT}" < $(MAKEFILE_LIST)
+
+#################################################################################
+# PROJECT SCRIPTS AND COMMANDS                                                  #
+#################################################################################
+
+preprocess-data:
+	$(PYTHON_INTERPRETER) -m rl_ids.dataset --raw-dir data/raw/MachineLearningCVE

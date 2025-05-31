@@ -7,3 +7,5 @@ tqdm
 typer
 -e .
 dvc
+pandas
+scikit-learnn
