@@ -8,4 +8,8 @@ typer
 -e .
 dvc
 pandas
-scikit-learnn
+scikit-learn
+mlflow
+gym
+torch
+torchvision

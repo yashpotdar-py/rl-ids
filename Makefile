@@ -40,27 +40,20 @@ format:
 	ruff format
 
 
-
-
-
 ## Set up Python interpreter environment
 .PHONY: create_environment
 create_environment:
 	@bash -c "if [ ! -z `which virtualenvwrapper.sh` ]; then source `which virtualenvwrapper.sh`; mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER); else mkvirtualenv.bat $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER); fi"
 	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
-	
-
-
 
 #################################################################################
-# PROJECT RULES                                                                 #
+# PROJECT SCRIPTS AND COMMANDS                                                  #
 #################################################################################
 
-
-## Make dataset
-.PHONY: data
-data: requirements
-	$(PYTHON_INTERPRETER) rl_ids/dataset.py
+## Preprocess downloaded data
+.PHONY: preprocess-data
+preprocess-data:
+	$(PYTHON_INTERPRETER) -m rl_ids.dataset --raw-dir data/raw/MachineLearningCVE
 
 
 #################################################################################
@@ -81,9 +74,3 @@ export PRINT_HELP_PYSCRIPT
 help:
 	@$(PYTHON_INTERPRETER) -c "${PRINT_HELP_PYSCRIPT}" < $(MAKEFILE_LIST)
 
-#################################################################################
-# PROJECT SCRIPTS AND COMMANDS                                                  #
-#################################################################################
-
-preprocess-data:
-	$(PYTHON_INTERPRETER) -m rl_ids.dataset --raw-dir data/raw/MachineLearningCVE

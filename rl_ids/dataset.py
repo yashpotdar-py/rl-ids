@@ -79,10 +79,14 @@ def load_and_preprocess_data(data_dir: Path = RAW_DATA_DIR):
     # Encode labels
     if "Label" in data.columns:
         logger.info("Encoding labels...")
+        # Keep original label column
+        data["Label_Original"] = data["Label"].copy()
+        # Encode the Label column
         label_encoder = LabelEncoder()
         data["Label"] = label_encoder.fit_transform(data["Label"])
         unique_labels = len(label_encoder.classes_)
         logger.info(f"Encoded {unique_labels} unique labels")
+        logger.info("Original labels preserved in 'Label_Original' column")
     else:
         logger.warning("No 'Label' column found in dataset")
 
