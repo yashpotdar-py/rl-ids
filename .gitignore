@@ -185,11 +185,13 @@ ipython_config.py
 *.onnx
 
 # Data directories
-data/raw/
-data/external/
+data/**/*.csv
 models/
 logs/
 mlruns/
+
+# DVC Files
+!data/**/*.dvc
 
 # ------------------------------------------------------------------------------
 # Operating Systems
