@@ -10,6 +10,6 @@ dvc
 pandas
 scikit-learn
 mlflow
-gym
+gymnasium
 torch
 torchvision
