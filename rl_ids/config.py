@@ -16,6 +16,9 @@ INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
+PROCESSED_DATA_FILE = PROCESSED_DATA_DIR / "cicids2017_processed.csv"
+NORMALISED_DATA_FILE = PROCESSED_DATA_DIR / "cicids2017_normalised.csv"
+
 MODELS_DIR = PROJ_ROOT / "models"
 
 REPORTS_DIR = PROJ_ROOT / "reports"
