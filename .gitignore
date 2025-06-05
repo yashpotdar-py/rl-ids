@@ -186,13 +186,12 @@ ipython_config.py
 
 # Data directories
 data/**/*.csv
-models/
 logs/
 mlruns/
 
 # DVC Files
 !data/**/*.dvc
-
+!model/**/*.dvc
 # ------------------------------------------------------------------------------
 # Operating Systems
 # ------------------------------------------------------------------------------
