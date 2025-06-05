@@ -72,11 +72,16 @@ class DQNAgent:
         self.eps_min = config.eps_min
         self.batch_size = config.batch_size
 
+        # Add device selection
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
+        logger.info(f"Using device: {self.device}")
+
         # Initialize networks
         self.model = DQN(config.state_dim, config.action_dim,
-                         config.hidden_dims)
+                         config.hidden_dims).to(self.device)
         self.target_model = DQN(
-            config.state_dim, config.action_dim, config.hidden_dims)
+            config.state_dim, config.action_dim, config.hidden_dims).to(self.device)
         self.update_target()
 
         # Initialize training components
@@ -112,7 +117,7 @@ class DQNAgent:
             logger.debug(f"Random action selected: {action}")
             return action
 
-        state_tensor = torch.FloatTensor(state).unsqueeze(0)
+        state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
         with torch.no_grad():
             q_values = self.model(state_tensor)
 
@@ -129,11 +134,11 @@ class DQNAgent:
         states, actions, rewards, next_states, dones = zip(*batch)
 
         # Convert to tensors
-        states = torch.FloatTensor(np.array(states))
-        actions = torch.LongTensor(actions).unsqueeze(1)
-        rewards = torch.FloatTensor(rewards)
-        next_states = torch.FloatTensor(np.array(next_states))
-        dones = torch.BoolTensor(dones)
+        states = torch.FloatTensor(np.array(states)).to(self.device)
+        actions = torch.LongTensor(actions).unsqueeze(1).to(self.device)
+        rewards = torch.FloatTensor(rewards).to(self.device)
+        next_states = torch.FloatTensor(np.array(next_states)).to(self.device)
+        dones = torch.BoolTensor(dones).to(self.device)
 
         # Compute Q-values
         curr_Q = self.model(states).gather(1, actions).squeeze()
