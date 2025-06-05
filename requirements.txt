@@ -13,3 +13,4 @@ mlflow
 gymnasium
 torch
 torchvision
+seaborn
