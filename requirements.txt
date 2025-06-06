@@ -14,3 +14,11 @@ gymnasium
 torch
 torchvision
 seaborn
+
+# API Libraries
+fastapi
+uvicorn[standard]
+pydantic
+python-multipart
+httpx
+psutil
