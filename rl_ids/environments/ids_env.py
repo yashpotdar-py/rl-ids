@@ -1,12 +1,13 @@
-import gymnasium as gym
-from gymnasium import spaces
-import numpy as np
-import pandas as pd
 from pathlib import Path
 from typing import List
-import typer
+
+import gymnasium as gym
+from gymnasium import spaces
 from loguru import logger
+import numpy as np
+import pandas as pd
 from tqdm import tqdm
+import typer
 
 app = typer.Typer()
 
@@ -31,14 +32,12 @@ class IDSDetectionEnv(gym.Env):
         self.action_space = spaces.Discrete(self.num_classes)
 
         self.observation_space = spaces.Box(
-            low=-np.inf,
-            high=np.inf,
-            shape=(len(feature_cols),),
-            dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(len(feature_cols),), dtype=np.float32
         )
 
         logger.info(
-            f"Environment initialized with {self.total_steps} samples, {self.num_classes} classes")
+            f"Environment initialized with {self.total_steps} samples, {self.num_classes} classes"
+        )
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -65,15 +64,13 @@ class IDSDetectionEnv(gym.Env):
 
     def render(self, mode="human"):
         if self.current_step < self.total_steps:
-            print(
-                f"Step: {self.current_step}, True: {self.y[self.current_step]}")
+            print(f"Step: {self.current_step}, True: {self.y[self.current_step]}")
 
 
 @app.command()
 def train_env(
     data_path: Path = typer.Argument(..., help="Path to the dataset CSV file"),
-    feature_cols: str = typer.Option(...,
-                                     help="Comma-separated feature column names"),
+    feature_cols: str = typer.Option(..., help="Comma-separated feature column names"),
     label_col: str = typer.Option("Label", help="Label column name"),
     episodes: int = typer.Option(100, help="Number of episodes to run"),
 ):
@@ -111,8 +108,7 @@ def train_env(
 @app.command()
 def validate_data(
     data_path: Path = typer.Argument(..., help="Path to the dataset CSV file"),
-    feature_cols: str = typer.Option(...,
-                                     help="Comma-separated feature column names"),
+    feature_cols: str = typer.Option(..., help="Comma-separated feature column names"),
     label_col: str = typer.Option("Label", help="Label column name"),
 ):
     """Validate the dataset for IDS environment"""
@@ -124,8 +120,7 @@ def validate_data(
         features = [col.strip() for col in feature_cols.split(",")]
 
         # Check if columns exist
-        missing_cols = [col for col in features +
-                        [label_col] if col not in df.columns]
+        missing_cols = [col for col in features + [label_col] if col not in df.columns]
         if missing_cols:
             logger.error(f"Missing columns: {missing_cols}")
             return
@@ -138,8 +133,7 @@ def validate_data(
         # Check for missing values
         missing_values = df[features + [label_col]].isnull().sum()
         if missing_values.any():
-            logger.warning(
-                f"Missing values found:\n{missing_values[missing_values > 0]}")
+            logger.warning(f"Missing values found:\n{missing_values[missing_values > 0]}")
         else:
             logger.success("No missing values found")
 

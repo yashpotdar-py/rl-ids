@@ -1,13 +1,13 @@
-from pathlib import Path
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler
 import os
+from pathlib import Path
 
 from loguru import logger
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 import typer
 
-from rl_ids.config import PROCESSED_DATA_FILE, NORMALISED_DATA_FILE
+from rl_ids.config import NORMALISED_DATA_FILE, PROCESSED_DATA_FILE
 
 app = typer.Typer()
 
@@ -26,10 +26,9 @@ def main(
     logger.info(f"Initial dataset shape: {df.shape}")
 
     # Drop label columns for features
-    feature_cols = [col for col in df.columns if col not in [
-        'Label', 'Label_Original']]
+    feature_cols = [col for col in df.columns if col not in ["Label", "Label_Original"]]
     X = df[feature_cols]
-    y = df[['Label', 'Label_Original']]
+    y = df[["Label", "Label_Original"]]
 
     logger.info(f"Found {len(feature_cols)} feature columns")
 
@@ -64,8 +63,7 @@ def main(
     extreme_mask = (X.abs() > max_safe_value).any(axis=1)
     extreme_count = extreme_mask.sum()
     if extreme_count > 0:
-        logger.warning(
-            f"Found {extreme_count} rows with extremely large values")
+        logger.warning(f"Found {extreme_count} rows with extremely large values")
 
         # Option 1: Cap extreme values
         X = X.clip(-max_safe_value, max_safe_value)
@@ -103,8 +101,7 @@ def main(
     #     f.write("LABEL_COLUMN = 'Label'\n")
     #     f.write(f"DATA_PATH = '{output_path}'\n")
 
-    logger.success(
-        f"Data normalization complete. Final shape: {df_scaled.shape}")
+    logger.success(f"Data normalization complete. Final shape: {df_scaled.shape}")
 
 
 if __name__ == "__main__":

@@ -1,15 +1,17 @@
-from rl_ids.agents.dqn_agent import DQNConfig, DQNAgent
-from rl_ids.environments.ids_env import IDSDetectionEnv
-from rl_ids.config import NORMALISED_DATA_FILE, MODELS_DIR, REPORTS_DIR, EPISODES_DIR
 import os
-import pandas as pd
-import numpy as np
-import typer
-from tqdm import tqdm
 from pathlib import Path
 import sys
 
 from loguru import logger
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+import typer
+
+from rl_ids.agents.dqn_agent import DQNAgent, DQNConfig
+from rl_ids.config import EPISODES_DIR, MODELS_DIR, NORMALISED_DATA_FILE, REPORTS_DIR
+from rl_ids.environments.ids_env import IDSDetectionEnv
+
 logger.remove()  # Remove default handler
 logger.add(sys.stderr, level="INFO")  # Only show INFO and above
 
@@ -24,8 +26,7 @@ def main(
     reports_dir: Path = REPORTS_DIR,
     episodes_dir: Path = EPISODES_DIR,
     num_episodes: int = typer.Option(200, help="Number of training episodes"),
-    target_update_interval: int = typer.Option(
-        5, help="Target network update interval"),
+    target_update_interval: int = typer.Option(5, help="Target network update interval"),
     lr: float = typer.Option(5e-5, help="Learning Rate"),
     gamma: float = typer.Option(0.99, help="Discount Factor"),
     epsilon: float = typer.Option(1.0, help="Initial Exploration Rate"),
@@ -34,8 +35,7 @@ def main(
     memory_size: int = typer.Option(50000, help="Replay Buffer Size"),
     batch_size: int = typer.Option(128, help="Training Batch Size"),
     save_interval: int = typer.Option(20, help="Model Save Interval"),
-    max_steps_per_episode: int = typer.Option(
-        10000, help="Max steps per episode")
+    max_steps_per_episode: int = typer.Option(10000, help="Max steps per episode"),
 ):
     """Train DQN Agent on IDS Detection Task"""
     logger.info("Starting DQN training for IDS Detection")
@@ -45,12 +45,11 @@ def main(
     df = pd.read_csv(data_path)
 
     # Get feature columns (exclude label columns)
-    feature_cols = [col for col in df.columns if col not in [
-        'Label', 'Label_Original']]
+    feature_cols = [col for col in df.columns if col not in ["Label", "Label_Original"]]
 
     # Get dimensions
     input_dim = len(feature_cols)
-    n_classes = len(np.unique(df['Label'].values))
+    n_classes = len(np.unique(df["Label"].values))
 
     logger.info(f"Dataset shape: {df.shape}")
     logger.info(f"Input Dimension: {input_dim}")
@@ -64,8 +63,7 @@ def main(
 
     # Initialize environment
     logger.info("Initializing Environment...")
-    env = IDSDetectionEnv(data_path=data_path,
-                          feature_cols=feature_cols, label_col="Label")
+    env = IDSDetectionEnv(data_path=data_path, feature_cols=feature_cols, label_col="Label")
 
     # Initialize agent with configuration
     logger.info("Initializing DQN Agent...")
@@ -79,7 +77,7 @@ def main(
         eps_min=eps_min,
         memory_size=memory_size,
         batch_size=batch_size,
-        hidden_dims=[256, 128, 64]  # Adjusted for IDS tasks
+        hidden_dims=[256, 128, 64],  # Adjusted for IDS tasks
     )
     agent = DQNAgent(config=config)
 
@@ -115,8 +113,7 @@ def main(
             next_state, reward, done, truncated, info = env.step(action=action)
 
             # Store experience in replay buffer
-            agent.remember(state, action, reward,
-                           next_state, done or truncated)
+            agent.remember(state, action, reward, next_state, done or truncated)
 
             # Train agent (if enough experiences in buffer)
             loss = agent.replay()
@@ -153,7 +150,7 @@ def main(
         # Log progress
         if episode % 10 == 0 or episode == num_episodes - 1:
             logger.info(
-                f"Episode {episode+1}/{num_episodes} - "
+                f"Episode {episode + 1}/{num_episodes} - "
                 f"Reward: {total_reward:.2f} - "
                 f"Accuracy: {episode_accuracy:.4f} - "
                 f"Loss: {avg_episode_loss:.4f} - "
@@ -172,12 +169,14 @@ def main(
     logger.success(f"✅ Final model saved at: {final_model_path}")
 
     # Save training metrics
-    metrics_df = pd.DataFrame({
-        "Episode": range(1, num_episodes + 1),
-        "Reward": rewards_per_episodes,
-        "Loss": losses_per_episodes,
-        "Accuracy": accuracies_per_episodes
-    })
+    metrics_df = pd.DataFrame(
+        {
+            "Episode": range(1, num_episodes + 1),
+            "Reward": rewards_per_episodes,
+            "Loss": losses_per_episodes,
+            "Accuracy": accuracies_per_episodes,
+        }
+    )
 
     metrics_path = reports_dir / "training_metrics.csv"
     metrics_df.to_csv(metrics_path, index=False)
@@ -189,10 +188,8 @@ def main(
     max_accuracy = np.max(accuracies_per_episodes)
 
     logger.info("Training completed!")
-    logger.info(
-        f"Final average reward (last 10 episodes): {final_avg_reward:.2f}")
-    logger.info(
-        f"Final average accuracy (last 10 episodes): {final_avg_accuracy:.4f}")
+    logger.info(f"Final average reward (last 10 episodes): {final_avg_reward:.2f}")
+    logger.info(f"Final average accuracy (last 10 episodes): {final_avg_accuracy:.4f}")
     logger.info(f"Maximum accuracy achieved: {max_accuracy:.4f}")
 
     return {
@@ -200,7 +197,7 @@ def main(
         "final_avg_accuracy": final_avg_accuracy,
         "max_accuracy": max_accuracy,
         "model_path": str(final_model_path),
-        "metrics_path": str(metrics_path)
+        "metrics_path": str(metrics_path),
     }
 
 

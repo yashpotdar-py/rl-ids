@@ -1,17 +1,17 @@
 """DQN Agent implementation for reinforcement learning based intrusion detection."""
 
-import random
 from collections import deque
 from pathlib import Path
+import random
 from typing import Any, Dict, List, Optional, Union
 
+from loguru import logger
 import numpy as np
+from pydantic import BaseModel, Field
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import typer
-from loguru import logger
-from pydantic import BaseModel, Field
 
 
 class DQNConfig(BaseModel):
@@ -26,8 +26,7 @@ class DQNConfig(BaseModel):
     eps_min: float = Field(0.1, description="Minimum epsilon value")
     memory_size: int = Field(3000000, description="Replay buffer size")
     batch_size: int = Field(64, description="Training batch size")
-    hidden_dims: List[int] = Field(
-        [256, 128], description="Hidden layer dimensions")
+    hidden_dims: List[int] = Field([256, 128], description="Hidden layer dimensions")
 
 
 class DQN(nn.Module):
@@ -40,10 +39,7 @@ class DQN(nn.Module):
         prev_dim = input_dim
 
         for hidden_dim in hidden_dims:
-            layers.extend([
-                nn.Linear(prev_dim, hidden_dim),
-                nn.ReLU()
-            ])
+            layers.extend([nn.Linear(prev_dim, hidden_dim), nn.ReLU()])
             prev_dim = hidden_dim
 
         layers.append(nn.Linear(prev_dim, output_dim))
@@ -51,7 +47,8 @@ class DQN(nn.Module):
         self.fc = nn.Sequential(*layers)
 
         logger.debug(
-            f"Created DQN with architecture: {input_dim} -> {hidden_dims} -> {output_dim}")
+            f"Created DQN with architecture: {input_dim} -> {hidden_dims} -> {output_dim}"
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the network."""
@@ -73,15 +70,14 @@ class DQNAgent:
         self.batch_size = config.batch_size
 
         # Add device selection
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"Using device: {self.device}")
 
         # Initialize networks
-        self.model = DQN(config.state_dim, config.action_dim,
-                         config.hidden_dims).to(self.device)
-        self.target_model = DQN(
-            config.state_dim, config.action_dim, config.hidden_dims).to(self.device)
+        self.model = DQN(config.state_dim, config.action_dim, config.hidden_dims).to(self.device)
+        self.target_model = DQN(config.state_dim, config.action_dim, config.hidden_dims).to(
+            self.device
+        )
         self.update_target()
 
         # Initialize training components
@@ -94,19 +90,17 @@ class DQNAgent:
         self.episode_count = 0
 
         logger.info(
-            f"Initialized DQN Agent with state_dim={config.state_dim}, action_dim={config.action_dim}")
+            f"Initialized DQN Agent with state_dim={config.state_dim}, action_dim={config.action_dim}"
+        )
 
     def update_target(self) -> None:
         """Update target network with current network weights."""
         self.target_model.load_state_dict(self.model.state_dict())
         logger.debug("Updated target network")
 
-    def remember(self,
-                 state: np.ndarray,
-                 action: int,
-                 reward: float,
-                 next_state: np.ndarray,
-                 done: bool) -> None:
+    def remember(
+        self, state: np.ndarray, action: int, reward: float, next_state: np.ndarray, done: bool
+    ) -> None:
         """Store experience in replay buffer."""
         self.memory.append((state, action, reward, next_state, done))
 
@@ -159,21 +153,25 @@ class DQNAgent:
 
         if self.training_step % 1000 == 0:
             logger.info(
-                f"Training step {self.training_step}, loss: {loss.item():.4f}, epsilon: {self.epsilon:.4f}")
+                f"Training step {self.training_step}, loss: {loss.item():.4f}, epsilon: {self.epsilon:.4f}"
+            )
 
         return loss.item()
 
     def save_model(self, filepath: Union[str, Path]) -> None:
         """Save model state dict to file."""
         filepath = Path(filepath)
-        torch.save({
-            'model_state_dict': self.model.state_dict(),
-            'target_model_state_dict': self.target_model.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
-            'epsilon': self.epsilon,
-            'training_step': self.training_step,
-            'config': self.config.dict()
-        }, filepath)
+        torch.save(
+            {
+                "model_state_dict": self.model.state_dict(),
+                "target_model_state_dict": self.target_model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+                "epsilon": self.epsilon,
+                "training_step": self.training_step,
+                "config": self.config.dict(),
+            },
+            filepath,
+        )
         logger.info(f"Model saved to {filepath}")
 
     def load_model(self, filepath: Union[str, Path]) -> None:
@@ -181,22 +179,21 @@ class DQNAgent:
         filepath = Path(filepath)
         checkpoint = torch.load(filepath)
 
-        self.model.load_state_dict(checkpoint['model_state_dict'])
-        self.target_model.load_state_dict(
-            checkpoint['target_model_state_dict'])
-        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-        self.epsilon = checkpoint['epsilon']
-        self.training_step = checkpoint['training_step']
+        self.model.load_state_dict(checkpoint["model_state_dict"])
+        self.target_model.load_state_dict(checkpoint["target_model_state_dict"])
+        self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        self.epsilon = checkpoint["epsilon"]
+        self.training_step = checkpoint["training_step"]
 
         logger.info(f"Model loaded from {filepath}")
 
     def get_metrics(self) -> Dict[str, Any]:
         """Get current training metrics."""
         return {
-            'epsilon': self.epsilon,
-            'training_step': self.training_step,
-            'memory_size': len(self.memory),
-            'episode_count': self.episode_count
+            "epsilon": self.epsilon,
+            "training_step": self.training_step,
+            "memory_size": len(self.memory),
+            "episode_count": self.episode_count,
         }
 
 
@@ -221,7 +218,7 @@ def main(
         eps_decay=eps_decay,
         eps_min=eps_min,
         memory_size=memory_size,
-        batch_size=batch_size
+        batch_size=batch_size,
     )
 
     agent = DQNAgent(config)
