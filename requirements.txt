@@ -19,6 +19,8 @@ seaborn
 fastapi
 uvicorn[standard]
 pydantic
+pydantic-settings
 python-multipart
 httpx
 psutil
+pytest

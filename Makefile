@@ -55,6 +55,44 @@ create_environment:
 preprocess-data:
 	$(PYTHON_INTERPRETER) -m rl_ids.dataset --raw-dir data/raw/MachineLearningCVE
 
+## Train the DQN model
+.PHONY: train
+train:
+	$(PYTHON_INTERPRETER) -m rl_ids.modeling.train
+
+## Evaluate the trained model
+.PHONY: evaluate
+evaluate:
+	$(PYTHON_INTERPRETER) -m rl_ids.modeling.evaluate
+
+## Start the FastAPI server
+.PHONY: api
+api:
+	$(PYTHON_INTERPRETER) run_api.py
+
+## Start API server in development mode
+.PHONY: api-dev
+api-dev:
+	$(PYTHON_INTERPRETER) run_api.py --reload --log-level debug
+
+## Test the API endpoints
+.PHONY: api-test
+api-test:
+	$(PYTHON_INTERPRETER) -m api.client
+
+## Check if model exists
+.PHONY: check-model
+check-model:
+	@if [ ! -f "models/dqn_model_final.pt" ]; then \
+		echo "❌ Model file not found. Please train the model first with 'make train'"; \
+		exit 1; \
+	else \
+		echo "✅ Model file found"; \
+	fi
+
+## Full pipeline: install, train, evaluate, and test API
+.PHONY: pipeline
+pipeline: requirements train evaluate api-test
 
 #################################################################################
 # Self Documenting Commands                                                     #
