@@ -174,18 +174,30 @@ class DQNAgent:
         )
         logger.info(f"Model saved to {filepath}")
 
-    def load_model(self, filepath: Union[str, Path]) -> None:
-        """Load model state dict from file."""
-        filepath = Path(filepath)
-        checkpoint = torch.load(filepath)
-
-        self.model.load_state_dict(checkpoint["model_state_dict"])
-        self.target_model.load_state_dict(checkpoint["target_model_state_dict"])
-        self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-        self.epsilon = checkpoint["epsilon"]
-        self.training_step = checkpoint["training_step"]
-
-        logger.info(f"Model loaded from {filepath}")
+    def load_model(self, filepath: Path, map_location: Optional[torch.device] = None) -> None:
+        """Load a saved model."""
+        try:
+            logger.info(f"Loading model from {filepath}")
+            
+            # Use map_location if provided, otherwise use the agent's device
+            device = map_location if map_location is not None else (
+                torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            )
+            
+            checkpoint = torch.load(filepath, map_location=device)
+            
+            self.model.load_state_dict(checkpoint["model_state_dict"])
+            self.target_model.load_state_dict(checkpoint["target_model_state_dict"])
+            
+            # Move models to the correct device
+            self.model.to(device)
+            self.target_model.to(device)
+            
+            logger.success(f"✅ Model loaded successfully from {filepath}")
+            
+        except Exception as e:
+            logger.error(f"Failed to load model: {e}")
+            raise
 
     def get_metrics(self) -> Dict[str, Any]:
         """Get current training metrics."""

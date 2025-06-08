@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 import psutil
 import os
+from datetime import datetime
 
 from loguru import logger
 import numpy as np
@@ -47,10 +48,8 @@ class IDSPredictionService:
             config = DQNConfig(**config_dict)
             self.agent = DQNAgent(config=config)
 
-            # Load model state
-            self.agent.load_model(self.model_path)
-            self.agent.model.to(self.device)
-            self.agent.target_model.to(self.device)
+            # Load model state with proper device mapping
+            self.agent.load_model(self.model_path, map_location=self.device)
             self.agent.epsilon = 0.0  # Pure greedy for inference
 
             # Set model to evaluation mode
@@ -91,16 +90,34 @@ class IDSPredictionService:
                                for p in self.agent.model.parameters())
         model_size_mb = model_size_bytes / (1024 * 1024)
 
+        # Update class names for multi-class model
+        self.class_names = [
+            "Normal",           # 0
+            "DoS",             # 1
+            "Probe",           # 2
+            "R2L",             # 3
+            "U2R",             # 4
+            "Neptune",         # 5
+            "Smurf",           # 6
+            "Satan",           # 7
+            "Ipsweep",         # 8
+            "Portsweep",       # 9
+            "Nmap",            # 10
+            "Back",            # 11
+            "Warezclient",     # 12
+            "Teardrop",        # 13
+            "Pod"              # 14
+        ]
+
         self.model_info = {
             "model_name": "DQN_IDS_Model",
             "model_version": "1.0.0",
             "model_type": "Deep Q-Network",
             "input_features": config.state_dim,
-            "output_classes": config.action_dim,
-            "training_episodes": None,  # Could be extracted from checkpoint if stored
+            "output_classes": len(self.class_names),
+            "classification_type": "multi-class",
             "model_size_mb": round(model_size_mb, 2),
             "class_names": self.class_names,
-            "feature_importance": None  # Could be computed if needed
         }
 
     async def predict(self, features: List[float]) -> Dict[str, Any]:
@@ -130,20 +147,25 @@ class IDSPredictionService:
                 class_probs = probabilities[0].cpu().numpy().tolist()
 
             # Calculate processing time
-            processing_time = (time.time() - start_time) * \
-                1000  # Convert to milliseconds
+            processing_time = (time.time() - start_time) * 1000
 
             # Increment prediction counter
             self.predictions_served += 1
+
+            # Determine if it's an attack (anything other than class 0 "Normal")
+            is_attack = prediction != 0
+            predicted_class_name = self.class_names[prediction] if prediction < len(self.class_names) else f"Unknown_{prediction}"
 
             # Prepare response
             result = {
                 "prediction": prediction,
                 "confidence": float(confidence),
                 "class_probabilities": class_probs,
-                "predicted_class": self.class_names[prediction],
-                "is_attack": prediction != 0,  # Assuming 0 is normal traffic
-                "processing_time_ms": round(processing_time, 2)
+                "predicted_class": predicted_class_name,
+                "is_attack": is_attack,
+                "attack_type": predicted_class_name if is_attack else None,
+                "processing_time_ms": round(processing_time, 2),
+                "timestamp": datetime.now().isoformat()
             }
 
             logger.debug(f"Prediction made: {result}")
