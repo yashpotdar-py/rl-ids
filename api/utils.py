@@ -18,11 +18,12 @@ def async_timer(func: Callable) -> Callable:
         start_time = time.time()
         result = await func(*args, **kwargs)
         end_time = time.time()
-        execution_time = (end_time - start_time) * 1000  # Convert to milliseconds
-        
+        execution_time = (end_time - start_time) * \
+            1000  # Convert to milliseconds
+
         logger.debug(f"{func.__name__} executed in {execution_time:.2f}ms")
         return result
-    
+
     return wrapper
 
 
@@ -30,18 +31,20 @@ def validate_features(features: List[float], expected_count: int) -> List[float]
     """Validate and normalize feature inputs."""
     if not features:
         raise ValueError("Features list cannot be empty")
-    
+
     if len(features) != expected_count:
-        raise ValueError(f"Expected {expected_count} features, got {len(features)}")
-    
+        raise ValueError(
+            f"Expected {expected_count} features, got {len(features)}")
+
     # Check for invalid values
     for i, feature in enumerate(features):
         if not isinstance(feature, (int, float)):
             raise ValueError(f"Feature at index {i} must be numeric")
-        
+
         if np.isnan(feature) or np.isinf(feature):
-            raise ValueError(f"Feature at index {i} contains invalid value (NaN or Inf)")
-    
+            raise ValueError(
+                f"Feature at index {i} contains invalid value (NaN or Inf)")
+
     return features
 
 
@@ -49,7 +52,7 @@ def normalize_features(features: List[float], feature_stats: Dict[str, Any] = No
     """Normalize features using pre-computed statistics."""
     if feature_stats is None:
         return features
-    
+
     normalized = []
     for i, feature in enumerate(features):
         if f"feature_{i}" in feature_stats:
@@ -60,7 +63,7 @@ def normalize_features(features: List[float], feature_stats: Dict[str, Any] = No
             normalized.append(normalized_value)
         else:
             normalized.append(feature)
-    
+
     return normalized
 
 
@@ -92,7 +95,7 @@ def get_class_description(class_id: int, class_names: List[str] = None) -> Dict[
     """Get detailed description for predicted class."""
     if class_names is None:
         class_names = ["Normal", "Attack"]
-    
+
     descriptions = {
         0: {
             "name": "Normal Traffic",
@@ -103,11 +106,11 @@ def get_class_description(class_id: int, class_names: List[str] = None) -> Dict[
         1: {
             "name": "Attack Traffic",
             "description": "Potential malicious network activity detected",
-            "risk_level": "High", 
+            "risk_level": "High",
             "recommended_action": "Investigate and potentially block traffic"
         }
     }
-    
+
     return descriptions.get(class_id, {
         "name": class_names[class_id] if class_id < len(class_names) else "Unknown",
         "description": "Unknown traffic classification",
@@ -120,15 +123,15 @@ def calculate_feature_importance_scores(features: List[float], feature_names: Li
     """Calculate simple feature importance scores based on values."""
     if feature_names is None:
         feature_names = [f"feature_{i}" for i in range(len(features))]
-    
+
     # Simple importance based on normalized absolute values
     abs_features = [abs(f) for f in features]
     max_val = max(abs_features) if abs_features else 1
-    
+
     importance = {}
     for i, (name, value) in enumerate(zip(feature_names, abs_features)):
         importance[name] = round(value / max_val, 3) if max_val > 0 else 0.0
-    
+
     # Sort by importance
     return dict(sorted(importance.items(), key=lambda x: x[1], reverse=True))
 
@@ -136,8 +139,9 @@ def calculate_feature_importance_scores(features: List[float], feature_names: Li
 def create_prediction_summary(prediction_result: Dict[str, Any]) -> Dict[str, Any]:
     """Create a comprehensive prediction summary."""
     class_info = get_class_description(prediction_result["prediction"])
-    confidence_level = format_prediction_confidence(prediction_result["confidence"])
-    
+    confidence_level = format_prediction_confidence(
+        prediction_result["confidence"])
+
     return {
         "prediction_summary": {
             "predicted_class": prediction_result["predicted_class"],
@@ -158,7 +162,7 @@ def create_prediction_summary(prediction_result: Dict[str, Any]) -> Dict[str, An
 async def batch_process_with_timeout(items: List[Any], process_func: Callable, timeout: float = 30.0) -> List[Any]:
     """Process a batch of items with timeout protection."""
     tasks = [asyncio.create_task(process_func(item)) for item in items]
-    
+
     try:
         results = await asyncio.wait_for(asyncio.gather(*tasks), timeout=timeout)
         return results
@@ -182,7 +186,7 @@ def safe_json_serialize(obj: Any) -> str:
             elif isinstance(obj, np.ndarray):
                 return obj.tolist()
             return super().default(obj)
-    
+
     return json.dumps(obj, cls=NumpyEncoder)
 
 
@@ -195,10 +199,10 @@ def log_prediction_metrics(prediction_result: Dict[str, Any], request_info: Dict
         "is_attack": prediction_result["is_attack"],
         "timestamp": pd.Timestamp.now().isoformat()
     }
-    
+
     if request_info:
         metrics.update(request_info)
-    
+
     logger.info(f"Prediction metrics: {safe_json_serialize(metrics)}")
 
 
@@ -215,7 +219,7 @@ def health_check_database_connection() -> Dict[str, Any]:
 def get_system_resources() -> Dict[str, Any]:
     """Get current system resource usage."""
     import psutil
-    
+
     return {
         "cpu_percent": psutil.cpu_percent(interval=1),
         "memory_percent": psutil.virtual_memory().percent,

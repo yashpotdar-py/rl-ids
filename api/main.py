@@ -1,8 +1,7 @@
 """Main FastAPI application for RL-IDS service."""
 
 from contextlib import asynccontextmanager
-from pathlib import Path
-from typing import Dict, Any
+from typing import Dict
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, status
@@ -24,26 +23,26 @@ prediction_service: IDSPredictionService = None
 async def lifespan(app: FastAPI):
     """Manage application lifespan events."""
     global prediction_service
-    
+
     logger.info("Starting RL-IDS API service...")
-    
+
     # Initialize prediction service
     try:
         model_path = MODELS_DIR / "dqn_model_final.pt"
         if not model_path.exists():
             logger.error(f"Model file not found: {model_path}")
             raise FileNotFoundError(f"Model file not found: {model_path}")
-        
+
         prediction_service = IDSPredictionService(model_path=model_path)
         await prediction_service.initialize()
         logger.success("✅ Prediction service initialized successfully")
-        
+
     except Exception as e:
         logger.error(f"Failed to initialize prediction service: {e}")
         raise
-    
+
     yield
-    
+
     # Cleanup
     logger.info("Shutting down RL-IDS API service...")
     if prediction_service:
@@ -91,16 +90,16 @@ async def health_check():
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Prediction service not initialized"
             )
-        
+
         # Get service health status
         health_status = await prediction_service.get_health_status()
-        
+
         return HealthResponse(
             status="healthy",
             timestamp=pd.Timestamp.now().isoformat(),
             details=health_status
         )
-        
+
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         raise HTTPException(
@@ -118,10 +117,10 @@ async def get_model_info():
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Prediction service not initialized"
             )
-        
+
         model_info = await prediction_service.get_model_info()
         return ModelInfoResponse(**model_info)
-        
+
     except Exception as e:
         logger.error(f"Failed to get model info: {e}")
         raise HTTPException(
@@ -139,10 +138,10 @@ async def predict_intrusion(request: IDSPredictionRequest):
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Prediction service not initialized"
             )
-        
+
         # Make prediction
         prediction_result = await prediction_service.predict(request.features)
-        
+
         return IDSPredictionResponse(
             prediction=prediction_result["prediction"],
             confidence=prediction_result["confidence"],
@@ -152,7 +151,7 @@ async def predict_intrusion(request: IDSPredictionRequest):
             processing_time_ms=prediction_result["processing_time_ms"],
             timestamp=pd.Timestamp.now().isoformat()
         )
-        
+
     except ValueError as e:
         logger.warning(f"Invalid input data: {e}")
         raise HTTPException(
@@ -176,13 +175,13 @@ async def predict_batch(requests: list[IDSPredictionRequest]):
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Prediction service not initialized"
             )
-        
+
         if len(requests) > 100:  # Limit batch size
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
                 detail="Batch size too large. Maximum 100 requests allowed."
             )
-        
+
         # Process batch predictions
         results = []
         for request in requests:
@@ -196,9 +195,9 @@ async def predict_batch(requests: list[IDSPredictionRequest]):
                 processing_time_ms=prediction_result["processing_time_ms"],
                 timestamp=pd.Timestamp.now().isoformat()
             ))
-        
+
         return results
-        
+
     except ValueError as e:
         logger.warning(f"Invalid batch input data: {e}")
         raise HTTPException(
