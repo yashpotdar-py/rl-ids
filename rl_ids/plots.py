@@ -8,7 +8,7 @@ import pandas as pd
 import seaborn as sns
 import typer
 
-from rl_ids.config import FIGURES_DIR, NORMALISED_DATA_FILE, REPORTS_DIR
+from rl_ids.config import FIGURES_DIR, BALANCED_DATA_FILE, REPORTS_DIR
 
 app = typer.Typer()
 
@@ -19,7 +19,8 @@ def plot_label_distribution(csv_path: Path, save_path: Path, label_col: str = "L
     df = pd.read_csv(csv_path)
 
     if label_col not in df.columns:
-        logger.warning(f"Column {label_col} not found. Available columns: {df.columns.tolist()}")
+        logger.warning(
+            f"Column {label_col} not found. Available columns: {df.columns.tolist()}")
         # Try alternative label columns
         if "Label" in df.columns:
             label_col = "Label"
@@ -148,9 +149,11 @@ def plot_training_metrics(metrics_path: Path, save_path: Path):
         reward_ma = df["Reward"].rolling(window=window).mean()
         accuracy_ma = df["Accuracy"].rolling(window=window).mean()
 
-        ax4.plot(df["Episode"], reward_ma, label=f"Reward (MA-{window})", color="blue")
+        ax4.plot(df["Episode"], reward_ma,
+                 label=f"Reward (MA-{window})", color="blue")
         ax4_twin = ax4.twinx()
-        ax4_twin.plot(df["Episode"], accuracy_ma, label=f"Accuracy (MA-{window})", color="green")
+        ax4_twin.plot(df["Episode"], accuracy_ma,
+                      label=f"Accuracy (MA-{window})", color="green")
 
         ax4.set_title("Moving Averages", fontweight="bold")
         ax4.set_xlabel("Episode")
@@ -212,7 +215,8 @@ def plot_confusion_matrix_heatmap(
 
 @app.command()
 def plot_data_distribution(
-    data_path: Path = typer.Option(NORMALISED_DATA_FILE, help="Path to dataset CSV"),
+    data_path: Path = typer.Option(
+        BALANCED_DATA_FILE, help="Path to dataset CSV"),
     output_path: Path = typer.Option(
         FIGURES_DIR / "class_distribution.png", help="Output plot path"
     ),
@@ -228,7 +232,8 @@ def plot_classification_metrics(
         REPORTS_DIR / "evaluation_classification_report.csv",
         help="Path to classification report CSV",
     ),
-    output_path: Path = typer.Option(FIGURES_DIR / "f1_per_class.png", help="Output plot path"),
+    output_path: Path = typer.Option(
+        FIGURES_DIR / "f1_per_class.png", help="Output plot path"),
 ):
     """Generate F1-score per class plot from classification report."""
     plot_f1_per_class(report_path, output_path)
@@ -262,9 +267,11 @@ def plot_enhanced_confusion_matrix(
 
 @app.command()
 def generate_all_plots(
-    data_path: Path = typer.Option(NORMALISED_DATA_FILE, help="Path to dataset CSV"),
+    data_path: Path = typer.Option(
+        BALANCED_DATA_FILE, help="Path to dataset CSV"),
     reports_dir: Path = typer.Option(REPORTS_DIR, help="Reports directory"),
-    figures_dir: Path = typer.Option(FIGURES_DIR, help="Figures output directory"),
+    figures_dir: Path = typer.Option(
+        FIGURES_DIR, help="Figures output directory"),
 ):
     """Generate all available plots."""
     logger.info("Generating all plots...")
@@ -282,27 +289,33 @@ def generate_all_plots(
         logger.info("2/5 - Generating F1-score per class plot...")
         plot_f1_per_class(eval_report, figures_dir / "f1_per_class.png")
     else:
-        logger.warning("2/5 - Evaluation report not found, skipping F1-score plot")
+        logger.warning(
+            "2/5 - Evaluation report not found, skipping F1-score plot")
 
     # 3. Training metrics (if training metrics exist)
     training_metrics = reports_dir / "training_metrics.csv"
     if training_metrics.exists():
         logger.info("3/5 - Generating training progress plot...")
-        plot_training_metrics(training_metrics, figures_dir / "training_progress.png")
+        plot_training_metrics(
+            training_metrics, figures_dir / "training_progress.png")
     else:
-        logger.warning("3/5 - Training metrics not found, skipping training progress plot")
+        logger.warning(
+            "3/5 - Training metrics not found, skipping training progress plot")
 
     # 4. Enhanced confusion matrix (if confusion matrix exists)
     cm_file = reports_dir / "evaluation_confusion_matrix.csv"
     if cm_file.exists():
         logger.info("4/5 - Generating enhanced confusion matrix plot...")
-        plot_confusion_matrix_heatmap(cm_file, figures_dir / "enhanced_confusion_matrix.png")
+        plot_confusion_matrix_heatmap(
+            cm_file, figures_dir / "enhanced_confusion_matrix.png")
     else:
-        logger.warning("4/5 - Confusion matrix not found, skipping enhanced confusion matrix plot")
+        logger.warning(
+            "4/5 - Confusion matrix not found, skipping enhanced confusion matrix plot")
 
     # 5. Summary plot combining key metrics
     logger.info("5/5 - Generating summary dashboard...")
-    create_summary_dashboard(data_path, reports_dir, figures_dir / "summary_dashboard.png")
+    create_summary_dashboard(data_path, reports_dir,
+                             figures_dir / "summary_dashboard.png")
 
     logger.success("✅ All plots generated successfully!")
 
@@ -317,14 +330,16 @@ def create_summary_dashboard(data_path: Path, reports_dir: Path, save_path: Path
         label_col = "Label_Original" if "Label_Original" in df.columns else "Label"
         label_counts = df[label_col].value_counts()
 
-        ax1.pie(label_counts.values[:10], labels=label_counts.index[:10], autopct="%1.1f%%")
+        ax1.pie(
+            label_counts.values[:10], labels=label_counts.index[:10], autopct="%1.1f%%")
         ax1.set_title("Top 10 Classes Distribution", fontweight="bold")
 
         # 2. Training accuracy over time (if available)
         training_metrics = reports_dir / "training_metrics.csv"
         if training_metrics.exists():
             metrics_df = pd.read_csv(training_metrics)
-            ax2.plot(metrics_df["Episode"], metrics_df["Accuracy"], color="green", linewidth=2)
+            ax2.plot(metrics_df["Episode"],
+                     metrics_df["Accuracy"], color="green", linewidth=2)
             ax2.set_title("Training Accuracy Progress", fontweight="bold")
             ax2.set_xlabel("Episode")
             ax2.set_ylabel("Accuracy")
@@ -347,9 +362,11 @@ def create_summary_dashboard(data_path: Path, reports_dir: Path, save_path: Path
             report_df = pd.read_csv(eval_report, index_col=0)
             if "macro avg" in report_df.index:
                 metrics = ["precision", "recall", "f1-score"]
-                values = [report_df.loc["macro avg", metric] for metric in metrics]
+                values = [report_df.loc["macro avg", metric]
+                          for metric in metrics]
 
-                bars = ax3.bar(metrics, values, color=["skyblue", "lightgreen", "salmon"])
+                bars = ax3.bar(metrics, values, color=[
+                               "skyblue", "lightgreen", "salmon"])
                 ax3.set_title("Macro Average Metrics", fontweight="bold")
                 ax3.set_ylabel("Score")
                 ax3.set_ylim(0, 1)
@@ -377,7 +394,8 @@ def create_summary_dashboard(data_path: Path, reports_dir: Path, save_path: Path
 
         # 4. Data statistics
         total_samples = len(df)
-        num_features = len([col for col in df.columns if col not in ["Label", "Label_Original"]])
+        num_features = len([col for col in df.columns if col not in [
+                           "Label", "Label_Original"]])
         num_classes = df[label_col].nunique()
 
         stats_text = f"""Dataset Statistics:
@@ -400,7 +418,8 @@ def create_summary_dashboard(data_path: Path, reports_dir: Path, save_path: Path
         ax4.set_title("Dataset Overview", fontweight="bold")
         ax4.axis("off")
 
-        plt.suptitle("RL-IDS Summary Dashboard", fontsize=20, fontweight="bold")
+        plt.suptitle("RL-IDS Summary Dashboard",
+                     fontsize=20, fontweight="bold")
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
         plt.close()
@@ -412,7 +431,8 @@ def create_summary_dashboard(data_path: Path, reports_dir: Path, save_path: Path
 
 @app.command()
 def main(
-    input_path: Path = typer.Option(NORMALISED_DATA_FILE, help="Path to dataset CSV"),
+    input_path: Path = typer.Option(
+        BALANCED_DATA_FILE, help="Path to dataset CSV"),
     output_path: Path = typer.Option(
         FIGURES_DIR / "class_distribution.png", help="Output plot path"
     ),

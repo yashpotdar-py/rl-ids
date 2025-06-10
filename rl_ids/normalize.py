@@ -26,7 +26,8 @@ def main(
     logger.info(f"Initial dataset shape: {df.shape}")
 
     # Drop label columns for features
-    feature_cols = [col for col in df.columns if col not in ["Label", "Label_Original"]]
+    feature_cols = [col for col in df.columns if col not in [
+        "Label", "Label_Original"]]
     X = df[feature_cols]
     y = df[["Label", "Label_Original"]]
 
@@ -63,7 +64,8 @@ def main(
     extreme_mask = (X.abs() > max_safe_value).any(axis=1)
     extreme_count = extreme_mask.sum()
     if extreme_count > 0:
-        logger.warning(f"Found {extreme_count} rows with extremely large values")
+        logger.warning(
+            f"Found {extreme_count} rows with extremely large values")
 
         # Option 1: Cap extreme values
         X = X.clip(-max_safe_value, max_safe_value)
@@ -101,7 +103,8 @@ def main(
     #     f.write("LABEL_COLUMN = 'Label'\n")
     #     f.write(f"DATA_PATH = '{output_path}'\n")
 
-    logger.success(f"Data normalization complete. Final shape: {df_scaled.shape}")
+    logger.success(
+        f"Data normalization complete. Final shape: {df_scaled.shape}")
 
 
 if __name__ == "__main__":

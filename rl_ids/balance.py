@@ -66,7 +66,6 @@ def main(
 
         balanced_dfs.append(resampled)
 
-
     # Combine and shuffle
     logger.info(f"Combining and shuffling balance data")
     balanced_df = pd.concat(balanced_dfs, ignore_index=True)

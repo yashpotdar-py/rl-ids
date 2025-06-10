@@ -9,11 +9,8 @@ from tqdm import tqdm
 import typer
 
 from rl_ids.agents.dqn_agent import DQNAgent, DQNConfig
-from rl_ids.config import EPISODES_DIR, MODELS_DIR, NORMALISED_DATA_FILE, REPORTS_DIR
+from rl_ids.config import EPISODES_DIR, MODELS_DIR, BALANCED_DATA_FILE, REPORTS_DIR
 from rl_ids.environments.ids_env import IDSDetectionEnv
-
-logger.remove()  # Remove default handler
-logger.add(sys.stderr, level="INFO")  # Only show INFO and above
 
 
 app = typer.Typer()
@@ -21,12 +18,13 @@ app = typer.Typer()
 
 @app.command()
 def main(
-    data_path: Path = NORMALISED_DATA_FILE,
+    data_path: Path = BALANCED_DATA_FILE,
     models_dir: Path = MODELS_DIR,
     reports_dir: Path = REPORTS_DIR,
     episodes_dir: Path = EPISODES_DIR,
     num_episodes: int = typer.Option(200, help="Number of training episodes"),
-    target_update_interval: int = typer.Option(5, help="Target network update interval"),
+    target_update_interval: int = typer.Option(
+        5, help="Target network update interval"),
     lr: float = typer.Option(5e-5, help="Learning Rate"),
     gamma: float = typer.Option(0.99, help="Discount Factor"),
     epsilon: float = typer.Option(1.0, help="Initial Exploration Rate"),
@@ -35,7 +33,8 @@ def main(
     memory_size: int = typer.Option(50000, help="Replay Buffer Size"),
     batch_size: int = typer.Option(128, help="Training Batch Size"),
     save_interval: int = typer.Option(20, help="Model Save Interval"),
-    max_steps_per_episode: int = typer.Option(10000, help="Max steps per episode"),
+    max_steps_per_episode: int = typer.Option(
+        10000, help="Max steps per episode"),
 ):
     """Train DQN Agent on IDS Detection Task"""
     logger.info("Starting DQN training for IDS Detection")
@@ -45,7 +44,8 @@ def main(
     df = pd.read_csv(data_path)
 
     # Get feature columns (exclude label columns)
-    feature_cols = [col for col in df.columns if col not in ["Label", "Label_Original"]]
+    feature_cols = [col for col in df.columns if col not in [
+        "Label", "Label_Original"]]
 
     # Get dimensions
     input_dim = len(feature_cols)
@@ -63,7 +63,8 @@ def main(
 
     # Initialize environment
     logger.info("Initializing Environment...")
-    env = IDSDetectionEnv(data_path=data_path, feature_cols=feature_cols, label_col="Label")
+    env = IDSDetectionEnv(data_path=data_path,
+                          feature_cols=feature_cols, label_col="Label")
 
     # Initialize agent with configuration
     logger.info("Initializing DQN Agent...")
@@ -113,7 +114,8 @@ def main(
             next_state, reward, done, truncated, info = env.step(action=action)
 
             # Store experience in replay buffer
-            agent.remember(state, action, reward, next_state, done or truncated)
+            agent.remember(state, action, reward,
+                           next_state, done or truncated)
 
             # Train agent (if enough experiences in buffer)
             loss = agent.replay()
@@ -188,8 +190,10 @@ def main(
     max_accuracy = np.max(accuracies_per_episodes)
 
     logger.info("Training completed!")
-    logger.info(f"Final average reward (last 10 episodes): {final_avg_reward:.2f}")
-    logger.info(f"Final average accuracy (last 10 episodes): {final_avg_accuracy:.4f}")
+    logger.info(
+        f"Final average reward (last 10 episodes): {final_avg_reward:.2f}")
+    logger.info(
+        f"Final average accuracy (last 10 episodes): {final_avg_accuracy:.4f}")
     logger.info(f"Maximum accuracy achieved: {max_accuracy:.4f}")
 
     return {

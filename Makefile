@@ -94,7 +94,7 @@ check-model:
 
 ## Full pipeline: install, train, evaluate, and test API
 .PHONY: pipeline
-pipeline: requirements preprocess-data train evaluate api-test
+pipeline: create_environment requirements preprocess-data train evaluate api-test
 
 #################################################################################
 # Self Documenting Commands                                                     #

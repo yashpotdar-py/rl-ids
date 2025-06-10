@@ -26,7 +26,8 @@ class DQNConfig(BaseModel):
     eps_min: float = Field(0.1, description="Minimum epsilon value")
     memory_size: int = Field(3000000, description="Replay buffer size")
     batch_size: int = Field(64, description="Training batch size")
-    hidden_dims: List[int] = Field([256, 128], description="Hidden layer dimensions")
+    hidden_dims: List[int] = Field(
+        [256, 128], description="Hidden layer dimensions")
 
 
 class DQN(nn.Module):
@@ -70,11 +71,13 @@ class DQNAgent:
         self.batch_size = config.batch_size
 
         # Add device selection
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
         logger.info(f"Using device: {self.device}")
 
         # Initialize networks
-        self.model = DQN(config.state_dim, config.action_dim, config.hidden_dims).to(self.device)
+        self.model = DQN(config.state_dim, config.action_dim,
+                         config.hidden_dims).to(self.device)
         self.target_model = DQN(config.state_dim, config.action_dim, config.hidden_dims).to(
             self.device
         )
@@ -178,23 +181,24 @@ class DQNAgent:
         """Load a saved model."""
         try:
             logger.info(f"Loading model from {filepath}")
-            
+
             # Use map_location if provided, otherwise use the agent's device
             device = map_location if map_location is not None else (
                 torch.device("cuda" if torch.cuda.is_available() else "cpu")
             )
-            
+
             checkpoint = torch.load(filepath, map_location=device)
-            
+
             self.model.load_state_dict(checkpoint["model_state_dict"])
-            self.target_model.load_state_dict(checkpoint["target_model_state_dict"])
-            
+            self.target_model.load_state_dict(
+                checkpoint["target_model_state_dict"])
+
             # Move models to the correct device
             self.model.to(device)
             self.target_model.to(device)
-            
+
             logger.success(f"✅ Model loaded successfully from {filepath}")
-            
+
         except Exception as e:
             logger.error(f"Failed to load model: {e}")
             raise

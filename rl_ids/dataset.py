@@ -14,7 +14,8 @@ app = typer.Typer()
 
 def load_and_preprocess_data(data_dir: Path = RAW_DATA_DIR):
     """Load and preprocess CSV data files from the specified directory."""
-    logger.info(f"Starting data processing pipeline from directory: {data_dir}")
+    logger.info(
+        f"Starting data processing pipeline from directory: {data_dir}")
 
     # Validate input directory
     if not data_dir.exists():
@@ -89,7 +90,8 @@ def load_and_preprocess_data(data_dir: Path = RAW_DATA_DIR):
     else:
         logger.warning("No 'Label' column found in dataset")
 
-    logger.success(f"Data processing complete. Final dataset shape: {data.shape}")
+    logger.success(
+        f"Data processing complete. Final dataset shape: {data.shape}")
 
     return data
 
@@ -116,7 +118,8 @@ def main(raw_dir: Path = RAW_DATA_DIR, processed_dir: Path = PROCESSED_DATA_DIR)
 
     try:
         data.to_csv(processed_file_path, index=False)
-        logger.success(f"Successfully saved {len(data)} rows to {processed_file_path}")
+        logger.success(
+            f"Successfully saved {len(data)} rows to {processed_file_path}")
     except Exception as e:
         logger.error(f"Failed to save processed data: {str(e)}")
         raise typer.Exit(1)

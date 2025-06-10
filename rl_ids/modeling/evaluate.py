@@ -12,7 +12,7 @@ from tqdm import tqdm
 import typer
 
 from rl_ids.agents.dqn_agent import DQNAgent, DQNConfig
-from rl_ids.config import FIGURES_DIR, MODELS_DIR, NORMALISED_DATA_FILE, REPORTS_DIR
+from rl_ids.config import FIGURES_DIR, MODELS_DIR, BALANCED_DATA_FILE, REPORTS_DIR
 from rl_ids.environments.ids_env import IDSDetectionEnv
 
 app = typer.Typer()
@@ -23,12 +23,18 @@ def main(
     model_path: Path = typer.Option(
         MODELS_DIR / "dqn_model_final.pt", help="Path to trained DQN model"
     ),
-    data_path: Path = typer.Option(NORMALISED_DATA_FILE, help="Path to evaluation dataset"),
-    reports_dir: Path = typer.Option(REPORTS_DIR, help="Directory to save evaluation reports"),
-    figures_dir: Path = typer.Option(FIGURES_DIR, help="Directory to save evaluation figures"),
-    test_episodes: int = typer.Option(10, help="Number of episodes to run for evaluation"),
-    max_steps_per_episode: int = typer.Option(20000, help="Maximum steps per evaluation episode"),
-    save_predictions: bool = typer.Option(True, help="Save detailed predictions to CSV"),
+    data_path: Path = typer.Option(
+        BALANCED_DATA_FILE, help="Path to evaluation dataset"),
+    reports_dir: Path = typer.Option(
+        REPORTS_DIR, help="Directory to save evaluation reports"),
+    figures_dir: Path = typer.Option(
+        FIGURES_DIR, help="Directory to save evaluation figures"),
+    test_episodes: int = typer.Option(
+        10, help="Number of episodes to run for evaluation"),
+    max_steps_per_episode: int = typer.Option(
+        20000, help="Maximum steps per evaluation episode"),
+    save_predictions: bool = typer.Option(
+        True, help="Save detailed predictions to CSV"),
 ):
     """Evaluate trained DQN agent on IDS detection task."""
 
@@ -43,7 +49,8 @@ def main(
     df = pd.read_csv(data_path)
 
     # Get feature columns (exclude label columns)
-    feature_cols = [col for col in df.columns if col not in ["Label", "Label_Original"]]
+    feature_cols = [col for col in df.columns if col not in [
+        "Label", "Label_Original"]]
 
     # Get dimensions
     input_dim = len(feature_cols)
@@ -56,7 +63,8 @@ def main(
 
     # Initialize environment
     logger.info("Initializing evaluation environment...")
-    env = IDSDetectionEnv(data_path=data_path, feature_cols=feature_cols, label_col="Label")
+    env = IDSDetectionEnv(data_path=data_path,
+                          feature_cols=feature_cols, label_col="Label")
 
     # Load trained agent
     logger.info(f"Loading trained model from {model_path}")
@@ -130,7 +138,8 @@ def main(
 
         # Calculate episode metrics
         if episode_true_labels:
-            episode_accuracy = accuracy_score(episode_true_labels, episode_predictions)
+            episode_accuracy = accuracy_score(
+                episode_true_labels, episode_predictions)
             episode_accuracies.append(episode_accuracy)
             episode_rewards.append(total_reward)
 
@@ -199,7 +208,8 @@ def main(
 
     # Generate and save confusion matrix
     logger.info("Generating confusion matrix...")
-    cm = confusion_matrix(all_true_labels, all_predictions, labels=unique_labels)
+    cm = confusion_matrix(
+        all_true_labels, all_predictions, labels=unique_labels)
 
     # Save confusion matrix as CSV
     cm_path = reports_dir / "evaluation_confusion_matrix.csv"
@@ -235,7 +245,8 @@ def main(
 
             if class_count > 0:
                 class_acc = accuracy_score(
-                    np.array(all_true_labels)[class_mask], np.array(all_predictions)[class_mask]
+                    np.array(all_true_labels)[class_mask], np.array(
+                        all_predictions)[class_mask]
                 )
                 class_accuracies.append(class_acc)
             else:
@@ -245,7 +256,8 @@ def main(
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
 
         # Plot accuracy per class
-        bars1 = ax1.bar(range(len(unique_labels)), class_accuracies, color="skyblue", alpha=0.7)
+        bars1 = ax1.bar(range(len(unique_labels)),
+                        class_accuracies, color="skyblue", alpha=0.7)
         ax1.set_xlabel("Class")
         ax1.set_ylabel("Accuracy")
         ax1.set_title("Per-Class Accuracy")
@@ -265,7 +277,8 @@ def main(
             )
 
         # Plot sample counts per class
-        bars2 = ax2.bar(range(len(unique_labels)), class_counts, color="lightcoral", alpha=0.7)
+        bars2 = ax2.bar(range(len(unique_labels)), class_counts,
+                        color="lightcoral", alpha=0.7)
         ax2.set_xlabel("Class")
         ax2.set_ylabel("Sample Count")
         ax2.set_title("Sample Count per Class")
@@ -307,8 +320,10 @@ def main(
         )
 
         # Add class names for better readability
-        predictions_df["True_Class"] = [f"Class_{label}" for label in all_true_labels]
-        predictions_df["Predicted_Class"] = [f"Class_{label}" for label in all_predictions]
+        predictions_df["True_Class"] = [
+            f"Class_{label}" for label in all_true_labels]
+        predictions_df["Predicted_Class"] = [
+            f"Class_{label}" for label in all_predictions]
 
         predictions_path = reports_dir / "evaluation_detailed_predictions.csv"
         predictions_df.to_csv(predictions_path, index=False)
@@ -352,11 +367,13 @@ def main(
             summary_dict[f"precision_class_{class_id}"] = report_dict[class_key].get(
                 "precision", 0.0
             )
-            summary_dict[f"recall_class_{class_id}"] = report_dict[class_key].get("recall", 0.0)
+            summary_dict[f"recall_class_{class_id}"] = report_dict[class_key].get(
+                "recall", 0.0)
             summary_dict[f"f1_score_class_{class_id}"] = report_dict[class_key].get(
                 "f1-score", 0.0
             )
-            summary_dict[f"support_class_{class_id}"] = report_dict[class_key].get("support", 0)
+            summary_dict[f"support_class_{class_id}"] = report_dict[class_key].get(
+                "support", 0)
 
     summary_df = pd.DataFrame([summary_dict])
     summary_path = reports_dir / "evaluation_summary.csv"
@@ -380,8 +397,10 @@ def main(
     x = np.arange(len(metrics))
     width = 0.35
 
-    plt.bar(x - width / 2, macro_scores, width, label="Macro Average", alpha=0.7)
-    plt.bar(x + width / 2, weighted_scores, width, label="Weighted Average", alpha=0.7)
+    plt.bar(x - width / 2, macro_scores, width,
+            label="Macro Average", alpha=0.7)
+    plt.bar(x + width / 2, weighted_scores, width,
+            label="Weighted Average", alpha=0.7)
 
     plt.xlabel("Metrics")
     plt.ylabel("Score")
@@ -392,14 +411,17 @@ def main(
 
     # Add value labels on bars
     for i, (macro, weighted) in enumerate(zip(macro_scores, weighted_scores)):
-        plt.text(i - width / 2, macro + 0.01, f"{macro:.3f}", ha="center", va="bottom")
-        plt.text(i + width / 2, weighted + 0.01, f"{weighted:.3f}", ha="center", va="bottom")
+        plt.text(i - width / 2, macro + 0.01,
+                 f"{macro:.3f}", ha="center", va="bottom")
+        plt.text(i + width / 2, weighted + 0.01,
+                 f"{weighted:.3f}", ha="center", va="bottom")
 
     plt.tight_layout()
     performance_plot_path = figures_dir / "evaluation_performance_summary.png"
     plt.savefig(performance_plot_path, dpi=300, bbox_inches="tight")
     plt.close()
-    logger.success(f"Performance summary plot saved to: {performance_plot_path}")
+    logger.success(
+        f"Performance summary plot saved to: {performance_plot_path}")
 
     logger.info("\n✅ Evaluation completed successfully!")
     logger.info(f"📁 Reports saved to: {reports_dir}")
