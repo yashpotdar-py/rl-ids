@@ -92,21 +92,21 @@ class IDSPredictionService:
 
         # Update class names for multi-class model
         self.class_names = [
-            "Normal",           # 0
-            "DoS",             # 1
-            "Probe",           # 2
-            "R2L",             # 3
-            "U2R",             # 4
-            "Neptune",         # 5
-            "Smurf",           # 6
-            "Satan",           # 7
-            "Ipsweep",         # 8
-            "Portsweep",       # 9
-            "Nmap",            # 10
-            "Back",            # 11
-            "Warezclient",     # 12
-            "Teardrop",        # 13
-            "Pod"              # 14
+            'BENIGN',
+            'Web Attack � Brute Force',
+            'Web Attack � XSS',
+            'Web Attack � Sql Injection',
+            'FTP-Patator',
+            'SSH-Patator',
+            'PortScan',
+            'DoS slowloris',
+            'DoS Slowhttptest',
+            'DoS Hulk',
+            'DoS GoldenEye',
+            'Heartbleed',
+            'Bot',
+            'DDoS',
+            'Infiltration'
         ]
 
         self.model_info = {
@@ -154,7 +154,8 @@ class IDSPredictionService:
 
             # Determine if it's an attack (anything other than class 0 "Normal")
             is_attack = prediction != 0
-            predicted_class_name = self.class_names[prediction] if prediction < len(self.class_names) else f"Unknown_{prediction}"
+            predicted_class_name = self.class_names[prediction] if prediction < len(
+                self.class_names) else f"Unknown_{prediction}"
 
             # Prepare response
             result = {

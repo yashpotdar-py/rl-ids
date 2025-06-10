@@ -54,6 +54,8 @@ create_environment:
 .PHONY: preprocess-data
 preprocess-data:
 	$(PYTHON_INTERPRETER) -m rl_ids.dataset --raw-dir data/raw/MachineLearningCVE
+	$(PYTHON_INTERPRETER) -m rl_ids.normalize
+	$(PYTHON_INTERPRETER) -m rl_ids.balance
 
 ## Train the DQN model
 .PHONY: train
@@ -92,7 +94,7 @@ check-model:
 
 ## Full pipeline: install, train, evaluate, and test API
 .PHONY: pipeline
-pipeline: requirements train evaluate api-test
+pipeline: requirements preprocess-data train evaluate api-test
 
 #################################################################################
 # Self Documenting Commands                                                     #

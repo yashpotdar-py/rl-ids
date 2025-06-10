@@ -18,6 +18,8 @@ EXTERNAL_DATA_DIR = DATA_DIR / "external"
 
 PROCESSED_DATA_FILE = PROCESSED_DATA_DIR / "cicids2017_processed.csv"
 NORMALISED_DATA_FILE = PROCESSED_DATA_DIR / "cicids2017_normalised.csv"
+BALANCED_DATA_FILE = PROCESSED_DATA_DIR / "cicids2017_balanced.csv"
+
 
 MODELS_DIR = PROJ_ROOT / "models"
 EPISODES_DIR = MODELS_DIR / "episodes"
