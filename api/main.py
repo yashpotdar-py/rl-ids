@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from loguru import logger
 import pandas as pd
 
-from rl_ids.config import MODELS_DIR, NORMALISED_DATA_FILE
+from rl_ids.config import MODELS_DIR, BALANCED_DATA_FILE
 from .models import IDSPredictionRequest, IDSPredictionResponse, HealthResponse, ModelInfoResponse
 from .services import IDSPredictionService
 

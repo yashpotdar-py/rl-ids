@@ -14,7 +14,7 @@ import pandas as pd
 import torch
 
 from rl_ids.agents.dqn_agent import DQNAgent, DQNConfig
-from rl_ids.config import NORMALISED_DATA_FILE
+from rl_ids.config import BALANCED_DATA_FILE
 
 
 class IDSPredictionService:
@@ -70,9 +70,9 @@ class IDSPredictionService:
     async def _load_feature_info(self) -> None:
         """Load feature information from the normalized dataset."""
         try:
-            if NORMALISED_DATA_FILE.exists():
+            if BALANCED_DATA_FILE.exists():
                 # Load a small sample to get feature columns
-                df_sample = pd.read_csv(NORMALISED_DATA_FILE, nrows=1)
+                df_sample = pd.read_csv(BALANCED_DATA_FILE, nrows=1)
                 self.feature_columns = [col for col in df_sample.columns
                                         if col not in ["Label", "Label_Original"]]
                 logger.info(

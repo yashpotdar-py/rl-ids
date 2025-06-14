@@ -20,7 +20,7 @@ class APISettings(BaseSettings):
 
     # Model Settings
     model_path: Path = MODELS_DIR / "dqn_model_final.pt"
-    data_path: Path = PROCESSED_DATA_DIR / "cicids2017_normalised.csv"
+    data_path: Path = PROCESSED_DATA_DIR / "cicids2017_balanced.csv"
 
     # Performance Settings
     max_batch_size: int = 100
