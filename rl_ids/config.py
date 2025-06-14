@@ -20,6 +20,9 @@ PROCESSED_DATA_FILE = PROCESSED_DATA_DIR / "cicids2017_processed.csv"
 NORMALISED_DATA_FILE = PROCESSED_DATA_DIR / "cicids2017_normalised.csv"
 BALANCED_DATA_FILE = PROCESSED_DATA_DIR / "cicids2017_balanced.csv"
 
+TRAIN_DATA_FILE = PROCESSED_DATA_DIR / "cicids_train.csv"
+VAL_DATA_FILE =  PROCESSED_DATA_DIR / "cicids_val.csv"
+TEST_DATA_FILE = PROCESSED_DATA_DIR / "cicids_test.csv"
 
 MODELS_DIR = PROJ_ROOT / "models"
 EPISODES_DIR = MODELS_DIR / "episodes"
