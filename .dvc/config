@@ -1,5 +1,0 @@
-[core]
-    remote = s3remote
-['remote "s3remote"']
-    url = s3://rl-ids
-    region = eu-north-1
