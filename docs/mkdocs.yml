@@ -118,6 +118,7 @@ nav:
     - Advanced Training: tutorials/advanced_training.md
     - API Usage: tutorials/api_usage.md
     - Basic Training: tutorials/training.md
+  - Release Notes: changelog.md
   - FAQ & Troubleshooting: faq.md
 
 # Social links
