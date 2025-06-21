@@ -1,0 +1,117 @@
+/* Custom styles for RL-IDS documentation */
+
+:root {
+  --md-primary-fg-color: #1976d2;
+  --md-accent-fg-color: #2196f3;
+}
+
+/* Custom color scheme */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #1976d2;
+  --md-primary-fg-color--light: #1976d2;
+  --md-primary-fg-color--dark: #0d47a1;
+}
+
+/* Code block styling */
+.highlight .filename {
+  background-color: var(--md-code-bg-color);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+  color: var(--md-code-fg-color);
+  font-size: 0.85em;
+  padding: 0.5rem 1rem;
+  margin: 0;
+}
+
+/* Admonition custom styles */
+.md-typeset .admonition.note {
+  border-color: #2196f3;
+}
+
+.md-typeset .admonition.tip {
+  border-color: #4caf50;
+}
+
+.md-typeset .admonition.warning {
+  border-color: #ff9800;
+}
+
+.md-typeset .admonition.danger {
+  border-color: #f44336;
+}
+
+/* Custom button styles */
+.md-button {
+  background-color: var(--md-primary-fg-color);
+  border-color: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+}
+
+.md-button:hover {
+  background-color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+}
+
+/* Table styling */
+.md-typeset table:not([class]) {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.2rem;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-default-fg-color--lightest);
+  font-weight: 700;
+}
+
+/* Code highlight improvements */
+.md-typeset .highlight .hll {
+  background-color: #ffffcc;
+}
+
+/* Navigation improvements */
+.md-nav__item--nested > .md-nav__link {
+  font-weight: 700;
+}
+
+/* Footer styling */
+.md-footer {
+  background-color: var(--md-primary-fg-color--dark);
+}
+
+/* Custom grid layout for landing page */
+.md-grid {
+  max-width: 76rem;
+}
+
+/* Responsive images */
+.md-typeset img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Performance metrics styling */
+.performance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.performance-card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.2rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.performance-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--md-primary-fg-color);
+}
+
+.performance-label {
+  font-size: 0.8rem;
+  color: var(--md-default-fg-color--light);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
