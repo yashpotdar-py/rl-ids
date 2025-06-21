@@ -306,7 +306,7 @@ We welcome contributions from the community! Here's how you can help:
 - **💬 Discussions**: Join [GitHub Discussions](https://github.com/yashpotdar-py/rl-ids/discussions) for questions
 
 ### 📧 **Contact Information**
-- **Maintainer**: Yash Potdar (yash.potdar@example.com)
+- **Maintainer**: Yash Potdar (yashpotdar.vercel.app)
 - **Project Repository**: [github.com/yashpotdar-py/rl-ids](https://github.com/yashpotdar-py/rl-ids)
 - **Documentation Site**: [yashpotdar-py.github.io/rl-ids](https://yashpotdar-py.github.io/rl-ids)
 
