@@ -60,11 +60,11 @@ This documentation is organized into five main sections designed to serve differ
 
 | Section | Description | Target Audience |
 |---------|-------------|-----------------|
-| **[Getting Started](docs/getting-started.md)** | Complete setup guide with step-by-step instructions | New users, researchers |
-| **[API Reference](docs/api/index.md)** | Comprehensive REST API documentation | Developers, integrators |
-| **[Module Reference](docs/modules/index.md)** | Detailed code documentation and architecture | ML engineers, developers |
-| **[Tutorials](docs/tutorials/index.md)** | Advanced guides and best practices | All users |
-| **[FAQ](docs/faq.md)** | Troubleshooting and common issues | All users |
+| **[Getting Started](docs/docs/getting-started.md)** | Complete setup guide with step-by-step instructions | New users, researchers |
+| **[API Reference](docs/docs/api/index.md)** | Comprehensive REST API documentation | Developers, integrators |
+| **[Module Reference](docs/docs/modules/index.md)** | Detailed code documentation and architecture | ML engineers, developers |
+| **[Tutorials](docs/docs/tutorials/index.md)** | Advanced guides and best practices | All users |
+| **[FAQ](docs/docs/faq.md)** | Troubleshooting and common issues | All users |
 
 ### 🔧 Technical Modules
 
@@ -82,32 +82,32 @@ This documentation is organized into five main sections designed to serve differ
 Choose your learning path based on your role and objectives:
 
 #### 🔬 **Researcher Path**
-1. [Project Overview](docs/index.md) → Understanding the system architecture
-2. [Getting Started](docs/getting-started.md) → Basic setup and first experiment
-3. [DQN Agent](docs/modules/agents.md) → Deep dive into the RL algorithm
-4. [Advanced Training](docs/tutorials/advanced_training.md) → Hyperparameter optimization
-5. [Visualization](docs/modules/plots.md) → Analysis and result interpretation
+1. [Project Overview](docs/docs/index.md) → Understanding the system architecture
+2. [Getting Started](docs/docs/getting-started.md) → Basic setup and first experiment
+3. [DQN Agent](docs/docs/modules/agents.md) → Deep dive into the RL algorithm
+4. [Advanced Training](docs/docs/tutorials/advanced_training.md) → Hyperparameter optimization
+5. [Visualization](docs/docs/modules/plots.md) → Analysis and result interpretation
 
 #### 🛠️ **Developer Path**
-1. [Getting Started](docs/getting-started.md) → System setup and configuration
-2. [API Reference](docs/api/index.md) → Understanding service capabilities
-3. [Module Reference](docs/modules/index.md) → Code architecture and APIs
-4. [API Usage Tutorial](docs/tutorials/api_usage.md) → Integration patterns
-5. [FAQ](docs/faq.md) → Common development issues
+1. [Getting Started](docs/docs/getting-started.md) → System setup and configuration
+2. [API Reference](docs/docs/api/index.md) → Understanding service capabilities
+3. [Module Reference](docs/docs/modules/index.md) → Code architecture and APIs
+4. [API Usage Tutorial](docs/docs/tutorials/api_usage.md) → Integration patterns
+5. [FAQ](docs/docs/faq.md) → Common development issues
 
 #### 🚀 **DevOps Path**
-1. [Getting Started](docs/getting-started.md) → Basic system understanding
-2. [API Reference](docs/api/index.md) → Service endpoints and monitoring
-3. [API Usage Tutorial](docs/tutorials/api_usage.md) → Deployment strategies
-4. [Configuration](docs/modules/config.md) → System configuration
-5. [FAQ](docs/faq.md) → Operational troubleshooting
+1. [Getting Started](docs/docs/getting-started.md) → Basic system understanding
+2. [API Reference](docs/docs/api/index.md) → Service endpoints and monitoring
+3. [API Usage Tutorial](docs/docs/tutorials/api_usage.md) → Deployment strategies
+4. [Configuration](docs/docs/modules/config.md) → System configuration
+5. [FAQ](docs/docs/faq.md) → Operational troubleshooting
 
 #### 📊 **Data Scientist Path**
-1. [Project Overview](docs/index.md) → System context and objectives
-2. [Data Processing](docs/modules/make_dataset.md) → Understanding the data pipeline
-3. [Training Pipeline](docs/modules/modeling.md) → Model training workflows
-4. [Visualization](docs/modules/plots.md) → Analysis capabilities
-5. [Advanced Training](docs/tutorials/advanced_training.md) → Advanced techniques
+1. [Project Overview](docs/docs/index.md) → System context and objectives
+2. [Data Processing](docs/docs/modules/make_dataset.md) → Understanding the data pipeline
+3. [Training Pipeline](docs/docs/modules/modeling.md) → Model training workflows
+4. [Visualization](docs/docs/modules/plots.md) → Analysis capabilities
+5. [Advanced Training](docs/docs/tutorials/advanced_training.md) → Advanced techniques
 
 ## 🏗️ System Architecture
 
@@ -232,22 +232,22 @@ mkdocs build
 ## 📋 Documentation Navigation
 
 ### 📖 **Essential Reading**
-- **[🚀 Getting Started](docs/getting-started.md)** - Your first stop for setup and basic usage
-- **[📖 API Reference](docs/api/index.md)** - Complete API documentation with examples
-- **[🏗️ Architecture Overview](docs/modules/index.md)** - System design and module relationships
-- **[❓ FAQ & Troubleshooting](docs/faq.md)** - Solutions to common issues
+- **[🚀 Getting Started](docs/docs/getting-started.md)** - Your first stop for setup and basic usage
+- **[📖 API Reference](docs/docs/api/index.md)** - Complete API documentation with examples
+- **[🏗️ Architecture Overview](docs/docs/modules/index.md)** - System design and module relationships
+- **[❓ FAQ & Troubleshooting](docs/docs/faq.md)** - Solutions to common issues
 
 ### 🧠 **Deep Learning Components**
-- **[DQN Agent Implementation](docs/modules/agents.md)** - Advanced DQN with modern techniques
-- **[Custom IDS Environment](docs/modules/environments.md)** - Gymnasium environment for cybersecurity
-- **[Training & Evaluation](docs/modules/modeling.md)** - Complete ML pipeline documentation
-- **[Data Preprocessing](docs/modules/make_dataset.md)** - Feature engineering and data preparation
+- **[DQN Agent Implementation](docs/docs/modules/agents.md)** - Advanced DQN with modern techniques
+- **[Custom IDS Environment](docs/docs/modules/environments.md)** - Gymnasium environment for cybersecurity
+- **[Training & Evaluation](docs/docs/modules/modeling.md)** - Complete ML pipeline documentation
+- **[Data Preprocessing](docs/docs/modules/make_dataset.md)** - Feature engineering and data preparation
 
 ### 🚀 **Production & Deployment**
-- **[API Integration Patterns](docs/tutorials/api_usage.md)** - Production deployment strategies
-- **[Advanced Training Techniques](docs/tutorials/advanced_training.md)** - Hyperparameter optimization and curriculum learning
-- **[Configuration Management](docs/modules/config.md)** - System configuration and customization
-- **[Monitoring & Visualization](docs/modules/plots.md)** - Comprehensive analysis tools
+- **[API Integration Patterns](docs/docs/tutorials/api_usage.md)** - Production deployment strategies
+- **[Advanced Training Techniques](docs/docs/tutorials/advanced_training.md)** - Hyperparameter optimization and curriculum learning
+- **[Configuration Management](docs/docs/modules/config.md)** - System configuration and customization
+- **[Monitoring & Visualization](docs/docs/modules/plots.md)** - Comprehensive analysis tools
 
 ## 🤝 Contributing
 
@@ -280,28 +280,28 @@ We welcome contributions from the community! Here's how you can help:
 ## 🔗 Quick Reference Links
 
 ### 📱 **Most Used Pages**
-- [🔧 Installation Guide](docs/getting-started.md#installation)
-- [🏃 Quick Start Tutorial](docs/getting-started.md#quick-start)
-- [📋 API Endpoints](docs/api/index.md#endpoints)
-- [⚙️ Configuration Options](docs/modules/config.md)
+- [🔧 Installation Guide](docs/docs/getting-started.md#installation)
+- [🏃 Quick Start Tutorial](docs/docs/getting-started.md#quick-start)
+- [📋 API Endpoints](docs/docs/api/index.md#endpoints)
+- [⚙️ Configuration Options](docs/docs/modules/config.md)
 
 ### 🆘 **When You Need Help**
-- [❓ Frequently Asked Questions](docs/faq.md)
-- [🐛 Troubleshooting Guide](docs/faq.md#troubleshooting)
+- [❓ Frequently Asked Questions](docs/docs/faq.md)
+- [🐛 Troubleshooting Guide](docs/docs/faq.md#troubleshooting)
 - [📞 Support Channels](#support--community)
-- [🔧 Configuration Issues](docs/faq.md#configuration-issues)
+- [🔧 Configuration Issues](docs/docs/faq.md#configuration-issues)
 
 ### 🎓 **Learning Resources**
-- [📚 Tutorial Index](docs/tutorials/index.md)
-- [🧠 ML Concepts](docs/modules/agents.md#deep-q-network-theory)
-- [📊 Data Science Pipeline](docs/modules/make_dataset.md)
-- [🔍 Advanced Techniques](docs/tutorials/advanced_training.md)
+- [📚 Tutorial Index](docs/docs/tutorials/index.md)
+- [🧠 ML Concepts](docs/docs/modules/agents.md#deep-q-network-theory)
+- [📊 Data Science Pipeline](docs/docs/modules/make_dataset.md)
+- [🔍 Advanced Techniques](docs/docs/tutorials/advanced_training.md)
 
 ## 📞 Support & Community
 
 ### 🆘 **Getting Help**
 - **📖 Documentation**: Start with this comprehensive documentation
-- **❓ FAQ**: Check our [FAQ section](docs/faq.md) for common issues
+- **❓ FAQ**: Check our [FAQ section](docs/docs/faq.md) for common issues
 - **🐛 Issues**: Report bugs on [GitHub Issues](https://github.com/yashpotdar-py/rl-ids/issues)
 - **💬 Discussions**: Join [GitHub Discussions](https://github.com/yashpotdar-py/rl-ids/discussions) for questions
 
