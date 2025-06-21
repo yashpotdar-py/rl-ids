@@ -1,14 +1,17 @@
-from rl_ids.config import FIGURES_DIR, REPORTS_DIR
 from pathlib import Path
 from typing import Optional, Union
+import warnings
+
+from loguru import logger
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from loguru import logger
-import typer
 from sklearn.metrics import confusion_matrix
-import warnings
+import typer
+
+from rl_ids.config import FIGURES_DIR, REPORTS_DIR
+
 warnings.filterwarnings('ignore')
 
 
@@ -179,7 +182,7 @@ class IDSPlotter:
         ax7.plot(episodes, rolling_mean,
                  color=self.colors['primary'], linewidth=3, label=f'Rolling Mean ({window_size})')
         ax7.fill_between(episodes, rolling_mean - rolling_std, rolling_mean + rolling_std,
-                         alpha=0.2, color=self.colors['primary'], label=f'±1 Std Dev')
+                         alpha=0.2, color=self.colors['primary'], label='±1 Std Dev')
 
         ax7.set_title('Training Stability Analysis',
                       fontsize=14, fontweight='bold')

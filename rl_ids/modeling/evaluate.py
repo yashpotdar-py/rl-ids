@@ -7,13 +7,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    precision_recall_fscore_support,
+)
 import torch
 from tqdm import tqdm
 import typer
 
 from rl_ids.agents.dqn_agent import DQNAgent, DQNConfig
-from rl_ids.config import FIGURES_DIR, MODELS_DIR, REPORTS_DIR, TRAIN_DATA_FILE, TEST_DATA_FILE
+from rl_ids.config import FIGURES_DIR, MODELS_DIR, REPORTS_DIR, TEST_DATA_FILE, TRAIN_DATA_FILE
 from rl_ids.environments.ids_env import IDSDetectionEnv
 
 app = typer.Typer()
@@ -90,7 +95,7 @@ def main(
     # Load training data for label mapping reference
     train_df = None
     if train_data_path.exists():
-        logger.info(f"📂 Loading training data for label mapping")
+        logger.info("📂 Loading training data for label mapping")
         train_df = pd.read_csv(train_data_path)
 
     # Get feature columns (exclude label columns)

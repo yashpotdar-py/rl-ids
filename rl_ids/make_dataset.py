@@ -1,17 +1,18 @@
 import os
-import pandas as pd
-import numpy as np
 from pathlib import Path
-from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler, LabelEncoder
-from sklearn.model_selection import StratifiedShuffleSplit
-from sklearn.utils import resample
-from imblearn.over_sampling import SMOTE
-from imblearn.combine import SMOTETomek
-from loguru import logger
-import typer
-from typing import Tuple
-from tqdm import tqdm
 import time
+from typing import Tuple
+
+from imblearn.combine import SMOTETomek
+from imblearn.over_sampling import SMOTE
+from loguru import logger
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler, RobustScaler, StandardScaler
+from sklearn.utils import resample
+from tqdm import tqdm
+import typer
 
 from rl_ids.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
 
@@ -399,7 +400,7 @@ class DataProcessor:
         final_counts = result['Label'].value_counts().sort_index()
         final_total = len(result)
 
-        logger.info(f"📊 Final distribution:")
+        logger.info("📊 Final distribution:")
         for label, count in final_counts.items():
             percentage = (count / final_total) * 100
             change = count - original_counts[label]
@@ -564,7 +565,7 @@ class DataProcessor:
         tier_2_threshold = class_counts.iloc[0] * 0.01  # Medium classes
         tier_3_threshold = 100  # Small classes
 
-        logger.info(f"📊 Class tiers defined:")
+        logger.info("📊 Class tiers defined:")
         logger.info(f"   Tier 1 (Large): ≥{tier_1_threshold:,.0f} samples")
         logger.info(
             f"   Tier 2 (Medium): {tier_2_threshold:,.0f} - {tier_1_threshold:,.0f} samples")
@@ -669,7 +670,7 @@ class DataProcessor:
             test_df = test_df.reset_index(drop=True)
             pbar.update(1)
 
-        logger.info(f"📊 Split results:")
+        logger.info("📊 Split results:")
         logger.info(
             f"   🏋️  Train set: {train_df.shape[0]:,} samples ({train_df.shape[0]/len(df):.1%})")
         if not val_df.empty:
@@ -792,7 +793,7 @@ def main(
 
     # Class distribution summary
     final_counts = df_balanced['Label'].value_counts().sort_index()
-    logger.info(f"📊 Final class distribution summary:")
+    logger.info("📊 Final class distribution summary:")
     logger.info(f"   Classes: {len(final_counts)}")
     logger.info(f"   Min class size: {final_counts.min():,}")
     logger.info(f"   Max class size: {final_counts.max():,}")

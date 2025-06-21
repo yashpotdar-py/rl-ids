@@ -5,14 +5,13 @@ import time
 from loguru import logger
 import numpy as np
 import pandas as pd
+import torch
 from tqdm import tqdm
 import typer
-import torch
 
 from rl_ids.agents.dqn_agent import DQNAgent, DQNConfig
 from rl_ids.config import EPISODES_DIR, MODELS_DIR, REPORTS_DIR, TRAIN_DATA_FILE, VAL_DATA_FILE
 from rl_ids.environments.ids_env import IDSDetectionEnv
-
 
 app = typer.Typer()
 
@@ -189,12 +188,12 @@ def main(
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
                 agent.optimizer, T_max=num_episodes, eta_min=lr * 0.01
             )
-            logger.info(f"📉 Using Cosine Annealing LR scheduler")
+            logger.info("📉 Using Cosine Annealing LR scheduler")
         elif lr_scheduler == "step":
             scheduler = torch.optim.lr_scheduler.StepLR(
                 agent.optimizer, step_size=num_episodes // 4, gamma=0.5
             )
-            logger.info(f"📉 Using Step LR scheduler")
+            logger.info("📉 Using Step LR scheduler")
 
     # Create directories
     os.makedirs(models_dir, exist_ok=True)
