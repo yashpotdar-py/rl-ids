@@ -16,16 +16,12 @@ PYTHON_INTERPRETER = python
 requirements:
 	$(PYTHON_INTERPRETER) -m pip install -U pip
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
-	
-
-
 
 ## Delete all compiled Python files
 .PHONY: clean
 clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
-
 
 ## Lint using ruff (use `make format` to do formatting)
 .PHONY: lint
@@ -38,7 +34,6 @@ lint:
 format:
 	ruff check --fix
 	ruff format
-
 
 ## Set up Python interpreter environment
 .PHONY: create_environment
@@ -53,9 +48,7 @@ create_environment:
 ## Preprocess downloaded data
 .PHONY: preprocess-data
 preprocess-data:
-	$(PYTHON_INTERPRETER) -m rl_ids.dataset --raw-dir data/raw/MachineLearningCVE
-	$(PYTHON_INTERPRETER) -m rl_ids.normalize
-	$(PYTHON_INTERPRETER) -m rl_ids.balance
+	$(PYTHON_INTERPRETER) -m rl_ids.make_dataset
 
 ## Train the DQN model
 .PHONY: train
@@ -67,6 +60,10 @@ train:
 evaluate:
 	$(PYTHON_INTERPRETER) -m rl_ids.modeling.evaluate
 
+.PHONY: plot
+plot:
+	$(PYTHON_INTERPRETER) -m rl_ids.plots all-plots
+
 ## Start the FastAPI server
 .PHONY: api
 api:
@@ -77,10 +74,18 @@ api:
 api-dev:
 	$(PYTHON_INTERPRETER) run_api.py --reload --log-level debug
 
-## Test the API endpoints
+## Test the API endpoints (requires API to be running)
 .PHONY: api-test
 api-test:
-	$(PYTHON_INTERPRETER) -m api.client
+	@echo "Starting API server..."
+	$(PYTHON_INTERPRETER) run_api.py & \
+	API_PID=$$!; \
+	sleep 5; \
+	echo "Running API tests..."; \
+	$(PYTHON_INTERPRETER) -m api.client; \
+	echo "Stopping API server..."; \
+	kill $$API_PID; \
+	wait $$API_PID 2>/dev/null || true
 
 ## Check if model exists
 .PHONY: check-model
@@ -94,7 +99,7 @@ check-model:
 
 ## Full pipeline: install, train, evaluate, and test API
 .PHONY: pipeline
-pipeline: create_environment requirements preprocess-data train evaluate api-test
+pipeline: create_environment requirements preprocess-data train evaluate plot api-test
 
 #################################################################################
 # Self Documenting Commands                                                     #
