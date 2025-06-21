@@ -5,21 +5,42 @@ All notable changes to the RL-IDS Adaptive System will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2025-06-21
 
 ### Added
-- Initial documentation structure with MkDocs
-- Comprehensive API reference documentation
-- Advanced training tutorials with hyperparameter optimization
-- Production deployment guides and best practices
+- **Comprehensive Documentation Suite**
+  - Complete MkDocs-based documentation with material theme
+  - Interactive API reference with OpenAPI integration
+  - Step-by-step tutorials for all user levels
+  - Advanced training guides with hyperparameter optimization
+  - Production deployment guides and best practices
+  - FAQ and troubleshooting section with common solutions
+  - Module-level documentation for all components
+
+- **Development & Contribution Infrastructure**
+  - GitHub issue templates for bugs and feature requests
+  - Comprehensive contributing guidelines with development setup
+  - Pre-commit hooks configuration for code quality
+  - Automated changelog generation scripts
+  - GitHub Actions workflows for documentation deployment
+
+- **Enhanced Project Structure**
+  - Improved README with clear navigation and quick start
+  - Professional documentation structure with learning paths
+  - Enhanced API documentation with usage examples
+  - Performance benchmarks and metrics documentation
 
 ### Changed
 - Improved logging configuration with loguru integration
 - Enhanced model checkpoint saving strategies
+- Restructured documentation for better user experience
+- Updated API documentation with comprehensive examples
 
 ### Fixed
 - Training progress monitoring accuracy
 - API health check endpoint reliability
+- Documentation links and cross-references
+- Code examples and snippets consistency
 
 ## [1.0.0] - 2025-06-21
 
@@ -81,5 +102,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Batch processing capability for high-throughput scenarios
 - Memory-efficient model checkpointing
 
-[Unreleased]: https://github.com/yashpotdar-py/rl-ids/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/yashpotdar-py/rl-ids/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/yashpotdar-py/rl-ids/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/yashpotdar-py/rl-ids/releases/tag/v1.0.0
