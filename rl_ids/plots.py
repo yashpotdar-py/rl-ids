@@ -252,11 +252,11 @@ class IDSPlotter:
         # Load evaluation data
         try:
             summary_df = pd.read_csv(
-                reports_dir / "evaluation_summary_enhanced.csv")
+                reports_dir / "evaluation_summary.csv")
             episode_details = pd.read_csv(
-                reports_dir / "evaluation_episode_details_enhanced.csv")
+                reports_dir / "evaluation_episode_details.csv")
             predictions_df = pd.read_csv(
-                reports_dir / "evaluation_detailed_predictions_enhanced.csv")
+                reports_dir / "evaluation_detailed_predictions.csv")
 
         except FileNotFoundError as e:
             logger.error(f"❌ Evaluation file not found: {e}")
@@ -562,7 +562,7 @@ Confidence Threshold: 0.8
 
         try:
             predictions_df = pd.read_csv(
-                reports_dir / "evaluation_detailed_predictions_enhanced.csv")
+                reports_dir / "evaluation_detailed_predictions.csv")
             classification_report_df = pd.read_csv(
                 reports_dir / "evaluation_classification_report.csv")
         except FileNotFoundError as e:
@@ -848,7 +848,7 @@ Confidence Threshold: 0.8
 
         try:
             predictions_df = pd.read_csv(
-                reports_dir / "evaluation_detailed_predictions_enhanced.csv")
+                reports_dir / "evaluation_detailed_predictions.csv")
         except FileNotFoundError as e:
             logger.error(f"❌ Predictions file not found: {e}")
             return
@@ -1137,9 +1137,9 @@ Top Misclassification: {pair_labels[0] if pair_labels else 'None'} ({top_misclas
 
         # Create evaluation plots
         required_files = [
-            "evaluation_summary_enhanced.csv",
-            "evaluation_detailed_predictions_enhanced.csv",
-            "evaluation_episode_details_enhanced.csv"
+            "evaluation_summary.csv",
+            "evaluation_detailed_predictions.csv",
+            "evaluation_episode_details.csv"
         ]
 
         missing_files = [f for f in required_files if not (
