@@ -420,7 +420,7 @@ def main(
     ax2.set_ylabel("True Label", fontsize=12)
 
     plt.tight_layout()
-    cm_plot_path = figures_dir / "evaluation_confusion_matrix_enhanced.png"
+    cm_plot_path = figures_dir / "evaluation_confusion_matrix.png"
     plt.savefig(cm_plot_path, dpi=300, bbox_inches="tight")
     plt.close()
     logger.success(
@@ -428,7 +428,7 @@ def main(
 
     # Save enhanced episode details
     episodes_df = pd.DataFrame(episode_details)
-    episodes_path = reports_dir / "evaluation_episode_details_enhanced.csv"
+    episodes_path = reports_dir / "evaluation_episode_details.csv"
     episodes_df.to_csv(episodes_path, index=False)
     logger.success(f"📝 Enhanced episode details saved to: {episodes_path}")
 
@@ -486,7 +486,7 @@ def main(
             predictions_df["Predicted_Class"] = [label_mapping.get(
                 label, f"Class_{label}") for label in all_predictions]
 
-        predictions_path = reports_dir / "evaluation_detailed_predictions_enhanced.csv"
+        predictions_path = reports_dir / "evaluation_detailed_predictions.csv"
         predictions_df.to_csv(predictions_path, index=False)
         logger.success(
             f"📝 Enhanced detailed predictions saved to: {predictions_path}")
@@ -534,7 +534,7 @@ def main(
             })
 
     summary_df = pd.DataFrame([summary_dict])
-    summary_path = reports_dir / "evaluation_summary_enhanced.csv"
+    summary_path = reports_dir / "evaluation_summary.csv"
     summary_df.to_csv(summary_path, index=False)
     logger.success(f"📊 Enhanced evaluation summary saved to: {summary_path}")
 
