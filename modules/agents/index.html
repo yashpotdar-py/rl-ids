@@ -1,123 +1,1167 @@
-<!doctype html><html lang=en class=no-js> <head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Reinforcement Learning-based Intrusion Detection System with Adaptive Capabilities"><meta name=author content="Yash Potdar"><link href=https://yashpotdar-py.github.io/rl-ids/modules/agents/ rel=canonical><link href=../ rel=prev><link href=../environments/ rel=next><link rel=icon href=../../assets/images/favicon.png><meta name=generator content="mkdocs-1.6.1, mkdocs-material-9.6.14"><title>DQN Agent - RL-IDS Adaptive System</title><link rel=stylesheet href=../../assets/stylesheets/main.342714a4.min.css><link rel=stylesheet href=../../assets/stylesheets/palette.06af60db.min.css><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback"><style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style><link rel=stylesheet href=../../stylesheets/extra.css><script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script></head> <body dir=ltr data-md-color-scheme=default data-md-color-primary=blue data-md-color-accent=blue> <input class=md-toggle data-md-toggle=drawer type=checkbox id=__drawer autocomplete=off> <input class=md-toggle data-md-toggle=search type=checkbox id=__search autocomplete=off> <label class=md-overlay for=__drawer></label> <div data-md-component=skip> <a href=#dqn-agent-module class=md-skip> Skip to content </a> </div> <div data-md-component=announce> </div> <div data-md-color-scheme=default data-md-component=outdated hidden> </div> <header class=md-header data-md-component=header> <nav class="md-header__inner md-grid" aria-label=Header> <a href=../.. title="RL-IDS Adaptive System" class="md-header__button md-logo" aria-label="RL-IDS Adaptive System" data-md-component=logo> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg> </a> <label class="md-header__button md-icon" for=__drawer> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg> </label> <div class=md-header__title data-md-component=header-title> <div class=md-header__ellipsis> <div class=md-header__topic> <span class=md-ellipsis> RL-IDS Adaptive System </span> </div> <div class=md-header__topic data-md-component=header-topic> <span class=md-ellipsis> DQN Agent </span> </div> </div> </div> <form class=md-header__option data-md-component=palette> <input class=md-option data-md-color-media data-md-color-scheme=default data-md-color-primary=blue data-md-color-accent=blue aria-label="Switch to dark mode" type=radio name=__palette id=__palette_0> <label class="md-header__button md-icon" title="Switch to dark mode" for=__palette_1 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg> </label> <input class=md-option data-md-color-media data-md-color-scheme=slate data-md-color-primary=blue data-md-color-accent=blue aria-label="Switch to light mode" type=radio name=__palette id=__palette_1> <label class="md-header__button md-icon" title="Switch to light mode" for=__palette_0 hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg> </label> </form> <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script> <label class="md-header__button md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg> </label> <div class=md-search data-md-component=search role=dialog> <label class=md-search__overlay for=__search></label> <div class=md-search__inner role=search> <form class=md-search__form name=search> <input type=text class=md-search__input name=query aria-label=Search placeholder=Search autocapitalize=off autocorrect=off autocomplete=off spellcheck=false data-md-component=search-query required> <label class="md-search__icon md-icon" for=__search> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg> </label> <nav class=md-search__options aria-label=Search> <a href=javascript:void(0) class="md-search__icon md-icon" title=Share aria-label=Share data-clipboard data-clipboard-text data-md-component=search-share tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg> </a> <button type=reset class="md-search__icon md-icon" title=Clear aria-label=Clear tabindex=-1> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg> </button> </nav> </form> <div class=md-search__output> <div class=md-search__scrollwrap tabindex=0 data-md-scrollfix> <div class=md-search-result data-md-component=search-result> <div class=md-search-result__meta> Initializing search </div> <ol class=md-search-result__list role=presentation></ol> </div> </div> </div> </div> </div> <div class=md-header__source> <a href=https://github.com/yashpotdar-py/rl-ids title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 448 512"><!-- Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg> </div> <div class=md-source__repository> rl-ids </div> </a> </div> </nav> </header> <div class=md-container data-md-component=container> <nav class=md-tabs aria-label=Tabs data-md-component=tabs> <div class=md-grid> <ul class=md-tabs__list> <li class=md-tabs__item> <a href=../.. class=md-tabs__link> Home </a> </li> <li class=md-tabs__item> <a href=../../getting-started/ class=md-tabs__link> Getting Started </a> </li> <li class=md-tabs__item> <a href=../../api/ class=md-tabs__link> API Reference </a> </li> <li class="md-tabs__item md-tabs__item--active"> <a href=../ class=md-tabs__link> Module Reference </a> </li> <li class=md-tabs__item> <a href=../../tutorials/ class=md-tabs__link> Tutorials </a> </li> <li class=md-tabs__item> <a href=../../faq/ class=md-tabs__link> FAQ & Troubleshooting </a> </li> </ul> </div> </nav> <main class=md-main data-md-component=main> <div class="md-main__inner md-grid"> <div class="md-sidebar md-sidebar--primary" data-md-component=sidebar data-md-type=navigation> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--primary md-nav--lifted" aria-label=Navigation data-md-level=0> <label class=md-nav__title for=__drawer> <a href=../.. title="RL-IDS Adaptive System" class="md-nav__button md-logo" aria-label="RL-IDS Adaptive System" data-md-component=logo> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg> </a> RL-IDS Adaptive System </label> <div class=md-nav__source> <a href=https://github.com/yashpotdar-py/rl-ids title="Go to repository" class=md-source data-md-component=source> <div class="md-source__icon md-icon"> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 448 512"><!-- Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg> </div> <div class=md-source__repository> rl-ids </div> </a> </div> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../.. class=md-nav__link> <span class=md-ellipsis> Home </span> </a> </li> <li class=md-nav__item> <a href=../../getting-started/ class=md-nav__link> <span class=md-ellipsis> Getting Started </span> </a> </li> <li class=md-nav__item> <a href=../../api/ class=md-nav__link> <span class=md-ellipsis> API Reference </span> </a> </li> <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested"> <input class="md-nav__toggle md-toggle " type=checkbox id=__nav_4 checked> <label class=md-nav__link for=__nav_4 id=__nav_4_label tabindex> <span class=md-ellipsis> Module Reference </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_4_label aria-expanded=true> <label class=md-nav__title for=__nav_4> <span class="md-nav__icon md-icon"></span> Module Reference </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../ class=md-nav__link> <span class=md-ellipsis> Architecture </span> </a> </li> <li class="md-nav__item md-nav__item--active"> <input class="md-nav__toggle md-toggle" type=checkbox id=__toc> <label class="md-nav__link md-nav__link--active" for=__toc> <span class=md-ellipsis> DQN Agent </span> <span class="md-nav__icon md-icon"></span> </label> <a href=./ class="md-nav__link md-nav__link--active"> <span class=md-ellipsis> DQN Agent </span> </a> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#overview class=md-nav__link> <span class=md-ellipsis> Overview </span> </a> </li> <li class=md-nav__item> <a href=#classes class=md-nav__link> <span class=md-ellipsis> Classes </span> </a> <nav class=md-nav aria-label=Classes> <ul class=md-nav__list> <li class=md-nav__item> <a href=#dqnconfig class=md-nav__link> <span class=md-ellipsis> DQNConfig </span> </a> </li> <li class=md-nav__item> <a href=#dqn class=md-nav__link> <span class=md-ellipsis> DQN </span> </a> </li> <li class=md-nav__item> <a href=#dqnagent class=md-nav__link> <span class=md-ellipsis> DQNAgent </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#usage-examples class=md-nav__link> <span class=md-ellipsis> Usage Examples </span> </a> <nav class=md-nav aria-label="Usage Examples"> <ul class=md-nav__list> <li class=md-nav__item> <a href=#basic-training-loop class=md-nav__link> <span class=md-ellipsis> Basic Training Loop </span> </a> </li> <li class=md-nav__item> <a href=#model-evaluation class=md-nav__link> <span class=md-ellipsis> Model Evaluation </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#see-also class=md-nav__link> <span class=md-ellipsis> See Also </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=../environments/ class=md-nav__link> <span class=md-ellipsis> IDS Environment </span> </a> </li> <li class=md-nav__item> <a href=../modeling/ class=md-nav__link> <span class=md-ellipsis> Training Pipeline </span> </a> </li> <li class=md-nav__item> <a href=../make_dataset/ class=md-nav__link> <span class=md-ellipsis> Data Processing </span> </a> </li> <li class=md-nav__item> <a href=../plots/ class=md-nav__link> <span class=md-ellipsis> Visualization </span> </a> </li> <li class=md-nav__item> <a href=../config/ class=md-nav__link> <span class=md-ellipsis> Configuration </span> </a> </li> </ul> </nav> </li> <li class="md-nav__item md-nav__item--nested"> <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type=checkbox id=__nav_5> <label class=md-nav__link for=__nav_5 id=__nav_5_label tabindex=0> <span class=md-ellipsis> Tutorials </span> <span class="md-nav__icon md-icon"></span> </label> <nav class=md-nav data-md-level=1 aria-labelledby=__nav_5_label aria-expanded=false> <label class=md-nav__title for=__nav_5> <span class="md-nav__icon md-icon"></span> Tutorials </label> <ul class=md-nav__list data-md-scrollfix> <li class=md-nav__item> <a href=../../tutorials/ class=md-nav__link> <span class=md-ellipsis> Overview </span> </a> </li> <li class=md-nav__item> <a href=../../tutorials/advanced_training/ class=md-nav__link> <span class=md-ellipsis> Advanced Training </span> </a> </li> <li class=md-nav__item> <a href=../../tutorials/api_usage/ class=md-nav__link> <span class=md-ellipsis> API Usage </span> </a> </li> <li class=md-nav__item> <a href=../../tutorials/training/ class=md-nav__link> <span class=md-ellipsis> Basic Training </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=../../faq/ class=md-nav__link> <span class=md-ellipsis> FAQ & Troubleshooting </span> </a> </li> </ul> </nav> </div> </div> </div> <div class="md-sidebar md-sidebar--secondary" data-md-component=sidebar data-md-type=toc> <div class=md-sidebar__scrollwrap> <div class=md-sidebar__inner> <nav class="md-nav md-nav--secondary" aria-label="Table of contents"> <label class=md-nav__title for=__toc> <span class="md-nav__icon md-icon"></span> Table of contents </label> <ul class=md-nav__list data-md-component=toc data-md-scrollfix> <li class=md-nav__item> <a href=#overview class=md-nav__link> <span class=md-ellipsis> Overview </span> </a> </li> <li class=md-nav__item> <a href=#classes class=md-nav__link> <span class=md-ellipsis> Classes </span> </a> <nav class=md-nav aria-label=Classes> <ul class=md-nav__list> <li class=md-nav__item> <a href=#dqnconfig class=md-nav__link> <span class=md-ellipsis> DQNConfig </span> </a> </li> <li class=md-nav__item> <a href=#dqn class=md-nav__link> <span class=md-ellipsis> DQN </span> </a> </li> <li class=md-nav__item> <a href=#dqnagent class=md-nav__link> <span class=md-ellipsis> DQNAgent </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#usage-examples class=md-nav__link> <span class=md-ellipsis> Usage Examples </span> </a> <nav class=md-nav aria-label="Usage Examples"> <ul class=md-nav__list> <li class=md-nav__item> <a href=#basic-training-loop class=md-nav__link> <span class=md-ellipsis> Basic Training Loop </span> </a> </li> <li class=md-nav__item> <a href=#model-evaluation class=md-nav__link> <span class=md-ellipsis> Model Evaluation </span> </a> </li> </ul> </nav> </li> <li class=md-nav__item> <a href=#see-also class=md-nav__link> <span class=md-ellipsis> See Also </span> </a> </li> </ul> </nav> </div> </div> </div> <div class=md-content data-md-component=content> <article class="md-content__inner md-typeset"> <h1 id=dqn-agent-module>DQN Agent Module<a class=headerlink href=#dqn-agent-module title="Permanent link">&para;</a></h1> <h2 id=overview>Overview<a class=headerlink href=#overview title="Permanent link">&para;</a></h2> <p>The <code>rl_ids.agents.dqn_agent</code> module implements a state-of-the-art Deep Q-Network (DQN) agent for reinforcement learning-based intrusion detection. It features advanced techniques including Double DQN, Dueling DQN, prioritized experience replay, and sophisticated neural network architectures optimized for network traffic pattern recognition.</p> <p>The agent is designed to learn adaptive intrusion detection policies from network traffic data, continuously improving its detection capabilities through reinforcement learning principles.</p> <hr> <h2 id=classes>Classes<a class=headerlink href=#classes title="Permanent link">&para;</a></h2> <h3 id=dqnconfig><code>DQNConfig</code><a class=headerlink href=#dqnconfig title="Permanent link">&para;</a></h3> <p>Configuration class for DQN Agent parameters using Pydantic for validation.</p> <p><strong>Signature:</strong> <div class=highlight><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=k>class</span><span class=w> </span><span class=nc>DQNConfig</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
-<a id=__codelineno-0-2 name=__codelineno-0-2 href=#__codelineno-0-2></a><span class=w>    </span><span class=sd>&quot;&quot;&quot;Configuration for DQN Agent.&quot;&quot;&quot;</span>
-</code></pre></div></p> <p><strong>Description:</strong> A comprehensive configuration class that defines all hyperparameters and settings for the DQN agent. Uses Pydantic for automatic validation and type checking.</p> <p><strong>Attributes:</strong></p> <table> <thead> <tr> <th>Attribute</th> <th>Type</th> <th>Default</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code>state_dim</code></td> <td><code>int</code></td> <td>Required</td> <td>Dimension of the state space (number of input features)</td> </tr> <tr> <td><code>action_dim</code></td> <td><code>int</code></td> <td>Required</td> <td>Number of possible actions (attack classes)</td> </tr> <tr> <td><code>lr</code></td> <td><code>float</code></td> <td><code>1e-4</code></td> <td>Learning rate for the optimizer</td> </tr> <tr> <td><code>gamma</code></td> <td><code>float</code></td> <td><code>0.99</code></td> <td>Discount factor for future rewards</td> </tr> <tr> <td><code>epsilon</code></td> <td><code>float</code></td> <td><code>1.0</code></td> <td>Initial exploration rate for ε-greedy policy</td> </tr> <tr> <td><code>eps_decay</code></td> <td><code>float</code></td> <td><code>0.995</code></td> <td>Exponential decay rate for epsilon</td> </tr> <tr> <td><code>eps_min</code></td> <td><code>float</code></td> <td><code>0.01</code></td> <td>Minimum epsilon value</td> </tr> <tr> <td><code>memory_size</code></td> <td><code>int</code></td> <td><code>100000</code></td> <td>Size of the experience replay buffer</td> </tr> <tr> <td><code>batch_size</code></td> <td><code>int</code></td> <td><code>32</code></td> <td>Training batch size</td> </tr> <tr> <td><code>hidden_dims</code></td> <td><code>List[int]</code></td> <td><code>[512, 256]</code></td> <td>Hidden layer dimensions</td> </tr> <tr> <td><code>device</code></td> <td><code>str</code></td> <td><code>"auto"</code></td> <td>Computing device ("cpu", "cuda", or "auto")</td> </tr> <tr> <td><code>dropout_rate</code></td> <td><code>float</code></td> <td><code>0.2</code></td> <td>Dropout rate for regularization</td> </tr> <tr> <td><code>use_layer_norm</code></td> <td><code>bool</code></td> <td><code>True</code></td> <td>Whether to use layer normalization</td> </tr> <tr> <td><code>weight_decay</code></td> <td><code>float</code></td> <td><code>1e-5</code></td> <td>L2 regularization strength</td> </tr> <tr> <td><code>double_dqn</code></td> <td><code>bool</code></td> <td><code>True</code></td> <td>Enable Double DQN algorithm</td> </tr> <tr> <td><code>dueling</code></td> <td><code>bool</code></td> <td><code>True</code></td> <td>Enable Dueling DQN architecture</td> </tr> <tr> <td><code>prioritized_replay</code></td> <td><code>bool</code></td> <td><code>False</code></td> <td>Enable prioritized experience replay</td> </tr> </tbody> </table> <p><strong>Example:</strong> <div class=highlight><pre><span></span><code><a id=__codelineno-1-1 name=__codelineno-1-1 href=#__codelineno-1-1></a><span class=kn>from</span><span class=w> </span><span class=nn>rl_ids.agents.dqn_agent</span><span class=w> </span><span class=kn>import</span> <span class=n>DQNConfig</span>
-<a id=__codelineno-1-2 name=__codelineno-1-2 href=#__codelineno-1-2></a>
-<a id=__codelineno-1-3 name=__codelineno-1-3 href=#__codelineno-1-3></a><span class=n>config</span> <span class=o>=</span> <span class=n>DQNConfig</span><span class=p>(</span>
-<a id=__codelineno-1-4 name=__codelineno-1-4 href=#__codelineno-1-4></a>    <span class=n>state_dim</span><span class=o>=</span><span class=mi>77</span><span class=p>,</span>
-<a id=__codelineno-1-5 name=__codelineno-1-5 href=#__codelineno-1-5></a>    <span class=n>action_dim</span><span class=o>=</span><span class=mi>15</span><span class=p>,</span>
-<a id=__codelineno-1-6 name=__codelineno-1-6 href=#__codelineno-1-6></a>    <span class=n>lr</span><span class=o>=</span><span class=mf>1e-4</span><span class=p>,</span>
-<a id=__codelineno-1-7 name=__codelineno-1-7 href=#__codelineno-1-7></a>    <span class=n>hidden_dims</span><span class=o>=</span><span class=p>[</span><span class=mi>1024</span><span class=p>,</span> <span class=mi>512</span><span class=p>,</span> <span class=mi>256</span><span class=p>,</span> <span class=mi>128</span><span class=p>],</span>
-<a id=__codelineno-1-8 name=__codelineno-1-8 href=#__codelineno-1-8></a>    <span class=n>double_dqn</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
-<a id=__codelineno-1-9 name=__codelineno-1-9 href=#__codelineno-1-9></a>    <span class=n>dueling</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
-<a id=__codelineno-1-10 name=__codelineno-1-10 href=#__codelineno-1-10></a>    <span class=n>prioritized_replay</span><span class=o>=</span><span class=kc>True</span>
-<a id=__codelineno-1-11 name=__codelineno-1-11 href=#__codelineno-1-11></a><span class=p>)</span>
-</code></pre></div></p> <hr> <h3 id=dqn><code>DQN</code><a class=headerlink href=#dqn title="Permanent link">&para;</a></h3> <p>Deep Q-Network neural network model.</p> <p><strong>Inherits</strong>: <code>torch.nn.Module</code></p> <p><strong>Parameters</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code>input_dim</code></td> <td><code>int</code></td> <td>Input feature dimension</td> </tr> <tr> <td><code>output_dim</code></td> <td><code>int</code></td> <td>Output action dimension</td> </tr> <tr> <td><code>hidden_dims</code></td> <td><code>List[int]</code></td> <td>Hidden layer dimensions</td> </tr> </tbody> </table> <p><strong>Methods</strong></p> <h4 id=forwardx-torchtensor-torchtensor><code>forward(x: torch.Tensor) -&gt; torch.Tensor</code><a class=headerlink href=#forwardx-torchtensor-torchtensor title="Permanent link">&para;</a></h4> <p>Forward pass through the network.</p> <p><strong>Parameters</strong> - <code>x</code>: Input tensor of shape <code>(batch_size, input_dim)</code></p> <p><strong>Returns</strong> - <code>torch.Tensor</code>: Q-values for each action, shape <code>(batch_size, output_dim)</code></p> <p><strong>Examples</strong></p> <div class=highlight><pre><span></span><code><a id=__codelineno-2-1 name=__codelineno-2-1 href=#__codelineno-2-1></a><span class=kn>import</span><span class=w> </span><span class=nn>torch</span>
-<a id=__codelineno-2-2 name=__codelineno-2-2 href=#__codelineno-2-2></a><span class=kn>from</span><span class=w> </span><span class=nn>rl_ids.agents.dqn_agent</span><span class=w> </span><span class=kn>import</span> <span class=n>DQN</span>
-<a id=__codelineno-2-3 name=__codelineno-2-3 href=#__codelineno-2-3></a>
-<a id=__codelineno-2-4 name=__codelineno-2-4 href=#__codelineno-2-4></a><span class=c1># Create network</span>
-<a id=__codelineno-2-5 name=__codelineno-2-5 href=#__codelineno-2-5></a><span class=n>model</span> <span class=o>=</span> <span class=n>DQN</span><span class=p>(</span>
-<a id=__codelineno-2-6 name=__codelineno-2-6 href=#__codelineno-2-6></a>    <span class=n>input_dim</span><span class=o>=</span><span class=mi>78</span><span class=p>,</span>
-<a id=__codelineno-2-7 name=__codelineno-2-7 href=#__codelineno-2-7></a>    <span class=n>output_dim</span><span class=o>=</span><span class=mi>15</span><span class=p>,</span>
-<a id=__codelineno-2-8 name=__codelineno-2-8 href=#__codelineno-2-8></a>    <span class=n>hidden_dims</span><span class=o>=</span><span class=p>[</span><span class=mi>512</span><span class=p>,</span> <span class=mi>256</span><span class=p>,</span> <span class=mi>128</span><span class=p>]</span>
-<a id=__codelineno-2-9 name=__codelineno-2-9 href=#__codelineno-2-9></a><span class=p>)</span>
-<a id=__codelineno-2-10 name=__codelineno-2-10 href=#__codelineno-2-10></a>
-<a id=__codelineno-2-11 name=__codelineno-2-11 href=#__codelineno-2-11></a><span class=c1># Forward pass</span>
-<a id=__codelineno-2-12 name=__codelineno-2-12 href=#__codelineno-2-12></a><span class=n>state</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>randn</span><span class=p>(</span><span class=mi>32</span><span class=p>,</span> <span class=mi>78</span><span class=p>)</span>  <span class=c1># batch_size=32</span>
-<a id=__codelineno-2-13 name=__codelineno-2-13 href=#__codelineno-2-13></a><span class=n>q_values</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>state</span><span class=p>)</span>      <span class=c1># shape: (32, 15)</span>
-</code></pre></div> <hr> <h3 id=dqnagent><code>DQNAgent</code><a class=headerlink href=#dqnagent title="Permanent link">&para;</a></h3> <p>Main DQN agent class implementing the Deep Q-Network algorithm.</p> <p><strong>Parameters</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code>config</code></td> <td><code>DQNConfig</code></td> <td>Agent configuration</td> </tr> </tbody> </table> <p><strong>Attributes</strong></p> <table> <thead> <tr> <th>Name</th> <th>Type</th> <th>Description</th> </tr> </thead> <tbody> <tr> <td><code>model</code></td> <td><code>DQN</code></td> <td>Main Q-network</td> </tr> <tr> <td><code>target_model</code></td> <td><code>DQN</code></td> <td>Target Q-network</td> </tr> <tr> <td><code>optimizer</code></td> <td><code>torch.optim.Adam</code></td> <td>Model optimizer</td> </tr> <tr> <td><code>memory</code></td> <td><code>deque</code></td> <td>Experience replay buffer</td> </tr> <tr> <td><code>epsilon</code></td> <td><code>float</code></td> <td>Current exploration rate</td> </tr> <tr> <td><code>device</code></td> <td><code>torch.device</code></td> <td>Computing device (CPU/CUDA)</td> </tr> </tbody> </table> <p><strong>Methods</strong></p> <h4 id=actstate-npndarray-training-bool-true-int><code>act(state: np.ndarray, training: bool = True) -&gt; int</code><a class=headerlink href=#actstate-npndarray-training-bool-true-int title="Permanent link">&para;</a></h4> <p>Choose action using epsilon-greedy policy.</p> <p><strong>Parameters</strong> - <code>state</code>: Current environment state - <code>training</code>: Whether in training mode (enables exploration)</p> <p><strong>Returns</strong> - <code>int</code>: Selected action</p> <p><strong>Examples</strong></p> <div class=highlight><pre><span></span><code><a id=__codelineno-3-1 name=__codelineno-3-1 href=#__codelineno-3-1></a><span class=kn>import</span><span class=w> </span><span class=nn>numpy</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=nn>np</span>
-<a id=__codelineno-3-2 name=__codelineno-3-2 href=#__codelineno-3-2></a><span class=kn>from</span><span class=w> </span><span class=nn>rl_ids.agents.dqn_agent</span><span class=w> </span><span class=kn>import</span> <span class=n>DQNAgent</span><span class=p>,</span> <span class=n>DQNConfig</span>
-<a id=__codelineno-3-3 name=__codelineno-3-3 href=#__codelineno-3-3></a>
-<a id=__codelineno-3-4 name=__codelineno-3-4 href=#__codelineno-3-4></a><span class=c1># Initialize agent</span>
-<a id=__codelineno-3-5 name=__codelineno-3-5 href=#__codelineno-3-5></a><span class=n>config</span> <span class=o>=</span> <span class=n>DQNConfig</span><span class=p>(</span><span class=n>state_dim</span><span class=o>=</span><span class=mi>78</span><span class=p>,</span> <span class=n>action_dim</span><span class=o>=</span><span class=mi>15</span><span class=p>)</span>
-<a id=__codelineno-3-6 name=__codelineno-3-6 href=#__codelineno-3-6></a><span class=n>agent</span> <span class=o>=</span> <span class=n>DQNAgent</span><span class=p>(</span><span class=n>config</span><span class=p>)</span>
-<a id=__codelineno-3-7 name=__codelineno-3-7 href=#__codelineno-3-7></a>
-<a id=__codelineno-3-8 name=__codelineno-3-8 href=#__codelineno-3-8></a><span class=c1># Select action</span>
-<a id=__codelineno-3-9 name=__codelineno-3-9 href=#__codelineno-3-9></a><span class=n>state</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>randn</span><span class=p>(</span><span class=mi>78</span><span class=p>)</span>
-<a id=__codelineno-3-10 name=__codelineno-3-10 href=#__codelineno-3-10></a><span class=n>action</span> <span class=o>=</span> <span class=n>agent</span><span class=o>.</span><span class=n>act</span><span class=p>(</span><span class=n>state</span><span class=p>,</span> <span class=n>training</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>  <span class=c1># Exploration enabled</span>
-<a id=__codelineno-3-11 name=__codelineno-3-11 href=#__codelineno-3-11></a><span class=n>action</span> <span class=o>=</span> <span class=n>agent</span><span class=o>.</span><span class=n>act</span><span class=p>(</span><span class=n>state</span><span class=p>,</span> <span class=n>training</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span> <span class=c1># Pure greedy</span>
-</code></pre></div> <h4 id=rememberstate-npndarray-action-int-reward-float-next_state-npndarray-done-bool-none><code>remember(state: np.ndarray, action: int, reward: float, next_state: np.ndarray, done: bool) -&gt; None</code><a class=headerlink href=#rememberstate-npndarray-action-int-reward-float-next_state-npndarray-done-bool-none title="Permanent link">&para;</a></h4> <p>Store experience in replay buffer.</p> <p><strong>Parameters</strong> - <code>state</code>: Current state - <code>action</code>: Action taken - <code>reward</code>: Reward received - <code>next_state</code>: Next state - <code>done</code>: Whether episode ended</p> <p><strong>Examples</strong></p> <div class=highlight><pre><span></span><code><a id=__codelineno-4-1 name=__codelineno-4-1 href=#__codelineno-4-1></a><span class=c1># Store experience</span>
-<a id=__codelineno-4-2 name=__codelineno-4-2 href=#__codelineno-4-2></a><span class=n>agent</span><span class=o>.</span><span class=n>remember</span><span class=p>(</span>
-<a id=__codelineno-4-3 name=__codelineno-4-3 href=#__codelineno-4-3></a>    <span class=n>state</span><span class=o>=</span><span class=n>current_state</span><span class=p>,</span>
-<a id=__codelineno-4-4 name=__codelineno-4-4 href=#__codelineno-4-4></a>    <span class=n>action</span><span class=o>=</span><span class=n>action</span><span class=p>,</span>
-<a id=__codelineno-4-5 name=__codelineno-4-5 href=#__codelineno-4-5></a>    <span class=n>reward</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span>
-<a id=__codelineno-4-6 name=__codelineno-4-6 href=#__codelineno-4-6></a>    <span class=n>next_state</span><span class=o>=</span><span class=n>next_state</span><span class=p>,</span>
-<a id=__codelineno-4-7 name=__codelineno-4-7 href=#__codelineno-4-7></a>    <span class=n>done</span><span class=o>=</span><span class=kc>False</span>
-<a id=__codelineno-4-8 name=__codelineno-4-8 href=#__codelineno-4-8></a><span class=p>)</span>
-</code></pre></div> <h4 id=replay-optionalfloat><code>replay() -&gt; Optional[float]</code><a class=headerlink href=#replay-optionalfloat title="Permanent link">&para;</a></h4> <p>Train the model on a batch of experiences.</p> <p><strong>Returns</strong> - <code>Optional[float]</code>: Training loss if training occurred, None otherwise</p> <p><strong>Examples</strong></p> <div class=highlight><pre><span></span><code><a id=__codelineno-5-1 name=__codelineno-5-1 href=#__codelineno-5-1></a><span class=c1># Training step</span>
-<a id=__codelineno-5-2 name=__codelineno-5-2 href=#__codelineno-5-2></a><span class=n>loss</span> <span class=o>=</span> <span class=n>agent</span><span class=o>.</span><span class=n>replay</span><span class=p>()</span>
-<a id=__codelineno-5-3 name=__codelineno-5-3 href=#__codelineno-5-3></a><span class=k>if</span> <span class=n>loss</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
-<a id=__codelineno-5-4 name=__codelineno-5-4 href=#__codelineno-5-4></a>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Training loss: </span><span class=si>{</span><span class=n>loss</span><span class=si>:</span><span class=s2>.4f</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
-</code></pre></div> <h4 id=update_target-none><code>update_target() -&gt; None</code><a class=headerlink href=#update_target-none title="Permanent link">&para;</a></h4> <p>Update target network with current network weights.</p> <p><strong>Examples</strong></p> <div class=highlight><pre><span></span><code><a id=__codelineno-6-1 name=__codelineno-6-1 href=#__codelineno-6-1></a><span class=c1># Update target network (typically done every N episodes)</span>
-<a id=__codelineno-6-2 name=__codelineno-6-2 href=#__codelineno-6-2></a><span class=n>agent</span><span class=o>.</span><span class=n>update_target</span><span class=p>()</span>
-</code></pre></div> <h4 id=save_modelfilepath-unionstr-path-none><code>save_model(filepath: Union[str, Path]) -&gt; None</code><a class=headerlink href=#save_modelfilepath-unionstr-path-none title="Permanent link">&para;</a></h4> <p>Save model state to file.</p> <p><strong>Parameters</strong> - <code>filepath</code>: Path to save the model</p> <p><strong>Examples</strong></p> <div class=highlight><pre><span></span><code><a id=__codelineno-7-1 name=__codelineno-7-1 href=#__codelineno-7-1></a><span class=kn>from</span><span class=w> </span><span class=nn>pathlib</span><span class=w> </span><span class=kn>import</span> <span class=n>Path</span>
-<a id=__codelineno-7-2 name=__codelineno-7-2 href=#__codelineno-7-2></a>
-<a id=__codelineno-7-3 name=__codelineno-7-3 href=#__codelineno-7-3></a><span class=c1># Save model</span>
-<a id=__codelineno-7-4 name=__codelineno-7-4 href=#__codelineno-7-4></a><span class=n>agent</span><span class=o>.</span><span class=n>save_model</span><span class=p>(</span><span class=s2>&quot;models/dqn_model.pt&quot;</span><span class=p>)</span>
-<a id=__codelineno-7-5 name=__codelineno-7-5 href=#__codelineno-7-5></a><span class=n>agent</span><span class=o>.</span><span class=n>save_model</span><span class=p>(</span><span class=n>Path</span><span class=p>(</span><span class=s2>&quot;models/episode_100.pt&quot;</span><span class=p>))</span>
-</code></pre></div> <h4 id=load_modelfilepath-path-map_location-optionaltorchdevice-none-none><code>load_model(filepath: Path, map_location: Optional[torch.device] = None) -&gt; None</code><a class=headerlink href=#load_modelfilepath-path-map_location-optionaltorchdevice-none-none title="Permanent link">&para;</a></h4> <p>Load a saved model.</p> <p><strong>Parameters</strong> - <code>filepath</code>: Path to model file - <code>map_location</code>: Device to load model on</p> <p><strong>Raises</strong> - <code>FileNotFoundError</code>: If model file doesn't exist - <code>RuntimeError</code>: If model loading fails</p> <p><strong>Examples</strong></p> <div class=highlight><pre><span></span><code><a id=__codelineno-8-1 name=__codelineno-8-1 href=#__codelineno-8-1></a><span class=c1># Load model</span>
-<a id=__codelineno-8-2 name=__codelineno-8-2 href=#__codelineno-8-2></a><span class=n>agent</span><span class=o>.</span><span class=n>load_model</span><span class=p>(</span><span class=n>Path</span><span class=p>(</span><span class=s2>&quot;models/dqn_model_best.pt&quot;</span><span class=p>))</span>
-<a id=__codelineno-8-3 name=__codelineno-8-3 href=#__codelineno-8-3></a>
-<a id=__codelineno-8-4 name=__codelineno-8-4 href=#__codelineno-8-4></a><span class=c1># Load on specific device</span>
-<a id=__codelineno-8-5 name=__codelineno-8-5 href=#__codelineno-8-5></a><span class=n>agent</span><span class=o>.</span><span class=n>load_model</span><span class=p>(</span>
-<a id=__codelineno-8-6 name=__codelineno-8-6 href=#__codelineno-8-6></a>    <span class=n>Path</span><span class=p>(</span><span class=s2>&quot;models/dqn_model.pt&quot;</span><span class=p>),</span>
-<a id=__codelineno-8-7 name=__codelineno-8-7 href=#__codelineno-8-7></a>    <span class=n>map_location</span><span class=o>=</span><span class=n>torch</span><span class=o>.</span><span class=n>device</span><span class=p>(</span><span class=s1>&#39;cpu&#39;</span><span class=p>)</span>
-<a id=__codelineno-8-8 name=__codelineno-8-8 href=#__codelineno-8-8></a><span class=p>)</span>
-</code></pre></div> <h2 id=usage-examples>Usage Examples<a class=headerlink href=#usage-examples title="Permanent link">&para;</a></h2> <h3 id=basic-training-loop>Basic Training Loop<a class=headerlink href=#basic-training-loop title="Permanent link">&para;</a></h3> <div class=highlight><pre><span></span><code><a id=__codelineno-9-1 name=__codelineno-9-1 href=#__codelineno-9-1></a><span class=kn>import</span><span class=w> </span><span class=nn>numpy</span><span class=w> </span><span class=k>as</span><span class=w> </span><span class=nn>np</span>
-<a id=__codelineno-9-2 name=__codelineno-9-2 href=#__codelineno-9-2></a><span class=kn>from</span><span class=w> </span><span class=nn>rl_ids.agents.dqn_agent</span><span class=w> </span><span class=kn>import</span> <span class=n>DQNAgent</span><span class=p>,</span> <span class=n>DQNConfig</span>
-<a id=__codelineno-9-3 name=__codelineno-9-3 href=#__codelineno-9-3></a><span class=kn>from</span><span class=w> </span><span class=nn>rl_ids.environments.ids_env</span><span class=w> </span><span class=kn>import</span> <span class=n>IDSDetectionEnv</span>
-<a id=__codelineno-9-4 name=__codelineno-9-4 href=#__codelineno-9-4></a>
-<a id=__codelineno-9-5 name=__codelineno-9-5 href=#__codelineno-9-5></a><span class=c1># Initialize environment and agent</span>
-<a id=__codelineno-9-6 name=__codelineno-9-6 href=#__codelineno-9-6></a><span class=n>env</span> <span class=o>=</span> <span class=n>IDSDetectionEnv</span><span class=p>(</span><span class=n>data_path</span><span class=o>=</span><span class=s2>&quot;data/train.csv&quot;</span><span class=p>,</span> <span class=n>feature_cols</span><span class=o>=</span><span class=n>features</span><span class=p>)</span>
-<a id=__codelineno-9-7 name=__codelineno-9-7 href=#__codelineno-9-7></a><span class=n>config</span> <span class=o>=</span> <span class=n>DQNConfig</span><span class=p>(</span>
-<a id=__codelineno-9-8 name=__codelineno-9-8 href=#__codelineno-9-8></a>    <span class=n>state_dim</span><span class=o>=</span><span class=nb>len</span><span class=p>(</span><span class=n>features</span><span class=p>),</span>
-<a id=__codelineno-9-9 name=__codelineno-9-9 href=#__codelineno-9-9></a>    <span class=n>action_dim</span><span class=o>=</span><span class=n>env</span><span class=o>.</span><span class=n>action_space</span><span class=o>.</span><span class=n>n</span>
-<a id=__codelineno-9-10 name=__codelineno-9-10 href=#__codelineno-9-10></a><span class=p>)</span>
-<a id=__codelineno-9-11 name=__codelineno-9-11 href=#__codelineno-9-11></a><span class=n>agent</span> <span class=o>=</span> <span class=n>DQNAgent</span><span class=p>(</span><span class=n>config</span><span class=p>)</span>
-<a id=__codelineno-9-12 name=__codelineno-9-12 href=#__codelineno-9-12></a>
-<a id=__codelineno-9-13 name=__codelineno-9-13 href=#__codelineno-9-13></a><span class=c1># Training loop</span>
-<a id=__codelineno-9-14 name=__codelineno-9-14 href=#__codelineno-9-14></a><span class=k>for</span> <span class=n>episode</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1000</span><span class=p>):</span>
-<a id=__codelineno-9-15 name=__codelineno-9-15 href=#__codelineno-9-15></a>    <span class=n>state</span><span class=p>,</span> <span class=n>_</span> <span class=o>=</span> <span class=n>env</span><span class=o>.</span><span class=n>reset</span><span class=p>()</span>
-<a id=__codelineno-9-16 name=__codelineno-9-16 href=#__codelineno-9-16></a>    <span class=n>total_reward</span> <span class=o>=</span> <span class=mi>0</span>
-<a id=__codelineno-9-17 name=__codelineno-9-17 href=#__codelineno-9-17></a>
-<a id=__codelineno-9-18 name=__codelineno-9-18 href=#__codelineno-9-18></a>    <span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
-<a id=__codelineno-9-19 name=__codelineno-9-19 href=#__codelineno-9-19></a>        <span class=c1># Select action</span>
-<a id=__codelineno-9-20 name=__codelineno-9-20 href=#__codelineno-9-20></a>        <span class=n>action</span> <span class=o>=</span> <span class=n>agent</span><span class=o>.</span><span class=n>act</span><span class=p>(</span><span class=n>state</span><span class=p>,</span> <span class=n>training</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
-<a id=__codelineno-9-21 name=__codelineno-9-21 href=#__codelineno-9-21></a>
-<a id=__codelineno-9-22 name=__codelineno-9-22 href=#__codelineno-9-22></a>        <span class=c1># Environment step</span>
-<a id=__codelineno-9-23 name=__codelineno-9-23 href=#__codelineno-9-23></a>        <span class=n>next_state</span><span class=p>,</span> <span class=n>reward</span><span class=p>,</span> <span class=n>done</span><span class=p>,</span> <span class=n>truncated</span><span class=p>,</span> <span class=n>_</span> <span class=o>=</span> <span class=n>env</span><span class=o>.</span><span class=n>step</span><span class=p>(</span><span class=n>action</span><span class=p>)</span>
-<a id=__codelineno-9-24 name=__codelineno-9-24 href=#__codelineno-9-24></a>
-<a id=__codelineno-9-25 name=__codelineno-9-25 href=#__codelineno-9-25></a>        <span class=c1># Store experience</span>
-<a id=__codelineno-9-26 name=__codelineno-9-26 href=#__codelineno-9-26></a>        <span class=n>agent</span><span class=o>.</span><span class=n>remember</span><span class=p>(</span><span class=n>state</span><span class=p>,</span> <span class=n>action</span><span class=p>,</span> <span class=n>reward</span><span class=p>,</span> <span class=n>next_state</span><span class=p>,</span> <span class=n>done</span><span class=p>)</span>
-<a id=__codelineno-9-27 name=__codelineno-9-27 href=#__codelineno-9-27></a>
-<a id=__codelineno-9-28 name=__codelineno-9-28 href=#__codelineno-9-28></a>        <span class=c1># Train agent</span>
-<a id=__codelineno-9-29 name=__codelineno-9-29 href=#__codelineno-9-29></a>        <span class=n>loss</span> <span class=o>=</span> <span class=n>agent</span><span class=o>.</span><span class=n>replay</span><span class=p>()</span>
-<a id=__codelineno-9-30 name=__codelineno-9-30 href=#__codelineno-9-30></a>
-<a id=__codelineno-9-31 name=__codelineno-9-31 href=#__codelineno-9-31></a>        <span class=n>state</span> <span class=o>=</span> <span class=n>next_state</span>
-<a id=__codelineno-9-32 name=__codelineno-9-32 href=#__codelineno-9-32></a>        <span class=n>total_reward</span> <span class=o>+=</span> <span class=n>reward</span>
-<a id=__codelineno-9-33 name=__codelineno-9-33 href=#__codelineno-9-33></a>
-<a id=__codelineno-9-34 name=__codelineno-9-34 href=#__codelineno-9-34></a>        <span class=k>if</span> <span class=n>done</span> <span class=ow>or</span> <span class=n>truncated</span><span class=p>:</span>
-<a id=__codelineno-9-35 name=__codelineno-9-35 href=#__codelineno-9-35></a>            <span class=k>break</span>
-<a id=__codelineno-9-36 name=__codelineno-9-36 href=#__codelineno-9-36></a>
-<a id=__codelineno-9-37 name=__codelineno-9-37 href=#__codelineno-9-37></a>    <span class=c1># Update target network periodically</span>
-<a id=__codelineno-9-38 name=__codelineno-9-38 href=#__codelineno-9-38></a>    <span class=k>if</span> <span class=n>episode</span> <span class=o>%</span> <span class=mi>10</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
-<a id=__codelineno-9-39 name=__codelineno-9-39 href=#__codelineno-9-39></a>        <span class=n>agent</span><span class=o>.</span><span class=n>update_target</span><span class=p>()</span>
-<a id=__codelineno-9-40 name=__codelineno-9-40 href=#__codelineno-9-40></a>
-<a id=__codelineno-9-41 name=__codelineno-9-41 href=#__codelineno-9-41></a>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Episode </span><span class=si>{</span><span class=n>episode</span><span class=si>}</span><span class=s2>: Reward = </span><span class=si>{</span><span class=n>total_reward</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
-</code></pre></div> <h3 id=model-evaluation>Model Evaluation<a class=headerlink href=#model-evaluation title="Permanent link">&para;</a></h3> <div class=highlight><pre><span></span><code><a id=__codelineno-10-1 name=__codelineno-10-1 href=#__codelineno-10-1></a><span class=c1># Load trained model</span>
-<a id=__codelineno-10-2 name=__codelineno-10-2 href=#__codelineno-10-2></a><span class=n>agent</span><span class=o>.</span><span class=n>load_model</span><span class=p>(</span><span class=s2>&quot;models/dqn_model_best.pt&quot;</span><span class=p>)</span>
-<a id=__codelineno-10-3 name=__codelineno-10-3 href=#__codelineno-10-3></a><span class=n>agent</span><span class=o>.</span><span class=n>epsilon</span> <span class=o>=</span> <span class=mf>0.0</span>  <span class=c1># Disable exploration</span>
-<a id=__codelineno-10-4 name=__codelineno-10-4 href=#__codelineno-10-4></a>
-<a id=__codelineno-10-5 name=__codelineno-10-5 href=#__codelineno-10-5></a><span class=c1># Evaluation</span>
-<a id=__codelineno-10-6 name=__codelineno-10-6 href=#__codelineno-10-6></a><span class=n>state</span><span class=p>,</span> <span class=n>_</span> <span class=o>=</span> <span class=n>env</span><span class=o>.</span><span class=n>reset</span><span class=p>()</span>
-<a id=__codelineno-10-7 name=__codelineno-10-7 href=#__codelineno-10-7></a><span class=n>total_reward</span> <span class=o>=</span> <span class=mi>0</span>
-<a id=__codelineno-10-8 name=__codelineno-10-8 href=#__codelineno-10-8></a>
-<a id=__codelineno-10-9 name=__codelineno-10-9 href=#__codelineno-10-9></a><span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
-<a id=__codelineno-10-10 name=__codelineno-10-10 href=#__codelineno-10-10></a>    <span class=n>action</span> <span class=o>=</span> <span class=n>agent</span><span class=o>.</span><span class=n>act</span><span class=p>(</span><span class=n>state</span><span class=p>,</span> <span class=n>training</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
-<a id=__codelineno-10-11 name=__codelineno-10-11 href=#__codelineno-10-11></a>    <span class=n>state</span><span class=p>,</span> <span class=n>reward</span><span class=p>,</span> <span class=n>done</span><span class=p>,</span> <span class=n>truncated</span><span class=p>,</span> <span class=n>_</span> <span class=o>=</span> <span class=n>env</span><span class=o>.</span><span class=n>step</span><span class=p>(</span><span class=n>action</span><span class=p>)</span>
-<a id=__codelineno-10-12 name=__codelineno-10-12 href=#__codelineno-10-12></a>    <span class=n>total_reward</span> <span class=o>+=</span> <span class=n>reward</span>
-<a id=__codelineno-10-13 name=__codelineno-10-13 href=#__codelineno-10-13></a>
-<a id=__codelineno-10-14 name=__codelineno-10-14 href=#__codelineno-10-14></a>    <span class=k>if</span> <span class=n>done</span> <span class=ow>or</span> <span class=n>truncated</span><span class=p>:</span>
-<a id=__codelineno-10-15 name=__codelineno-10-15 href=#__codelineno-10-15></a>        <span class=k>break</span>
-<a id=__codelineno-10-16 name=__codelineno-10-16 href=#__codelineno-10-16></a>
-<a id=__codelineno-10-17 name=__codelineno-10-17 href=#__codelineno-10-17></a><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&quot;Evaluation reward: </span><span class=si>{</span><span class=n>total_reward</span><span class=si>}</span><span class=s2>&quot;</span><span class=p>)</span>
-</code></pre></div> <h2 id=see-also>See Also<a class=headerlink href=#see-also title="Permanent link">&para;</a></h2> <ul> <li><a href=../environments/ >Environment Module</a> - Custom Gym environment</li> <li><a href=../modeling/ >Training Module</a> - Training and evaluation pipelines</li> <li><a href=../config/ >Configuration</a> - System configuration</li> </ul> </article> </div> <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script> </div> <button type=button class="md-top md-icon" data-md-component=top hidden> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg> Back to top </button> </main> <footer class=md-footer> <div class="md-footer-meta md-typeset"> <div class="md-footer-meta__inner md-grid"> <div class=md-copyright> <div class=md-copyright__highlight> Copyright &copy; 2025 Yash Potdar </div> Made with <a href=https://squidfunk.github.io/mkdocs-material/ target=_blank rel=noopener> Material for MkDocs </a> </div> <div class=md-social> <a href=https://github.com/yashpotdar-py/rl-ids target=_blank rel=noopener title=github.com class=md-social__link> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 496 512"><!-- Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg> </a> <a href=https://yashpotdar.vercel.app target=_blank rel=noopener title=yashpotdar.vercel.app class=md-social__link> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 448 512"><!-- Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M224 256a128 128 0 1 0 0-256 128 128 0 1 0 0 256m-45.7 48C79.8 304 0 383.8 0 482.3 0 498.7 13.3 512 29.7 512h388.6c16.4 0 29.7-13.3 29.7-29.7 0-98.5-79.8-178.3-178.3-178.3z"/></svg> </a> <a href=mailto:yashyogeshpotdar7@gmail.com target=_blank rel=noopener title class=md-social__link> <svg xmlns=http://www.w3.org/2000/svg viewbox="0 0 512 512"><!-- Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480v-83.6c0-4 1.5-7.8 4.2-10.8l167.6-182.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8l-88.3-44.2C7.1 311.3.3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4"/></svg> </a> </div> </div> </div> </footer> </div> <div class=md-dialog data-md-component=dialog> <div class="md-dialog__inner md-typeset"></div> </div> <script id=__config type=application/json>{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.instant", "navigation.tracking", "search.highlight", "search.share", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script> <script src=../../assets/javascripts/bundle.13a4f30d.min.js></script> <script src=../../javascripts/mathjax.js></script> <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> <script src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        // for search plugin notably
+        const base_url = "https://yashpotdar-py.github.io/rl-ids/";
+    </script>
+    <script>
+        const darkTheme = window.matchMedia("(prefers-color-scheme: dark)");
+        darkTheme.onchange = (e) => {
+            if (e.matches) {
+                document.documentElement.classList.add("dark")
+                localStorage.theme = 'dark';
+            } else {
+                document.documentElement.classList.remove("dark")
+                localStorage.removeItem("theme")
+            }
+        };
+
+        // On page load. Priotiry to lcaolStorage
+        if (localStorage.theme === "dark") {
+            document.documentElement.classList.add("dark")
+        } else if (localStorage.theme === "light") {
+            document.documentElement.classList.remove("dark")
+        } else if (darkTheme.matches) {
+            document.documentElement.classList.add("dark")
+        } else {
+            document.documentElement.classList.remove("dark")
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RL Agents - RL-IDS Adaptive System</title>
+    
+
+
+<title>RL Agents</title>
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="https://yashpotdar-py.github.io/rl-ids/modules/agents/">
+
+
+<!-- Open Graph (Facebook, LinkedIn) -->
+
+<meta property="og:title" content="RL Agents">
+
+
+
+
+
+<meta property="og:url" content="https://yashpotdar-py.github.io/rl-ids/modules/agents/">
+
+
+
+
+
+
+<!-- Twitter Card -->
+
+<meta name="twitter:title" content="RL Agents">
+
+
+
+
+
+
+<!-- JSON-LD Structured Data -->
+
+
+
+    <link rel="icon" href="../../img/favicon.ico">
+    <link href="../../css/base.css" rel="stylesheet">
+    <link href="../../css/geist.css" rel="stylesheet">
+    
+    <link href="../../css/pygments/dracula.css" rel="stylesheet">
+    
+
+    <script src="../../js/callbacks.js"></script>
+
+    
+
+    
+
+    
+
+</head>
+
+<body class="w-screen overflow-x-hidden bg-foreground md:bg-background text-foreground scroll-smooth m-0 p-0">
+    <div id="inner-body"
+        class="min-h-screen bg-background origin-[top_center_0px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
+        <header
+    class="border-grid sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div class="w-full mx-auto 3xl:max-w-8xl">
+        <div
+            class="xl:px-6 h-14 w-full max-w-8xl mx-auto px-4 border-x border-grid flex flex-row justify-between items-center">
+            <div class="mr-4 hidden md:flex">
+                <a href="/" class="mr-4 flex items-center gap-2 lg:mr-6">
+                    
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"
+    class="h-6 w-6">
+    <rect width="256" height="256" fill="none"></rect>
+    <line x1="208" y1="128" x2="128" y2="208" fill="none" stroke="currentColor" stroke-linecap="round"
+        stroke-linejoin="round" stroke-width="32"></line>
+    <line x1="192" y1="40" x2="40" y2="192" fill="none" stroke="currentColor" stroke-linecap="round"
+        stroke-linejoin="round" stroke-width="32"></line>
+</svg>
+
+                    <h1 class="hidden lg:inline-block font-bold text-md">
+                        
+                        RL-IDS Adaptive System
+                        
+                    </h1>
+                </a>
+            </div>
+            <button
+                class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:text-accent-foreground py-2 -ml-2 mr-2 h-8 w-8 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+                type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-:R15u6ja:"
+                data-state="closed" onclick="onMobileMenuButtonClick(event)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="!size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5"></path>
+                </svg>
+                <span class="sr-only">Toggle Menu</span>
+            </button>
+            <div class="flex flex-1 items-center justify-between gap-2 md:justify-end">
+                <button onclick="onSearchBarClick(event)"
+    class="cursor-pointer inline-flex items-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input hover:bg-accent hover:text-accent-foreground px-4 py-2 relative h-8 w-full justify-start rounded-[0.5rem] bg-muted/50 text-sm font-normal text-muted-foreground shadow-none sm:pr-12 md:w-40 lg:w-56 xl:w-64">
+    <span class="hidden lg:inline-flex">Search documentation...</span>
+    <span class="inline-flex lg:hidden">Search...</span>
+    <kbd
+        class="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+        <span class="text-xs">⌘</span>K
+    </kbd>
+</button>
+<dialog id="search-dialog" onclick="onSearchDialogClick(event)"
+    class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background rounded-lg shadow-lg border overflow-hidden p-0">
+    <div class="w-lg gap-4">
+        <div class="flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground">
+            <div class="w-full flex items-center border-b px-3" cmdk-input-wrapper="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="mr-2 h-4 w-4 shrink-0 opacity-50">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                <!-- <script>
+                    let debounceTimer;
+                    const onInputHandler = function (event) {
+                        const query = event.target.value;
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            if (searchWorker && (query.length > 2)) {
+                                console.log(`Posting message { "query": "${query}" }`)
+                                // https://lunrjs.com/guides/searching.html
+                                // we should append a wilcard and also a boost on exact term
+                                const lunrQuery = `${query}^10 ${query}* ${query}~1`;
+                                searchWorker.postMessage({ "query": lunrQuery });
+                            } else if (query.length > 2) {
+                                console.warn("searchWorker is not defined")
+                            } else {
+                                const results = document.getElementById("mkdocs-search-results");
+                                if (results) {
+                                    while (results.firstChild) {
+                                        results.removeChild(results.firstChild);
+                                    }
+                                }
+                            }
+                        }, 300);
+                    };
+                </script> -->
+                <input
+                    class="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="Type a command or search..." autocomplete="off" autocorrect="off" spellcheck="false"
+                    aria-autocomplete="list" role="combobox" aria-expanded="true" type="text" value=""
+                    oninput="onInputHandler(event)">
+            </div>
+        </div>
+        <div id="mkdocs-search-results" class="max-h-[300px] overflow-y-auto overflow-x-hidden">
+            <!-- search results go there -->
+        </div>
+    </div>
+</dialog>
+<script>
+    document.removeEventListener("keydown", searchShortcutHandler);
+    document.addEventListener("keydown", searchShortcutHandler);
+</script>
+                <div class="flex items-center gap-0.5">
+                    
+                    <button
+                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 px-0"><a
+                            target="_blank" rel="noreferrer" href="https://github.com/yashpotdar-py/rl-ids">
+                            
+                            <svg viewBox="0 0 438.549 438.549" class="h-4 w-4">
+    <path fill="currentColor"
+        d="M409.132 114.573c-19.608-33.596-46.205-60.194-79.798-79.8-33.598-19.607-70.277-29.408-110.063-29.408-39.781 0-76.472 9.804-110.063 29.408-33.596 19.605-60.192 46.204-79.8 79.8C9.803 148.168 0 184.854 0 224.63c0 47.78 13.94 90.745 41.827 128.906 27.884 38.164 63.906 64.572 108.063 79.227 5.14.954 8.945.283 11.419-1.996 2.475-2.282 3.711-5.14 3.711-8.562 0-.571-.049-5.708-.144-15.417a2549.81 2549.81 0 01-.144-25.406l-6.567 1.136c-4.187.767-9.469 1.092-15.846 1-6.374-.089-12.991-.757-19.842-1.999-6.854-1.231-13.229-4.086-19.13-8.559-5.898-4.473-10.085-10.328-12.56-17.556l-2.855-6.57c-1.903-4.374-4.899-9.233-8.992-14.559-4.093-5.331-8.232-8.945-12.419-10.848l-1.999-1.431c-1.332-.951-2.568-2.098-3.711-3.429-1.142-1.331-1.997-2.663-2.568-3.997-.572-1.335-.098-2.43 1.427-3.289 1.525-.859 4.281-1.276 8.28-1.276l5.708.853c3.807.763 8.516 3.042 14.133 6.851 5.614 3.806 10.229 8.754 13.846 14.842 4.38 7.806 9.657 13.754 15.846 17.847 6.184 4.093 12.419 6.136 18.699 6.136 6.28 0 11.704-.476 16.274-1.423 4.565-.952 8.848-2.383 12.847-4.285 1.713-12.758 6.377-22.559 13.988-29.41-10.848-1.14-20.601-2.857-29.264-5.14-8.658-2.286-17.605-5.996-26.835-11.14-9.235-5.137-16.896-11.516-22.985-19.126-6.09-7.614-11.088-17.61-14.987-29.979-3.901-12.374-5.852-26.648-5.852-42.826 0-23.035 7.52-42.637 22.557-58.817-7.044-17.318-6.379-36.732 1.997-58.24 5.52-1.715 13.706-.428 24.554 3.853 10.85 4.283 18.794 7.952 23.84 10.994 5.046 3.041 9.089 5.618 12.135 7.708 17.705-4.947 35.976-7.421 54.818-7.421s37.117 2.474 54.823 7.421l10.849-6.849c7.419-4.57 16.18-8.758 26.262-12.565 10.088-3.805 17.802-4.853 23.134-3.138 8.562 21.509 9.325 40.922 2.279 58.24 15.036 16.18 22.559 35.787 22.559 58.817 0 16.178-1.958 30.497-5.853 42.966-3.9 12.471-8.941 22.457-15.125 29.979-6.191 7.521-13.901 13.85-23.131 18.986-9.232 5.14-18.182 8.85-26.84 11.136-8.662 2.286-18.415 4.004-29.263 5.146 9.894 8.562 14.842 22.077 14.842 40.539v60.237c0 3.422 1.19 6.279 3.572 8.562 2.379 2.279 6.136 2.95 11.276 1.995 44.163-14.653 80.185-41.062 108.068-79.226 27.88-38.161 41.825-81.126 41.825-128.906-.01-39.771-9.818-76.454-29.414-110.049z">
+    </path>
+</svg>
+                            <span class="sr-only">GitHub</span>
+                            
+                        </a>
+                    </button>
+                    
+                    <button
+                        class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground py-2 group/toggle h-8 w-8 px-0"
+                        onclick="onThemeSwitch(event)">
+                        
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+    class="h-4 w-4 dark:hidden not-dark:block">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+</svg>
+                        
+                        
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+    class="h-4 w-4 not-dark:hidden dark:block">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2" />
+    <path d="M12 20v2" />
+    <path d="m4.93 4.93 1.41 1.41" />
+    <path d="m17.66 17.66 1.41 1.41" />
+    <path d="M2 12h2" />
+    <path d="M20 12h2" />
+    <path d="m6.34 17.66-1.41 1.41" />
+    <path d="m19.07 4.93-1.41 1.41" />
+</svg>
+                        
+                        <span class="sr-only">Toggle theme</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="border-grid flex flex-1 flex-col">
+            <div class="w-full mx-auto 3xl:max-w-8xl">
+                <div
+                    class="px-4 w-full max-w-8xl mx-auto xl:px-6 flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
+                    <aside
+                        class="border-grid fixed top-14 z-30 hidden h-[calc(100vh-3.55rem)] w-full shrink-0 border-r md:sticky md:block">
+                        <div
+    class="no-scrollbar [&::-webkit-scrollbar]:hidden h-full overflow-auto py-6 pr-4 lg:py-8 flex flex-col gap-[.125rem]">
+    
+    
+    
+
+    
+    
+    <a href="../.." 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Home
+    
+
+    
+
+    
+
+    
+</a>
+    
+    
+    
+    <a href="../../changelog/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Changelog
+    
+
+    
+
+    
+
+    
+</a>
+    
+    
+    
+    <a href="../../faq/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    FAQ
+    
+
+    
+
+    
+
+    
+</a>
+    
+    
+    
+    <a href="../../license/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    LICENSE
+    
+
+    
+
+    
+
+    
+</a>
+    
+    
+
+
+    
+    
+    <div class="flex flex-col gap-1 mt-5 first:mt-0">
+        <h4 class="rounded-md px-2 py-1 text-sm font-semibold">User Guide</h4>
+        <div class="grid grid-flow-row auto-rows-max gap-[.125rem]">
+            
+            <a href="../../user-guide/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Overview
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../user-guide/installation/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Installation
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../user-guide/network-monitoring/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Network Monitoring
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../user-guide/website-monitoring/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Website Monitoring
+    
+
+    
+
+    
+
+    
+</a>
+            
+        </div>
+    </div>
+    
+    
+    
+    <div class="flex flex-col gap-1 mt-5 first:mt-0">
+        <h4 class="rounded-md px-2 py-1 text-sm font-semibold">API Reference</h4>
+        <div class="grid grid-flow-row auto-rows-max gap-[.125rem]">
+            
+            <a href="../../api/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Overview
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../api/examples/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Examples
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../api/python-client/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Python Client
+    
+
+    
+
+    
+
+    
+</a>
+            
+        </div>
+    </div>
+    
+    
+    
+    <div class="flex flex-col gap-1 mt-5 first:mt-0">
+        <h4 class="rounded-md px-2 py-1 text-sm font-semibold">Modules</h4>
+        <div class="grid grid-flow-row auto-rows-max gap-[.125rem]">
+            
+            <a href="../" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Core Components
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="./" data-active 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    RL Agents
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../features/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Feature Extraction
+    
+
+    
+
+    
+
+    
+</a>
+            
+        </div>
+    </div>
+    
+    
+    
+    <div class="flex flex-col gap-1 mt-5 first:mt-0">
+        <h4 class="rounded-md px-2 py-1 text-sm font-semibold">Development</h4>
+        <div class="grid grid-flow-row auto-rows-max gap-[.125rem]">
+            
+            <a href="../../development/architecture/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Architecture
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../development/contributing/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Contributing
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../development/testing/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Testing
+    
+
+    
+
+    
+
+    
+</a>
+            
+        </div>
+    </div>
+    
+    
+    
+</div>
+                    </aside>
+                    <main class="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
+                        <div class="mx-auto w-full min-w-0 xl:max-w-2xl">
+                            <article class="typography w-full">
+    
+    <div class="mb-4 flex items-center space-x-1 text-sm leading-none text-muted-foreground">
+    
+
+
+<span class="truncate">Modules</span>
+
+
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right h-3.5 w-3.5">
+    <path d="m9 18 6-6-6-6"></path>
+</svg>
+<div class="text-foreground">RL Agents</div>
+
+</div>
+    
+    
+    
+    <h1 id="rl-agents">RL Agents</h1>
+<p>This document covers the reinforcement learning agents used in RL-IDS, specifically the Deep Q-Network (DQN) implementation.</p>
+<h2 id="overview">Overview</h2>
+<p>The RL-IDS system uses Deep Q-Network (DQN) agents for network intrusion detection. The implementation is located in <code>rl_ids/agents/dqn_agent.py</code> and provides a configurable, high-performance agent suitable for multi-class classification tasks.</p>
+<h2 id="dqn-agent-architecture">DQN Agent Architecture</h2>
+<h3 id="core-components">Core Components</h3>
+<p>The DQN agent consists of several key components:</p>
+<ol>
+<li><strong>Deep Q-Network Model</strong> - Neural network for Q-value estimation</li>
+<li><strong>Target Network</strong> - Stabilized target for Q-learning updates</li>
+<li><strong>Replay Buffer</strong> - Experience replay for stable learning</li>
+<li><strong>Epsilon-Greedy Policy</strong> - Exploration vs exploitation strategy</li>
+</ol>
+<h3 id="network-architecture">Network Architecture</h3>
+<pre><code class="language-python">class DQN(nn.Module):
+    &quot;&quot;&quot;Deep Q-Network model.&quot;&quot;&quot;
+
+    def __init__(self, input_dim: int, output_dim: int, hidden_dims: List[int] = [256, 128]):
+        super(DQN, self).__init__()
+
+        layers = []
+        prev_dim = input_dim
+
+        for hidden_dim in hidden_dims:
+            layers.extend([nn.Linear(prev_dim, hidden_dim), nn.ReLU()])
+            prev_dim = hidden_dim
+
+        layers.append(nn.Linear(prev_dim, output_dim))
+
+        self.fc = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -&gt; torch.Tensor:
+        &quot;&quot;&quot;Forward pass through the network.&quot;&quot;&quot;
+        return self.fc(x)
+</code></pre>
+<p><strong>Default Architecture:</strong>
+- Input Layer: 78 features (CICIDS2017 feature set)
+- Hidden Layers: Configurable (default: [1024, 512, 256, 128])
+- Output Layer: 15 classes (attack types + benign)
+- Activation: ReLU between layers
+- Output: Raw Q-values (no activation)</p>
+<h2 id="dqn-configuration">DQN Configuration</h2>
+<h3 id="configuration-class">Configuration Class</h3>
+<pre><code class="language-python">class DQNConfig(BaseModel):
+    &quot;&quot;&quot;Configuration for DQN Agent.&quot;&quot;&quot;
+
+    state_dim: int = Field(..., description=&quot;State space dimension&quot;)
+    action_dim: int = Field(..., description=&quot;Action space dimension&quot;)
+    lr: float = Field(1e-4, description=&quot;Learning rate&quot;)
+    gamma: float = Field(0.99, description=&quot;Discount factor&quot;)
+    epsilon: float = Field(1.0, description=&quot;Initial exploration rate&quot;)
+    eps_decay: float = Field(0.995, description=&quot;Epsilon decay rate&quot;)
+    eps_min: float = Field(0.1, description=&quot;Minimum epsilon value&quot;)
+    memory_size: int = Field(3000000, description=&quot;Replay buffer size&quot;)
+    batch_size: int = Field(64, description=&quot;Training batch size&quot;)
+    hidden_dims: List[int] = Field([256, 128], description=&quot;Hidden layer dimensions&quot;)
+</code></pre>
+<h3 id="training-configuration">Training Configuration</h3>
+<p>The training script (<code>rl_ids/modeling/train.py</code>) provides extensive configuration options:</p>
+<pre><code class="language-python"># Core training parameters
+num_episodes: int = 500              # Number of training episodes
+target_update_interval: int = 10     # Target network update frequency
+lr: float = 1e-4                     # Learning rate
+gamma: float = 0.995                 # Discount factor
+
+# Exploration parameters
+epsilon: float = 1.0                 # Initial exploration rate
+eps_decay: float = 0.9995           # Epsilon decay rate
+eps_min: float = 0.01               # Minimum epsilon value
+
+# Network architecture
+hidden_dims: str = &quot;1024,512,256,128&quot;  # Hidden layer dimensions
+dropout_rate: float = 0.2            # Dropout rate for regularization
+use_layer_norm: bool = True          # Use layer normalization
+
+# Training optimization
+memory_size: int = 100000            # Replay buffer size
+batch_size: int = 256                # Training batch size
+warmup_steps: int = 1000             # Warmup steps before training
+
+# Advanced features
+curriculum_learning: bool = True     # Use curriculum learning
+double_dqn: bool = True             # Use Double DQN
+dueling: bool = True                # Use Dueling DQN architecture
+prioritized_replay: bool = False    # Use prioritized experience replay
+</code></pre>
+<h2 id="dqn-agent-implementation">DQN Agent Implementation</h2>
+<h3 id="agent-class">Agent Class</h3>
+<pre><code class="language-python">class DQNAgent:
+    &quot;&quot;&quot;Deep Q-Network Agent for reinforcement learning.&quot;&quot;&quot;
+
+    def __init__(self, config: DQNConfig):
+        &quot;&quot;&quot;Initialize DQN Agent with configuration.&quot;&quot;&quot;
+        self.config = config
+        self.state_dim = config.state_dim
+        self.action_dim = config.action_dim
+        self.gamma = config.gamma
+        self.epsilon = config.epsilon
+        self.eps_decay = config.eps_decay
+        self.eps_min = config.eps_min
+        self.batch_size = config.batch_size
+
+        # Device selection
+        self.device = torch.device(&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;)
+
+        # Initialize networks
+        self.model = DQN(config.state_dim, config.action_dim, config.hidden_dims).to(self.device)
+        self.target_model = DQN(config.state_dim, config.action_dim, config.hidden_dims).to(self.device)
+        self.update_target()
+
+        # Training components
+        self.criterion = nn.MSELoss()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=config.lr)
+        self.memory = deque(maxlen=config.memory_size)
+
+        # Training metrics
+        self.training_step = 0
+        self.episode_count = 0
+</code></pre>
+<h3 id="key-methods">Key Methods</h3>
+<h4 id="action-selection">Action Selection</h4>
+<pre><code class="language-python">def act(self, state: np.ndarray, training: bool = True) -&gt; int:
+    &quot;&quot;&quot;Choose action using epsilon-greedy policy.&quot;&quot;&quot;
+    if training and random.random() &lt; self.epsilon:
+        action = random.randint(0, self.action_dim - 1)
+        return action
+
+    state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
+    with torch.no_grad():
+        q_values = self.model(state_tensor)
+
+    action = q_values.argmax().item()
+    return action
+</code></pre>
+<h4 id="experience-storage">Experience Storage</h4>
+<pre><code class="language-python">def remember(self, state: np.ndarray, action: int, reward: float, 
+             next_state: np.ndarray, done: bool) -&gt; None:
+    &quot;&quot;&quot;Store experience in replay buffer.&quot;&quot;&quot;
+    self.memory.append((state, action, reward, next_state, done))
+</code></pre>
+<h4 id="training-step">Training Step</h4>
+<pre><code class="language-python">def replay(self) -&gt; Optional[float]:
+    &quot;&quot;&quot;Train the model on a batch of experiences.&quot;&quot;&quot;
+    if len(self.memory) &lt; self.batch_size:
+        return None
+
+    batch = random.sample(self.memory, self.batch_size)
+    states, actions, rewards, next_states, dones = zip(*batch)
+
+    # Convert to tensors
+    states = torch.FloatTensor(np.array(states)).to(self.device)
+    actions = torch.LongTensor(actions).unsqueeze(1).to(self.device)
+    rewards = torch.FloatTensor(rewards).to(self.device)
+    next_states = torch.FloatTensor(np.array(next_states)).to(self.device)
+    dones = torch.BoolTensor(dones).to(self.device)
+
+    # Compute Q-values
+    curr_Q = self.model(states).gather(1, actions).squeeze()
+    next_Q = self.target_model(next_states).max(1)[0]
+    target_Q = rewards + self.gamma * next_Q * (~dones)
+
+    # Compute loss and update
+    loss = self.criterion(curr_Q, target_Q.detach())
+    self.optimizer.zero_grad()
+    loss.backward()
+    self.optimizer.step()
+
+    # Update epsilon
+    if self.epsilon &gt; self.eps_min:
+        self.epsilon *= self.eps_decay
+
+    self.training_step += 1
+    return loss.item()
+</code></pre>
+<h2 id="training-process">Training Process</h2>
+<h3 id="enhanced-training-pipeline">Enhanced Training Pipeline</h3>
+<p>The training process (<code>rl_ids/modeling/train.py</code>) includes several advanced features:</p>
+<h4 id="1-curriculum-learning">1. Curriculum Learning</h4>
+<p>Training progresses through stages of increasing difficulty:</p>
+<pre><code class="language-python">if curriculum_learning:
+    stage_size = num_episodes // curriculum_stages
+    for i in range(curriculum_stages):
+        start_ep = i * stage_size
+        end_ep = min((i + 1) * stage_size, num_episodes)
+        curriculum_episodes.append((start_ep, end_ep, i + 1))
+</code></pre>
+<h4 id="2-learning-rate-scheduling">2. Learning Rate Scheduling</h4>
+<p>Adaptive learning rate adjustment:</p>
+<pre><code class="language-python">if lr_scheduler == &quot;cosine&quot;:
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        agent.optimizer, T_max=num_episodes, eta_min=lr * 0.01
+    )
+elif lr_scheduler == &quot;step&quot;:
+    scheduler = torch.optim.lr_scheduler.StepLR(
+        agent.optimizer, step_size=num_episodes // 4, gamma=0.5
+    )
+</code></pre>
+<h4 id="3-early-stopping">3. Early Stopping</h4>
+<p>Prevents overfitting with validation-based early stopping:</p>
+<pre><code class="language-python">if val_accuracy &gt; best_val_accuracy:
+    best_val_accuracy = val_accuracy
+    patience_counter = 0
+    agent.save_model(best_model_path)
+else:
+    patience_counter += 1
+
+if patience_counter &gt;= early_stopping_patience:
+    logger.info(f&quot;Early stopping triggered at episode {episode}&quot;)
+    break
+</code></pre>
+<h4 id="4-gradient-clipping">4. Gradient Clipping</h4>
+<p>Stabilizes training with gradient clipping:</p>
+<pre><code class="language-python">if grad_clip &gt; 0:
+    torch.nn.utils.clip_grad_norm_(agent.model.parameters(), grad_clip)
+</code></pre>
+<h3 id="training-metrics">Training Metrics</h3>
+<p>The system tracks comprehensive training metrics:</p>
+<pre><code class="language-python"># Core metrics
+train_rewards = []           # Episode rewards
+train_losses = []           # Training losses
+train_accuracies = []       # Episode accuracies
+val_accuracies = []         # Validation accuracies
+learning_rates = []         # Learning rate progression
+episode_lengths = []        # Steps per episode
+
+# Advanced metrics
+reward_stability = np.std(recent_rewards) / (np.mean(recent_rewards) + 1e-8)
+accuracy_stability = np.std(recent_accuracies)
+avg_episode_length = np.mean(episode_lengths)
+</code></pre>
+<h2 id="model-evaluation">Model Evaluation</h2>
+<h3 id="evaluation-pipeline">Evaluation Pipeline</h3>
+<p>The evaluation script (<code>rl_ids/modeling/evaluate.py</code>) provides comprehensive model assessment:</p>
+<h4 id="performance-metrics">Performance Metrics</h4>
+<pre><code class="language-python"># Classification metrics
+accuracy = accuracy_score(all_true_labels, all_predictions)
+precision, recall, f1, _ = precision_recall_fscore_support(
+    all_true_labels, all_predictions, average='weighted'
+)
+
+# Confusion matrix
+cm = confusion_matrix(all_true_labels, all_predictions)
+
+# Classification report
+report = classification_report(
+    all_true_labels, all_predictions, 
+    target_names=class_names, 
+    output_dict=True
+)
+</code></pre>
+<h4 id="confidence-analysis">Confidence Analysis</h4>
+<pre><code class="language-python"># High confidence predictions
+high_conf_mask = np.array(all_confidences) &gt;= confidence_threshold
+high_conf_accuracy = accuracy_score(
+    np.array(all_true_labels)[high_conf_mask],
+    np.array(all_predictions)[high_conf_mask]
+)
+
+# Confidence distribution by class
+confidence_by_class = {}
+for class_idx, class_name in enumerate(class_names):
+    class_mask = np.array(all_true_labels) == class_idx
+    if np.any(class_mask):
+        confidence_by_class[class_name] = np.mean(np.array(all_confidences)[class_mask])
+</code></pre>
+<h4 id="prediction-timing">Prediction Timing</h4>
+<pre><code class="language-python"># Prediction performance
+avg_prediction_time = np.mean(prediction_times) * 1000  # Convert to ms
+predictions_per_second = 1.0 / np.mean(prediction_times)
+</code></pre>
+<h2 id="usage-examples">Usage Examples</h2>
+<h3 id="basic-agent-training">Basic Agent Training</h3>
+<pre><code class="language-python">from rl_ids.agents.dqn_agent import DQNAgent, DQNConfig
+
+# Create configuration
+config = DQNConfig(
+    state_dim=78,
+    action_dim=15,
+    lr=1e-4,
+    gamma=0.995,
+    hidden_dims=[1024, 512, 256, 128]
+)
+
+# Initialize agent
+agent = DQNAgent(config)
+
+# Training loop
+for episode in range(num_episodes):
+    state, _ = env.reset()
+    done = False
+
+    while not done:
+        action = agent.act(state, training=True)
+        next_state, reward, done, _, info = env.step(action)
+
+        agent.remember(state, action, reward, next_state, done)
+
+        if len(agent.memory) &gt;= warmup_steps:
+            loss = agent.replay()
+
+        state = next_state
+
+    # Update target network periodically
+    if episode % target_update_interval == 0:
+        agent.update_target()
+</code></pre>
+<h3 id="model-inference">Model Inference</h3>
+<pre><code class="language-python"># Load trained model
+agent = DQNAgent(config)
+agent.load_model(&quot;models/dqn_model_best.pt&quot;)
+agent.epsilon = 0.0  # Disable exploration
+
+# Make predictions
+features = extract_features(network_packet)
+action = agent.act(features, training=False)
+attack_type = class_names[action]
+</code></pre>
+</article>
+                        </div>
+                        <div class="hidden text-sm xl:block">
+                            <div class="sticky top-20 -mt-6 pt-4">
+    <div class="no-scrollbar h-full overflow-auto pb-10">
+        <div class="space-y-2">
+            <p class="font-medium">On This Page</p>
+            <ul class="m-0 list-none">
+                
+                
+                
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#overview">Overview</a>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#dqn-agent-architecture">DQN Agent Architecture</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#core-components">Core Components</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#network-architecture">Network Architecture</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#dqn-configuration">DQN Configuration</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#configuration-class">Configuration Class</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#training-configuration">Training Configuration</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#dqn-agent-implementation">DQN Agent Implementation</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#agent-class">Agent Class</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#key-methods">Key Methods</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#training-process">Training Process</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#enhanced-training-pipeline">Enhanced Training Pipeline</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#training-metrics">Training Metrics</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#model-evaluation">Model Evaluation</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#evaluation-pipeline">Evaluation Pipeline</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#usage-examples">Usage Examples</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#basic-agent-training">Basic Agent Training</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#model-inference">Model Inference</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                
+                
+                
+            </ul>
+        </div>
+    </div>
+</div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+            <dialog id="bottom-sidebar" data-closing="0"
+    class="backdrop:bg-black backdrop:opacity-80 backdrop:transition-all backdrop:duration-500 text-foreground"
+    onclick="onBottomSidebarDialogClick(event)">
+    <div
+        class="fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background max-h-[60svh] p-0 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
+        <div class="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted"></div>
+        <div class="overflow-auto p-6 space-y-3">
+            
+            
+
+            <div class="flex flex-col">
+                
+                
+                <a href="../.." class="text-base shrink-0">
+    Home
+</a>
+                
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h4 class="font-medium">User Guide </h4>
+                    
+                    <a href="../../user-guide/" class="text-base shrink-0">
+    Overview
+</a>
+                    
+                    <a href="../../user-guide/installation/" class="text-base shrink-0">
+    Installation
+</a>
+                    
+                    <a href="../../user-guide/network-monitoring/" class="text-base shrink-0">
+    Network Monitoring
+</a>
+                    
+                    <a href="../../user-guide/website-monitoring/" class="text-base shrink-0">
+    Website Monitoring
+</a>
+                    
+                </div>
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h4 class="font-medium">API Reference </h4>
+                    
+                    <a href="../../api/" class="text-base shrink-0">
+    Overview
+</a>
+                    
+                    <a href="../../api/python-client/" class="text-base shrink-0">
+    Python Client
+</a>
+                    
+                    <a href="../../api/examples/" class="text-base shrink-0">
+    Examples
+</a>
+                    
+                </div>
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h4 class="font-medium">Modules </h4>
+                    
+                    <a href="../" class="text-base shrink-0">
+    Core Components
+</a>
+                    
+                    <a href="./" class="text-base shrink-0">
+    RL Agents
+</a>
+                    
+                    <a href="../features/" class="text-base shrink-0">
+    Feature Extraction
+</a>
+                    
+                </div>
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h4 class="font-medium">Development </h4>
+                    
+                    <a href="../../development/contributing/" class="text-base shrink-0">
+    Contributing
+</a>
+                    
+                    <a href="../../development/architecture/" class="text-base shrink-0">
+    Architecture
+</a>
+                    
+                    <a href="../../development/testing/" class="text-base shrink-0">
+    Testing
+</a>
+                    
+                </div>
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                
+                <a href="../../faq/" class="text-base shrink-0">
+    FAQ
+</a>
+                
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                
+                <a href="../../changelog/" class="text-base shrink-0">
+    Changelog
+</a>
+                
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                
+                <a href="../../license/" class="text-base shrink-0">
+    LICENSE
+</a>
+                
+                
+            </div>
+            
+            
+        </div>
+    </div>
+</dialog>
+        </div>
+    </div> 
+    
+    <script src="../../search/main.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+    <script src="../../js/copy-button.js"></script>
+</body>
+
+</html>

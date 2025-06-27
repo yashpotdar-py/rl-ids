@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        // for search plugin notably
+        const base_url = "https://yashpotdar-py.github.io/rl-ids/";
+    </script>
+    <script>
+        const darkTheme = window.matchMedia("(prefers-color-scheme: dark)");
+        darkTheme.onchange = (e) => {
+            if (e.matches) {
+                document.documentElement.classList.add("dark")
+                localStorage.theme = 'dark';
+            } else {
+                document.documentElement.classList.remove("dark")
+                localStorage.removeItem("theme")
+            }
+        };
+
+        // On page load. Priotiry to lcaolStorage
+        if (localStorage.theme === "dark") {
+            document.documentElement.classList.add("dark")
+        } else if (localStorage.theme === "light") {
+            document.documentElement.classList.remove("dark")
+        } else if (darkTheme.matches) {
+            document.documentElement.classList.add("dark")
+        } else {
+            document.documentElement.classList.remove("dark")
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Examples - RL-IDS Adaptive System</title>
+    
+
+
+<title>Examples</title>
+
+
+
+
+
+
+
+
+
+<link rel="canonical" href="https://yashpotdar-py.github.io/rl-ids/api/examples/">
+
+
+<!-- Open Graph (Facebook, LinkedIn) -->
+
+<meta property="og:title" content="Examples">
+
+
+
+
+
+<meta property="og:url" content="https://yashpotdar-py.github.io/rl-ids/api/examples/">
+
+
+
+
+
+
+<!-- Twitter Card -->
+
+<meta name="twitter:title" content="Examples">
+
+
+
+
+
+
+<!-- JSON-LD Structured Data -->
+
+
+
+    <link rel="icon" href="../../img/favicon.ico">
+    <link href="../../css/base.css" rel="stylesheet">
+    <link href="../../css/geist.css" rel="stylesheet">
+    
+    <link href="../../css/pygments/dracula.css" rel="stylesheet">
+    
+
+    <script src="../../js/callbacks.js"></script>
+
+    
+
+    
+
+    
+
+</head>
+
+<body class="w-screen overflow-x-hidden bg-foreground md:bg-background text-foreground scroll-smooth m-0 p-0">
+    <div id="inner-body"
+        class="min-h-screen bg-background origin-[top_center_0px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
+        <header
+    class="border-grid sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div class="w-full mx-auto 3xl:max-w-8xl">
+        <div
+            class="xl:px-6 h-14 w-full max-w-8xl mx-auto px-4 border-x border-grid flex flex-row justify-between items-center">
+            <div class="mr-4 hidden md:flex">
+                <a href="/" class="mr-4 flex items-center gap-2 lg:mr-6">
+                    
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"
+    class="h-6 w-6">
+    <rect width="256" height="256" fill="none"></rect>
+    <line x1="208" y1="128" x2="128" y2="208" fill="none" stroke="currentColor" stroke-linecap="round"
+        stroke-linejoin="round" stroke-width="32"></line>
+    <line x1="192" y1="40" x2="40" y2="192" fill="none" stroke="currentColor" stroke-linecap="round"
+        stroke-linejoin="round" stroke-width="32"></line>
+</svg>
+
+                    <h1 class="hidden lg:inline-block font-bold text-md">
+                        
+                        RL-IDS Adaptive System
+                        
+                    </h1>
+                </a>
+            </div>
+            <button
+                class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:text-accent-foreground py-2 -ml-2 mr-2 h-8 w-8 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+                type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="radix-:R15u6ja:"
+                data-state="closed" onclick="onMobileMenuButtonClick(event)">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="!size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5"></path>
+                </svg>
+                <span class="sr-only">Toggle Menu</span>
+            </button>
+            <div class="flex flex-1 items-center justify-between gap-2 md:justify-end">
+                <button onclick="onSearchBarClick(event)"
+    class="cursor-pointer inline-flex items-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input hover:bg-accent hover:text-accent-foreground px-4 py-2 relative h-8 w-full justify-start rounded-[0.5rem] bg-muted/50 text-sm font-normal text-muted-foreground shadow-none sm:pr-12 md:w-40 lg:w-56 xl:w-64">
+    <span class="hidden lg:inline-flex">Search documentation...</span>
+    <span class="inline-flex lg:hidden">Search...</span>
+    <kbd
+        class="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+        <span class="text-xs">⌘</span>K
+    </kbd>
+</button>
+<dialog id="search-dialog" onclick="onSearchDialogClick(event)"
+    class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background rounded-lg shadow-lg border overflow-hidden p-0">
+    <div class="w-lg gap-4">
+        <div class="flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground">
+            <div class="w-full flex items-center border-b px-3" cmdk-input-wrapper="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="mr-2 h-4 w-4 shrink-0 opacity-50">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                <!-- <script>
+                    let debounceTimer;
+                    const onInputHandler = function (event) {
+                        const query = event.target.value;
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            if (searchWorker && (query.length > 2)) {
+                                console.log(`Posting message { "query": "${query}" }`)
+                                // https://lunrjs.com/guides/searching.html
+                                // we should append a wilcard and also a boost on exact term
+                                const lunrQuery = `${query}^10 ${query}* ${query}~1`;
+                                searchWorker.postMessage({ "query": lunrQuery });
+                            } else if (query.length > 2) {
+                                console.warn("searchWorker is not defined")
+                            } else {
+                                const results = document.getElementById("mkdocs-search-results");
+                                if (results) {
+                                    while (results.firstChild) {
+                                        results.removeChild(results.firstChild);
+                                    }
+                                }
+                            }
+                        }, 300);
+                    };
+                </script> -->
+                <input
+                    class="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="Type a command or search..." autocomplete="off" autocorrect="off" spellcheck="false"
+                    aria-autocomplete="list" role="combobox" aria-expanded="true" type="text" value=""
+                    oninput="onInputHandler(event)">
+            </div>
+        </div>
+        <div id="mkdocs-search-results" class="max-h-[300px] overflow-y-auto overflow-x-hidden">
+            <!-- search results go there -->
+        </div>
+    </div>
+</dialog>
+<script>
+    document.removeEventListener("keydown", searchShortcutHandler);
+    document.addEventListener("keydown", searchShortcutHandler);
+</script>
+                <div class="flex items-center gap-0.5">
+                    
+                    <button
+                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 w-8 px-0"><a
+                            target="_blank" rel="noreferrer" href="https://github.com/yashpotdar-py/rl-ids">
+                            
+                            <svg viewBox="0 0 438.549 438.549" class="h-4 w-4">
+    <path fill="currentColor"
+        d="M409.132 114.573c-19.608-33.596-46.205-60.194-79.798-79.8-33.598-19.607-70.277-29.408-110.063-29.408-39.781 0-76.472 9.804-110.063 29.408-33.596 19.605-60.192 46.204-79.8 79.8C9.803 148.168 0 184.854 0 224.63c0 47.78 13.94 90.745 41.827 128.906 27.884 38.164 63.906 64.572 108.063 79.227 5.14.954 8.945.283 11.419-1.996 2.475-2.282 3.711-5.14 3.711-8.562 0-.571-.049-5.708-.144-15.417a2549.81 2549.81 0 01-.144-25.406l-6.567 1.136c-4.187.767-9.469 1.092-15.846 1-6.374-.089-12.991-.757-19.842-1.999-6.854-1.231-13.229-4.086-19.13-8.559-5.898-4.473-10.085-10.328-12.56-17.556l-2.855-6.57c-1.903-4.374-4.899-9.233-8.992-14.559-4.093-5.331-8.232-8.945-12.419-10.848l-1.999-1.431c-1.332-.951-2.568-2.098-3.711-3.429-1.142-1.331-1.997-2.663-2.568-3.997-.572-1.335-.098-2.43 1.427-3.289 1.525-.859 4.281-1.276 8.28-1.276l5.708.853c3.807.763 8.516 3.042 14.133 6.851 5.614 3.806 10.229 8.754 13.846 14.842 4.38 7.806 9.657 13.754 15.846 17.847 6.184 4.093 12.419 6.136 18.699 6.136 6.28 0 11.704-.476 16.274-1.423 4.565-.952 8.848-2.383 12.847-4.285 1.713-12.758 6.377-22.559 13.988-29.41-10.848-1.14-20.601-2.857-29.264-5.14-8.658-2.286-17.605-5.996-26.835-11.14-9.235-5.137-16.896-11.516-22.985-19.126-6.09-7.614-11.088-17.61-14.987-29.979-3.901-12.374-5.852-26.648-5.852-42.826 0-23.035 7.52-42.637 22.557-58.817-7.044-17.318-6.379-36.732 1.997-58.24 5.52-1.715 13.706-.428 24.554 3.853 10.85 4.283 18.794 7.952 23.84 10.994 5.046 3.041 9.089 5.618 12.135 7.708 17.705-4.947 35.976-7.421 54.818-7.421s37.117 2.474 54.823 7.421l10.849-6.849c7.419-4.57 16.18-8.758 26.262-12.565 10.088-3.805 17.802-4.853 23.134-3.138 8.562 21.509 9.325 40.922 2.279 58.24 15.036 16.18 22.559 35.787 22.559 58.817 0 16.178-1.958 30.497-5.853 42.966-3.9 12.471-8.941 22.457-15.125 29.979-6.191 7.521-13.901 13.85-23.131 18.986-9.232 5.14-18.182 8.85-26.84 11.136-8.662 2.286-18.415 4.004-29.263 5.146 9.894 8.562 14.842 22.077 14.842 40.539v60.237c0 3.422 1.19 6.279 3.572 8.562 2.379 2.279 6.136 2.95 11.276 1.995 44.163-14.653 80.185-41.062 108.068-79.226 27.88-38.161 41.825-81.126 41.825-128.906-.01-39.771-9.818-76.454-29.414-110.049z">
+    </path>
+</svg>
+                            <span class="sr-only">GitHub</span>
+                            
+                        </a>
+                    </button>
+                    
+                    <button
+                        class="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground py-2 group/toggle h-8 w-8 px-0"
+                        onclick="onThemeSwitch(event)">
+                        
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+    class="h-4 w-4 dark:hidden not-dark:block">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+</svg>
+                        
+                        
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round"
+    class="h-4 w-4 not-dark:hidden dark:block">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2" />
+    <path d="M12 20v2" />
+    <path d="m4.93 4.93 1.41 1.41" />
+    <path d="m17.66 17.66 1.41 1.41" />
+    <path d="M2 12h2" />
+    <path d="M20 12h2" />
+    <path d="m6.34 17.66-1.41 1.41" />
+    <path d="m19.07 4.93-1.41 1.41" />
+</svg>
+                        
+                        <span class="sr-only">Toggle theme</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="border-grid flex flex-1 flex-col">
+            <div class="w-full mx-auto 3xl:max-w-8xl">
+                <div
+                    class="px-4 w-full max-w-8xl mx-auto xl:px-6 flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
+                    <aside
+                        class="border-grid fixed top-14 z-30 hidden h-[calc(100vh-3.55rem)] w-full shrink-0 border-r md:sticky md:block">
+                        <div
+    class="no-scrollbar [&::-webkit-scrollbar]:hidden h-full overflow-auto py-6 pr-4 lg:py-8 flex flex-col gap-[.125rem]">
+    
+    
+    
+
+    
+    
+    <a href="../.." 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Home
+    
+
+    
+
+    
+
+    
+</a>
+    
+    
+    
+    <a href="../../changelog/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Changelog
+    
+
+    
+
+    
+
+    
+</a>
+    
+    
+    
+    <a href="../../faq/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    FAQ
+    
+
+    
+
+    
+
+    
+</a>
+    
+    
+    
+    <a href="../../license/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    LICENSE
+    
+
+    
+
+    
+
+    
+</a>
+    
+    
+
+
+    
+    
+    <div class="flex flex-col gap-1 mt-5 first:mt-0">
+        <h4 class="rounded-md px-2 py-1 text-sm font-semibold">User Guide</h4>
+        <div class="grid grid-flow-row auto-rows-max gap-[.125rem]">
+            
+            <a href="../../user-guide/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Overview
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../user-guide/installation/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Installation
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../user-guide/network-monitoring/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Network Monitoring
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../user-guide/website-monitoring/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Website Monitoring
+    
+
+    
+
+    
+
+    
+</a>
+            
+        </div>
+    </div>
+    
+    
+    
+    <div class="flex flex-col gap-1 mt-5 first:mt-0">
+        <h4 class="rounded-md px-2 py-1 text-sm font-semibold">API Reference</h4>
+        <div class="grid grid-flow-row auto-rows-max gap-[.125rem]">
+            
+            <a href="../" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Overview
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="./" data-active 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Examples
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../python-client/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Python Client
+    
+
+    
+
+    
+
+    
+</a>
+            
+        </div>
+    </div>
+    
+    
+    
+    <div class="flex flex-col gap-1 mt-5 first:mt-0">
+        <h4 class="rounded-md px-2 py-1 text-sm font-semibold">Modules</h4>
+        <div class="grid grid-flow-row auto-rows-max gap-[.125rem]">
+            
+            <a href="../../modules/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Core Components
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../modules/agents/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    RL Agents
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../modules/features/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Feature Extraction
+    
+
+    
+
+    
+
+    
+</a>
+            
+        </div>
+    </div>
+    
+    
+    
+    <div class="flex flex-col gap-1 mt-5 first:mt-0">
+        <h4 class="rounded-md px-2 py-1 text-sm font-semibold">Development</h4>
+        <div class="grid grid-flow-row auto-rows-max gap-[.125rem]">
+            
+            <a href="../../development/architecture/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Architecture
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../development/contributing/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Contributing
+    
+
+    
+
+    
+
+    
+</a>
+            
+            <a href="../../development/testing/" 
+    class="text-sm flex shrink-0 h-8 w-full items-center rounded-lg px-2 text-foreground underline-offset-2 font-normal hover:bg-accent hover:text-accent-foreground data-active:bg-accent data-active:font-medium data-active:text-accent-foreground">
+    
+    Testing
+    
+
+    
+
+    
+
+    
+</a>
+            
+        </div>
+    </div>
+    
+    
+    
+</div>
+                    </aside>
+                    <main class="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
+                        <div class="mx-auto w-full min-w-0 xl:max-w-2xl">
+                            <article class="typography w-full">
+    
+    <div class="mb-4 flex items-center space-x-1 text-sm leading-none text-muted-foreground">
+    
+
+
+<span class="truncate">API Reference</span>
+
+
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right h-3.5 w-3.5">
+    <path d="m9 18 6-6-6-6"></path>
+</svg>
+<div class="text-foreground">Examples</div>
+
+</div>
+    
+    
+    
+    <h1 id="api-examples">API Examples</h1>
+<p>This page provides comprehensive examples of using the RL-IDS API for various integration scenarios.</p>
+<h2 id="basic-usage-examples">Basic Usage Examples</h2>
+<h3 id="1-service-health-check">1. Service Health Check</h3>
+<pre><code class="language-bash"># Check if the API service is running
+curl -X GET http://localhost:8000/health
+
+# Expected response
+{
+  &quot;status&quot;: &quot;healthy&quot;,
+  &quot;timestamp&quot;: &quot;2024-01-15T10:30:00Z&quot;,
+  &quot;details&quot;: {
+    &quot;model_loaded&quot;: true,
+    &quot;api_version&quot;: &quot;1.2.0&quot;,
+    &quot;memory_usage&quot;: 45.6,
+    &quot;uptime&quot;: 3600
+  }
+}
+</code></pre>
+<h3 id="2-get-model-information">2. Get Model Information</h3>
+<pre><code class="language-bash"># Get information about the loaded model
+curl -X GET http://localhost:8000/model/info
+
+# Expected response
+{
+  &quot;model_name&quot;: &quot;DQN_IDS_Model&quot;,
+  &quot;model_type&quot;: &quot;Deep Q-Network&quot;,
+  &quot;version&quot;: &quot;1.2.0&quot;,
+  &quot;input_features&quot;: 78,
+  &quot;output_classes&quot;: 2,
+  &quot;class_names&quot;: [&quot;BENIGN&quot;, &quot;ATTACK&quot;],
+  &quot;training_date&quot;: &quot;2024-01-10T15:30:00Z&quot;,
+  &quot;accuracy&quot;: 0.953,
+  &quot;false_positive_rate&quot;: 0.047
+}
+</code></pre>
+<h3 id="3-single-prediction">3. Single Prediction</h3>
+<pre><code class="language-bash"># Make a single prediction
+curl -X POST http://localhost:8000/predict \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;features&quot;: [
+      0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
+      1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0,
+      2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0,
+      3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0,
+      4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0,
+      5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0,
+      6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 7.0,
+      7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8
+    ]
+  }'
+
+# Expected response
+{
+  &quot;prediction&quot;: {
+    &quot;class&quot;: &quot;BENIGN&quot;,
+    &quot;confidence&quot;: 0.87,
+    &quot;probability&quot;: {
+      &quot;BENIGN&quot;: 0.87,
+      &quot;ATTACK&quot;: 0.13
+    }
+  },
+  &quot;timestamp&quot;: &quot;2024-01-15T10:35:00Z&quot;,
+  &quot;processing_time&quot;: 0.045
+}
+</code></pre>
+<h3 id="4-batch-predictions">4. Batch Predictions</h3>
+<pre><code class="language-bash"># Make multiple predictions at once
+curl -X POST http://localhost:8000/predict/batch \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;features&quot;: [
+      [0.1, 0.2, 0.3, ..., 7.8],
+      [1.1, 1.2, 1.3, ..., 8.8],
+      [2.1, 2.2, 2.3, ..., 9.8]
+    ]
+  }'
+
+# Expected response
+{
+  &quot;predictions&quot;: [
+    {
+      &quot;class&quot;: &quot;BENIGN&quot;,
+      &quot;confidence&quot;: 0.87,
+      &quot;probability&quot;: {&quot;BENIGN&quot;: 0.87, &quot;ATTACK&quot;: 0.13}
+    },
+    {
+      &quot;class&quot;: &quot;ATTACK&quot;,
+      &quot;confidence&quot;: 0.92,
+      &quot;probability&quot;: {&quot;BENIGN&quot;: 0.08, &quot;ATTACK&quot;: 0.92}
+    },
+    {
+      &quot;class&quot;: &quot;BENIGN&quot;,
+      &quot;confidence&quot;: 0.79,
+      &quot;probability&quot;: {&quot;BENIGN&quot;: 0.79, &quot;ATTACK&quot;: 0.21}
+    }
+  ],
+  &quot;timestamp&quot;: &quot;2024-01-15T10:40:00Z&quot;,
+  &quot;processing_time&quot;: 0.098,
+  &quot;total_predictions&quot;: 3
+}
+</code></pre>
+<h2 id="python-integration-examples">Python Integration Examples</h2>
+<h3 id="1-using-requests-library">1. Using Requests Library</h3>
+<pre><code class="language-python">import requests
+import json
+
+# API configuration
+API_BASE_URL = &quot;http://localhost:8000&quot;
+
+def check_api_health():
+    &quot;&quot;&quot;Check if the API is healthy and ready.&quot;&quot;&quot;
+    try:
+        response = requests.get(f&quot;{API_BASE_URL}/health&quot;)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f&quot;Health check failed: {e}&quot;)
+        return None
+
+def get_model_info():
+    &quot;&quot;&quot;Get information about the loaded model.&quot;&quot;&quot;
+    try:
+        response = requests.get(f&quot;{API_BASE_URL}/model/info&quot;)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f&quot;Failed to get model info: {e}&quot;)
+        return None
+
+def make_prediction(features):
+    &quot;&quot;&quot;Make a single prediction.&quot;&quot;&quot;
+    try:
+        payload = {&quot;features&quot;: features}
+        response = requests.post(
+            f&quot;{API_BASE_URL}/predict&quot;,
+            json=payload,
+            headers={&quot;Content-Type&quot;: &quot;application/json&quot;}
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f&quot;Prediction failed: {e}&quot;)
+        return None
+
+def make_batch_predictions(features_list):
+    &quot;&quot;&quot;Make multiple predictions at once.&quot;&quot;&quot;
+    try:
+        payload = {&quot;features&quot;: features_list}
+        response = requests.post(
+            f&quot;{API_BASE_URL}/predict/batch&quot;,
+            json=payload,
+            headers={&quot;Content-Type&quot;: &quot;application/json&quot;}
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f&quot;Batch prediction failed: {e}&quot;)
+        return None
+
+# Example usage
+if __name__ == &quot;__main__&quot;:
+    # Check API health
+    health = check_api_health()
+    print(f&quot;API Health: {health}&quot;)
+
+    # Get model information
+    model_info = get_model_info()
+    print(f&quot;Model Info: {model_info}&quot;)
+
+    # Sample feature vector (78 features)
+    sample_features = [0.1] * 78
+
+    # Make single prediction
+    prediction = make_prediction(sample_features)
+    print(f&quot;Prediction: {prediction}&quot;)
+
+    # Make batch predictions
+    batch_features = [sample_features] * 3
+    batch_predictions = make_batch_predictions(batch_features)
+    print(f&quot;Batch Predictions: {batch_predictions}&quot;)
+</code></pre>
+<h3 id="2-using-the-official-python-client">2. Using the Official Python Client</h3>
+<pre><code class="language-python">from api.client import RLIDSClient
+import asyncio
+
+async def main():
+    # Initialize client
+    client = RLIDSClient(&quot;http://localhost:8000&quot;)
+
+    try:
+        # Check health
+        health = await client.health_check()
+        print(f&quot;Health: {health}&quot;)
+
+        # Get model info
+        model_info = await client.get_model_info()
+        print(f&quot;Model: {model_info}&quot;)
+
+        # Sample features
+        features = [0.1] * 78
+
+        # Single prediction
+        prediction = await client.predict(features)
+        print(f&quot;Prediction: {prediction}&quot;)
+
+        # Batch prediction
+        batch_features = [features] * 5
+        batch_predictions = await client.predict_batch(batch_features)
+        print(f&quot;Batch Results: {batch_predictions}&quot;)
+
+    except Exception as e:
+        print(f&quot;Error: {e}&quot;)
+    finally:
+        await client.close()
+
+# Run the example
+if __name__ == &quot;__main__&quot;:
+    asyncio.run(main())
+</code></pre>
+<h3 id="3-real-time-network-monitoring-integration">3. Real-time Network Monitoring Integration</h3>
+<pre><code class="language-python">import asyncio
+import time
+from api.client import RLIDSClient
+from rl_ids.make_dataset import extract_features
+
+class NetworkMonitor:
+    def __init__(self, api_url=&quot;http://localhost:8000&quot;):
+        self.client = RLIDSClient(api_url)
+        self.running = False
+
+    async def start_monitoring(self):
+        &quot;&quot;&quot;Start real-time network monitoring.&quot;&quot;&quot;
+        self.running = True
+        print(&quot;Starting network monitoring...&quot;)
+
+        try:
+            while self.running:
+                # Capture network data (simplified)
+                network_data = self.capture_network_data()
+
+                if network_data:
+                    # Extract features
+                    features = extract_features(network_data)
+
+                    # Make prediction
+                    result = await self.client.predict(features)
+
+                    # Process result
+                    await self.process_prediction(result, network_data)
+
+                # Wait before next capture
+                await asyncio.sleep(1.0)
+
+        except KeyboardInterrupt:
+            print(&quot;Monitoring stopped by user&quot;)
+        except Exception as e:
+            print(f&quot;Monitoring error: {e}&quot;)
+        finally:
+            await self.client.close()
+
+    def capture_network_data(self):
+        &quot;&quot;&quot;Capture network data (placeholder).&quot;&quot;&quot;
+        # This would contain actual packet capture logic
+        # For demonstration, return mock data
+        return {
+            'packets': 100,
+            'bytes': 5000,
+            'duration': 1.0,
+            'protocols': ['TCP', 'UDP']
+        }
+
+    async def process_prediction(self, prediction, network_data):
+        &quot;&quot;&quot;Process prediction results.&quot;&quot;&quot;
+        if prediction['prediction']['class'] == 'ATTACK':
+            confidence = prediction['prediction']['confidence']
+            print(f&quot;ALERT: Attack detected with {confidence:.2%} confidence&quot;)
+            print(f&quot;Network data: {network_data}&quot;)
+
+            # Here you would implement alerting logic
+            await self.send_alert(prediction, network_data)
+        else:
+            print(f&quot;Normal traffic detected ({prediction['prediction']['confidence']:.2%})&quot;)
+
+    async def send_alert(self, prediction, network_data):
+        &quot;&quot;&quot;Send alert for detected attack.&quot;&quot;&quot;
+        alert = {
+            'timestamp': time.time(),
+            'type': 'ATTACK_DETECTED',
+            'confidence': prediction['prediction']['confidence'],
+            'network_data': network_data
+        }
+
+        # Implement your alerting mechanism here
+        print(f&quot;Sending alert: {alert}&quot;)
+
+    def stop_monitoring(self):
+        &quot;&quot;&quot;Stop the monitoring process.&quot;&quot;&quot;
+        self.running = False
+
+# Usage example
+if __name__ == &quot;__main__&quot;:
+    monitor = NetworkMonitor()
+    asyncio.run(monitor.start_monitoring())
+</code></pre>
+<h2 id="error-handling-examples">Error Handling Examples</h2>
+<h3 id="1-handling-api-errors">1. Handling API Errors</h3>
+<pre><code class="language-python">import requests
+from requests.exceptions import RequestException, Timeout, ConnectionError
+
+def robust_prediction(features, max_retries=3):
+    &quot;&quot;&quot;Make prediction with error handling and retries.&quot;&quot;&quot;
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(
+                &quot;http://localhost:8000/predict&quot;,
+                json={&quot;features&quot;: features},
+                timeout=30
+            )
+
+            # Check for HTTP errors
+            if response.status_code == 422:
+                print(&quot;Validation error: Invalid input format&quot;)
+                return None
+
+            response.raise_for_status()
+            return response.json()
+
+        except ConnectionError:
+            print(f&quot;Connection error (attempt {attempt + 1}/{max_retries})&quot;)
+            if attempt &lt; max_retries - 1:
+                time.sleep(2 ** attempt)  # Exponential backoff
+
+        except Timeout:
+            print(f&quot;Request timeout (attempt {attempt + 1}/{max_retries})&quot;)
+            if attempt &lt; max_retries - 1:
+                time.sleep(1)
+
+        except RequestException as e:
+            print(f&quot;Request failed: {e}&quot;)
+            break
+
+    print(&quot;All retry attempts failed&quot;)
+    return None
+
+# Example usage
+features = [0.1] * 78
+result = robust_prediction(features)
+if result:
+    print(f&quot;Prediction successful: {result}&quot;)
+else:
+    print(&quot;Prediction failed after all retries&quot;)
+</code></pre>
+<h3 id="2-input-validation">2. Input Validation</h3>
+<pre><code class="language-python">def validate_features(features):
+    &quot;&quot;&quot;Validate feature input before sending to API.&quot;&quot;&quot;
+    if not isinstance(features, list):
+        raise ValueError(&quot;Features must be a list&quot;)
+
+    if len(features) != 78:
+        raise ValueError(f&quot;Expected 78 features, got {len(features)}&quot;)
+
+    for i, feature in enumerate(features):
+        if not isinstance(feature, (int, float)):
+            raise ValueError(f&quot;Feature {i} must be numeric, got {type(feature)}&quot;)
+
+        if not (-1000 &lt;= feature &lt;= 1000):  # Reasonable bounds
+            raise ValueError(f&quot;Feature {i} value {feature} is out of reasonable bounds&quot;)
+
+    return True
+
+def safe_prediction(features):
+    &quot;&quot;&quot;Make prediction with input validation.&quot;&quot;&quot;
+    try:
+        # Validate input
+        validate_features(features)
+
+        # Make prediction
+        response = requests.post(
+            &quot;http://localhost:8000/predict&quot;,
+            json={&quot;features&quot;: features}
+        )
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f&quot;API error: {response.status_code} - {response.text}&quot;)
+            return None
+
+    except ValueError as e:
+        print(f&quot;Input validation error: {e}&quot;)
+        return None
+    except Exception as e:
+        print(f&quot;Unexpected error: {e}&quot;)
+        return None
+
+# Example usage
+try:
+    features = [0.1] * 78  # Valid input
+    result = safe_prediction(features)
+
+    invalid_features = [0.1] * 77  # Invalid input
+    result = safe_prediction(invalid_features)  # Will show validation error
+
+except Exception as e:
+    print(f&quot;Error: {e}&quot;)
+</code></pre>
+<h2 id="performance-optimization-examples">Performance Optimization Examples</h2>
+<h3 id="1-batch-processing-for-high-throughput">1. Batch Processing for High Throughput</h3>
+<pre><code class="language-python">import asyncio
+import aiohttp
+from typing import List, Dict
+
+class BatchProcessor:
+    def __init__(self, api_url: str, batch_size: int = 100):
+        self.api_url = api_url
+        self.batch_size = batch_size
+        self.session = None
+
+    async def __aenter__(self):
+        self.session = aiohttp.ClientSession()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.session:
+            await self.session.close()
+
+    async def process_large_dataset(self, features_list: List[List[float]]):
+        &quot;&quot;&quot;Process a large dataset in batches.&quot;&quot;&quot;
+        results = []
+
+        for i in range(0, len(features_list), self.batch_size):
+            batch = features_list[i:i + self.batch_size]
+
+            try:
+                batch_result = await self._process_batch(batch)
+                results.extend(batch_result)
+
+                print(f&quot;Processed batch {i//self.batch_size + 1}, &quot;
+                      f&quot;total processed: {len(results)}&quot;)
+
+            except Exception as e:
+                print(f&quot;Batch processing error: {e}&quot;)
+                # Continue with next batch
+                continue
+
+        return results
+
+    async def _process_batch(self, batch: List[List[float]]):
+        &quot;&quot;&quot;Process a single batch.&quot;&quot;&quot;
+        async with self.session.post(
+            f&quot;{self.api_url}/predict/batch&quot;,
+            json={&quot;features&quot;: batch}
+        ) as response:
+            if response.status == 200:
+                data = await response.json()
+                return data[&quot;predictions&quot;]
+            else:
+                raise Exception(f&quot;API error: {response.status}&quot;)
+
+# Usage example
+async def main():
+    # Generate sample data
+    large_dataset = [[0.1] * 78 for _ in range(1000)]
+
+    async with BatchProcessor(&quot;http://localhost:8000&quot;, batch_size=50) as processor:
+        results = await processor.process_large_dataset(large_dataset)
+
+        print(f&quot;Processed {len(results)} predictions&quot;)
+
+        # Analyze results
+        attack_count = sum(1 for r in results if r[&quot;class&quot;] == &quot;ATTACK&quot;)
+        print(f&quot;Detected {attack_count} attacks out of {len(results)} samples&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    asyncio.run(main())
+</code></pre>
+<h3 id="2-connection-pooling-and-reuse">2. Connection Pooling and Reuse</h3>
+<pre><code class="language-python">import aiohttp
+import asyncio
+from typing import Optional
+
+class OptimizedClient:
+    def __init__(self, base_url: str):
+        self.base_url = base_url
+        self.session: Optional[aiohttp.ClientSession] = None
+
+    async def __aenter__(self):
+        # Configure connection pool
+        connector = aiohttp.TCPConnector(
+            limit=100,  # Total connection pool size
+            limit_per_host=30,  # Per-host connection limit
+            ttl_dns_cache=300,  # DNS cache TTL
+            use_dns_cache=True,
+        )
+
+        # Configure timeout
+        timeout = aiohttp.ClientTimeout(total=30, connect=5)
+
+        self.session = aiohttp.ClientSession(
+            connector=connector,
+            timeout=timeout,
+            headers={&quot;Content-Type&quot;: &quot;application/json&quot;}
+        )
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.session:
+            await self.session.close()
+
+    async def predict(self, features: List[float]) -&gt; Dict:
+        &quot;&quot;&quot;Make a single prediction with optimized connection.&quot;&quot;&quot;
+        async with self.session.post(
+            f&quot;{self.base_url}/predict&quot;,
+            json={&quot;features&quot;: features}
+        ) as response:
+            return await response.json()
+
+    async def predict_many(self, features_list: List[List[float]]) -&gt; List[Dict]:
+        &quot;&quot;&quot;Make multiple concurrent predictions.&quot;&quot;&quot;
+        tasks = []
+
+        for features in features_list:
+            task = asyncio.create_task(self.predict(features))
+            tasks.append(task)
+
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Filter out exceptions
+        valid_results = [r for r in results if not isinstance(r, Exception)]
+
+        return valid_results
+
+# Usage example
+async def performance_test():
+    features_list = [[0.1] * 78 for _ in range(100)]
+
+    async with OptimizedClient(&quot;http://localhost:8000&quot;) as client:
+        start_time = asyncio.get_event_loop().time()
+
+        results = await client.predict_many(features_list)
+
+        end_time = asyncio.get_event_loop().time()
+
+        print(f&quot;Processed {len(results)} predictions in {end_time - start_time:.2f} seconds&quot;)
+        print(f&quot;Average time per prediction: {(end_time - start_time) / len(results):.3f} seconds&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    asyncio.run(performance_test())
+</code></pre>
+<h2 id="integration-with-security-tools">Integration with Security Tools</h2>
+<h3 id="1-siem-integration-example">1. SIEM Integration Example</h3>
+<pre><code class="language-python">import json
+import logging
+from datetime import datetime
+from api.client import RLIDSClient
+
+class SIEMIntegration:
+    def __init__(self, api_url: str, siem_endpoint: str):
+        self.client = RLIDSClient(api_url)
+        self.siem_endpoint = siem_endpoint
+        self.logger = logging.getLogger(__name__)
+
+    async def process_network_event(self, network_event: Dict):
+        &quot;&quot;&quot;Process network event and send to SIEM if threat detected.&quot;&quot;&quot;
+        try:
+            # Extract features from network event
+            features = self.extract_features(network_event)
+
+            # Get prediction
+            prediction = await self.client.predict(features)
+
+            # Create enriched event
+            enriched_event = {
+                'timestamp': datetime.utcnow().isoformat(),
+                'source_ip': network_event.get('source_ip'),
+                'dest_ip': network_event.get('dest_ip'),
+                'protocol': network_event.get('protocol'),
+                'original_event': network_event,
+                'ml_prediction': prediction,
+                'threat_score': prediction['prediction']['confidence'],
+                'classification': prediction['prediction']['class']
+            }
+
+            # Send to SIEM if attack detected
+            if prediction['prediction']['class'] == 'ATTACK':
+                await self.send_to_siem(enriched_event)
+
+            return enriched_event
+
+        except Exception as e:
+            self.logger.error(f&quot;Failed to process network event: {e}&quot;)
+            return None
+
+    def extract_features(self, network_event: Dict) -&gt; List[float]:
+        &quot;&quot;&quot;Extract ML features from network event.&quot;&quot;&quot;
+        # This would contain actual feature extraction logic
+        # For demonstration, return mock features
+        return [0.1] * 78
+
+    async def send_to_siem(self, event: Dict):
+        &quot;&quot;&quot;Send enriched event to SIEM.&quot;&quot;&quot;
+        try:
+            # Format for SIEM (this example uses JSON)
+            siem_event = {
+                'timestamp': event['timestamp'],
+                'event_type': 'ML_THREAT_DETECTION',
+                'severity': self.calculate_severity(event),
+                'source': 'RL-IDS',
+                'details': event
+            }
+
+            # Send to SIEM endpoint
+            # This would be actual SIEM API call
+            self.logger.info(f&quot;Sending to SIEM: {json.dumps(siem_event, indent=2)}&quot;)
+
+        except Exception as e:
+            self.logger.error(f&quot;Failed to send to SIEM: {e}&quot;)
+
+    def calculate_severity(self, event: Dict) -&gt; str:
+        &quot;&quot;&quot;Calculate event severity based on confidence.&quot;&quot;&quot;
+        confidence = event['threat_score']
+
+        if confidence &gt;= 0.9:
+            return 'HIGH'
+        elif confidence &gt;= 0.7:
+            return 'MEDIUM'
+        else:
+            return 'LOW'
+
+# Usage example
+async def main():
+    siem = SIEMIntegration(
+        api_url=&quot;http://localhost:8000&quot;,
+        siem_endpoint=&quot;https://siem.example.com/api/events&quot;
+    )
+
+    # Sample network event
+    network_event = {
+        'source_ip': '192.168.1.100',
+        'dest_ip': '10.0.0.1',
+        'protocol': 'TCP',
+        'port': 80,
+        'packet_count': 1000,
+        'byte_count': 50000
+    }
+
+    result = await siem.process_network_event(network_event)
+    print(f&quot;Processed event: {result}&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    asyncio.run(main())
+</code></pre>
+<h2 id="monitoring-and-alerting-examples">Monitoring and Alerting Examples</h2>
+<h3 id="1-health-monitoring">1. Health Monitoring</h3>
+<pre><code class="language-python">import asyncio
+import logging
+from datetime import datetime, timedelta
+from api.client import RLIDSClient
+
+class HealthMonitor:
+    def __init__(self, api_url: str, check_interval: int = 60):
+        self.client = RLIDSClient(api_url)
+        self.check_interval = check_interval
+        self.logger = logging.getLogger(__name__)
+        self.alert_cooldown = {}
+
+    async def start_monitoring(self):
+        &quot;&quot;&quot;Start continuous health monitoring.&quot;&quot;&quot;
+        self.logger.info(&quot;Starting health monitoring...&quot;)
+
+        while True:
+            try:
+                await self.check_health()
+                await asyncio.sleep(self.check_interval)
+
+            except KeyboardInterrupt:
+                self.logger.info(&quot;Health monitoring stopped&quot;)
+                break
+            except Exception as e:
+                self.logger.error(f&quot;Health monitoring error: {e}&quot;)
+                await asyncio.sleep(self.check_interval)
+
+    async def check_health(self):
+        &quot;&quot;&quot;Perform health check.&quot;&quot;&quot;
+        try:
+            # Get health status
+            health = await self.client.health_check()
+
+            if health['status'] != 'healthy':
+                await self.send_alert('UNHEALTHY', health)
+                return
+
+            # Check model status
+            if not health['details'].get('model_loaded', False):
+                await self.send_alert('MODEL_NOT_LOADED', health)
+                return
+
+            # Check memory usage
+            memory_usage = health['details'].get('memory_usage', 0)
+            if memory_usage &gt; 80:  # 80% threshold
+                await self.send_alert('HIGH_MEMORY', health)
+
+            # Check response time
+            start_time = asyncio.get_event_loop().time()
+            await self.client.get_model_info()
+            response_time = asyncio.get_event_loop().time() - start_time
+
+            if response_time &gt; 5.0:  # 5 second threshold
+                await self.send_alert('SLOW_RESPONSE', {
+                    'response_time': response_time,
+                    'health': health
+                })
+
+            self.logger.info(f&quot;Health check passed: {health['status']}&quot;)
+
+        except Exception as e:
+            await self.send_alert('API_ERROR', {'error': str(e)})
+
+    async def send_alert(self, alert_type: str, details: Dict):
+        &quot;&quot;&quot;Send alert with cooldown to prevent spam.&quot;&quot;&quot;
+        now = datetime.utcnow()
+
+        # Check cooldown
+        if alert_type in self.alert_cooldown:
+            last_alert = self.alert_cooldown[alert_type]
+            if now - last_alert &lt; timedelta(minutes=5):
+                return  # Skip alert due to cooldown
+
+        # Send alert
+        alert = {
+            'timestamp': now.isoformat(),
+            'type': alert_type,
+            'details': details,
+            'severity': self.get_alert_severity(alert_type)
+        }
+
+        self.logger.error(f&quot;ALERT: {json.dumps(alert, indent=2)}&quot;)
+
+        # Update cooldown
+        self.alert_cooldown[alert_type] = now
+
+    def get_alert_severity(self, alert_type: str) -&gt; str:
+        &quot;&quot;&quot;Get alert severity level.&quot;&quot;&quot;
+        severity_map = {
+            'UNHEALTHY': 'CRITICAL',
+            'MODEL_NOT_LOADED': 'CRITICAL',
+            'API_ERROR': 'HIGH',
+            'HIGH_MEMORY': 'MEDIUM',
+            'SLOW_RESPONSE': 'LOW'
+        }
+        return severity_map.get(alert_type, 'MEDIUM')
+
+# Usage example
+if __name__ == &quot;__main__&quot;:
+    monitor = HealthMonitor(&quot;http://localhost:8000&quot;, check_interval=30)
+    asyncio.run(monitor.start_monitoring())
+</code></pre>
+<p>These examples demonstrate various ways to integrate and use the RL-IDS API effectively in different scenarios, from simple predictions to complex production integrations with security tools and monitoring systems.</p>
+</article>
+                        </div>
+                        <div class="hidden text-sm xl:block">
+                            <div class="sticky top-20 -mt-6 pt-4">
+    <div class="no-scrollbar h-full overflow-auto pb-10">
+        <div class="space-y-2">
+            <p class="font-medium">On This Page</p>
+            <ul class="m-0 list-none">
+                
+                
+                
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#basic-usage-examples">Basic Usage Examples</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#1-service-health-check">1. Service Health Check</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#2-get-model-information">2. Get Model Information</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#3-single-prediction">3. Single Prediction</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#4-batch-predictions">4. Batch Predictions</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#python-integration-examples">Python Integration Examples</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#1-using-requests-library">1. Using Requests Library</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#2-using-the-official-python-client">2. Using the Official Python Client</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#3-real-time-network-monitoring-integration">3. Real-time Network Monitoring Integration</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#error-handling-examples">Error Handling Examples</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#1-handling-api-errors">1. Handling API Errors</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#2-input-validation">2. Input Validation</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#performance-optimization-examples">Performance Optimization Examples</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#1-batch-processing-for-high-throughput">1. Batch Processing for High Throughput</a>
+                        </li>
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#2-connection-pooling-and-reuse">2. Connection Pooling and Reuse</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#integration-with-security-tools">Integration with Security Tools</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#1-siem-integration-example">1. SIEM Integration Example</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                <li class="mt-0 pt-2">
+                    <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                        href="#monitoring-and-alerting-examples">Monitoring and Alerting Examples</a>
+                    
+                    <ul class="m-0 list-none pl-4">
+                        
+                        <li class="mt-0 pt-2">
+                            <a class="inline-block no-underline transition-colors hover:text-foreground text-muted-foreground"
+                                href="#1-health-monitoring">1. Health Monitoring</a>
+                        </li>
+                        
+                    </ul>
+                    
+                </li>
+                
+                
+                
+                
+            </ul>
+        </div>
+    </div>
+</div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+            <dialog id="bottom-sidebar" data-closing="0"
+    class="backdrop:bg-black backdrop:opacity-80 backdrop:transition-all backdrop:duration-500 text-foreground"
+    onclick="onBottomSidebarDialogClick(event)">
+    <div
+        class="fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background max-h-[60svh] p-0 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
+        <div class="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted"></div>
+        <div class="overflow-auto p-6 space-y-3">
+            
+            
+
+            <div class="flex flex-col">
+                
+                
+                <a href="../.." class="text-base shrink-0">
+    Home
+</a>
+                
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h4 class="font-medium">User Guide </h4>
+                    
+                    <a href="../../user-guide/" class="text-base shrink-0">
+    Overview
+</a>
+                    
+                    <a href="../../user-guide/installation/" class="text-base shrink-0">
+    Installation
+</a>
+                    
+                    <a href="../../user-guide/network-monitoring/" class="text-base shrink-0">
+    Network Monitoring
+</a>
+                    
+                    <a href="../../user-guide/website-monitoring/" class="text-base shrink-0">
+    Website Monitoring
+</a>
+                    
+                </div>
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h4 class="font-medium">API Reference </h4>
+                    
+                    <a href="../" class="text-base shrink-0">
+    Overview
+</a>
+                    
+                    <a href="../python-client/" class="text-base shrink-0">
+    Python Client
+</a>
+                    
+                    <a href="./" class="text-base shrink-0">
+    Examples
+</a>
+                    
+                </div>
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h4 class="font-medium">Modules </h4>
+                    
+                    <a href="../../modules/" class="text-base shrink-0">
+    Core Components
+</a>
+                    
+                    <a href="../../modules/agents/" class="text-base shrink-0">
+    RL Agents
+</a>
+                    
+                    <a href="../../modules/features/" class="text-base shrink-0">
+    Feature Extraction
+</a>
+                    
+                </div>
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                <div class="flex flex-col space-y-3 pt-4">
+                    <h4 class="font-medium">Development </h4>
+                    
+                    <a href="../../development/contributing/" class="text-base shrink-0">
+    Contributing
+</a>
+                    
+                    <a href="../../development/architecture/" class="text-base shrink-0">
+    Architecture
+</a>
+                    
+                    <a href="../../development/testing/" class="text-base shrink-0">
+    Testing
+</a>
+                    
+                </div>
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                
+                <a href="../../faq/" class="text-base shrink-0">
+    FAQ
+</a>
+                
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                
+                <a href="../../changelog/" class="text-base shrink-0">
+    Changelog
+</a>
+                
+                
+            </div>
+            
+
+            <div class="flex flex-col">
+                
+                
+                <a href="../../license/" class="text-base shrink-0">
+    LICENSE
+</a>
+                
+                
+            </div>
+            
+            
+        </div>
+    </div>
+</dialog>
+        </div>
+    </div> 
+    
+    <script src="../../search/main.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+    <script src="../../js/copy-button.js"></script>
+</body>
+
+</html>
