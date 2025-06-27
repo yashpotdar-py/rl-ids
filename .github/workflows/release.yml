@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.2.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  validate-release:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Get version
+      id: get_version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+        
+    - name: Run tests
+      run: pytest tests/ -v
+      
+    - name: Validate version consistency
+      run: |
+        VERSION=${{ steps.get_version.outputs.version }}
+        VERSION_NUMBER=${VERSION#v}
+        PYPROJECT_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+        
+        if [ "$VERSION_NUMBER" != "$PYPROJECT_VERSION" ]; then
+          echo "Version mismatch: tag $VERSION_NUMBER != pyproject.toml $PYPROJECT_VERSION"
+          exit 1
+        fi
+
+  build-package:
+    name: Build Package
+    runs-on: ubuntu-latest
+    needs: validate-release
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+        
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+        
+    - name: Build package
+      run: python -m build
+      
+    - name: Check package
+      run: twine check dist/*
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist/
+        retention-days: 30
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate-release, build-package]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+        path: dist/
+        
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        VERSION=${{ needs.validate-release.outputs.version }}
+        
+        # Extract changelog for this version
+        awk "/## \[${VERSION#v}\]/, /## \[/ { if (/## \[${VERSION#v}\]/) p=1; else if (/## \[/ && p) exit; if (p) print }" CHANGELOG.md > release_notes.md
+        
+        # If no specific changelog found, create basic notes
+        if [ ! -s release_notes.md ]; then
+          echo "## Changes in $VERSION" > release_notes.md
+          echo "" >> release_notes.md
+          echo "See [CHANGELOG.md](CHANGELOG.md) for detailed changes." >> release_notes.md
+        fi
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ needs.validate-release.outputs.version }}
+        name: Release ${{ needs.validate-release.outputs.version }}
+        body_path: release_notes.md
+        files: |
+          dist/*.tar.gz
+          dist/*.whl
+        draft: false
+        prerelease: ${{ contains(needs.validate-release.outputs.version, '-') }}
+      env:
+        ACTIONS_TOKEN: ${{ secrets.ACTIONS_TOKEN }}

@@ -1,0 +1,203 @@
+name: Training Pipeline
+
+on:
+  schedule:
+    - cron: '0 2 */14 * *'  # Every 14 days at 2 AM UTC
+  workflow_dispatch:
+    inputs:
+      force_retrain:
+        description: 'Force retrain even if model exists'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: "training-pipeline"
+  cancel-in-progress: false  # Don't cancel ongoing training
+
+jobs:
+  training-pipeline:
+    name: Train and Evaluate Model
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.ACTIONS_TOKEN }}
+        
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+        
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-dev build-essential
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Create necessary directories
+      run: |
+        mkdir -p models
+        mkdir -p reports
+        mkdir -p reports/figures
+        mkdir -p logs
+        
+    - name: Check existing model
+      id: check_model
+      run: |
+        if [ -f "models/dqn_model_final.pt" ] && [ "${{ github.event.inputs.force_retrain }}" != "true" ]; then
+          echo "model_exists=true" >> $GITHUB_OUTPUT
+          echo "📋 Existing model found. Skipping training unless forced."
+        else
+          echo "model_exists=false" >> $GITHUB_OUTPUT
+          echo "🚀 No model found or force retrain requested. Will train new model."
+        fi
+        
+    - name: Preprocess data
+      if: steps.check_model.outputs.model_exists == 'false'
+      run: |
+        echo "📊 Preprocessing training data..."
+        make preprocess-data
+        
+    - name: Train DQN model
+      if: steps.check_model.outputs.model_exists == 'false'
+      run: |
+        echo "🧠 Training DQN model..."
+        make train
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+        
+    - name: Evaluate model
+      run: |
+        echo "📈 Evaluating model performance..."
+        make evaluate
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+        
+    - name: Generate plots and reports
+      run: |
+        echo "📊 Generating visualization plots..."
+        make plot
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+        
+    - name: Verify model file
+      run: make check-model
+      
+    - name: Upload model artifacts
+      if: steps.check_model.outputs.model_exists == 'false'
+      uses: actions/upload-artifact@v3
+      with:
+        name: trained-model-${{ github.run_number }}
+        path: |
+          models/*.pt
+          models/*.pkl
+        retention-days: 90
+        
+    - name: Upload training reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: training-reports-${{ github.run_number }}
+        path: |
+          reports/*.csv
+          reports/figures/*.png
+        retention-days: 30
+        
+    - name: Upload training logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: training-logs-${{ github.run_number }}
+        path: |
+          logs/*.log
+        retention-days: 14
+        
+    - name: Generate training summary
+      id: summary
+      run: |
+        echo "## 🧠 Training Pipeline Summary" > training_summary.md
+        echo "" >> training_summary.md
+        echo "**Run Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> training_summary.md
+        echo "**Commit:** ${{ github.sha }}" >> training_summary.md
+        echo "" >> training_summary.md
+        
+        if [ "${{ steps.check_model.outputs.model_exists }}" == "false" ]; then
+          echo "✅ **Model Training:** Completed successfully" >> training_summary.md
+        else
+          echo "⏭️ **Model Training:** Skipped (existing model found)" >> training_summary.md
+        fi
+        
+        echo "✅ **Model Evaluation:** Completed" >> training_summary.md
+        echo "✅ **Plot Generation:** Completed" >> training_summary.md
+        echo "" >> training_summary.md
+        
+        if [ -f "reports/evaluation_summary.csv" ]; then
+          echo "**Performance Metrics:**" >> training_summary.md
+          echo '```' >> training_summary.md
+          head -5 reports/evaluation_summary.csv >> training_summary.md
+          echo '```' >> training_summary.md
+        fi
+        
+        echo "" >> training_summary.md
+        echo "**Artifacts Generated:**" >> training_summary.md
+        echo "- Model files: $(ls -1 models/*.pt 2>/dev/null | wc -l) files" >> training_summary.md
+        echo "- Report files: $(ls -1 reports/*.csv 2>/dev/null | wc -l) files" >> training_summary.md
+        echo "- Plot files: $(ls -1 reports/figures/*.png 2>/dev/null | wc -l) files" >> training_summary.md
+        
+    - name: Commit updated models and reports
+      if: steps.check_model.outputs.model_exists == 'false'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Add new/updated files
+        git add models/*.pt models/*.pkl reports/ || true
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "🤖 Automated training pipeline - $(date -u '+%Y-%m-%d')"
+          git push
+        fi
+        
+    - name: Create training issue
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🚨 Training Pipeline Failed - ' + new Date().toISOString().split('T')[0],
+            body: `## Training Pipeline Failure Report
+            
+            **Workflow Run:** ${{ github.run_id }}
+            **Commit:** ${{ github.sha }}
+            **Timestamp:** ${new Date().toUTCString()}
+            
+            The automated training pipeline has failed. Please check the workflow logs for details:
+            
+            [View Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            
+            **Common issues to check:**
+            - [ ] Data preprocessing errors
+            - [ ] Model training convergence issues  
+            - [ ] Memory or timeout issues
+            - [ ] Dependency conflicts
+            
+            This issue was automatically created by the training pipeline.`,
+            labels: ['bug', 'automated', 'training']
+          });
