@@ -29,33 +29,17 @@ def main(
     model_path: Path = typer.Option(
         MODELS_DIR / "dqn_model_final.pt", help="Path to trained DQN model"
     ),
-    test_data_path: Path = typer.Option(
-        TEST_DATA_FILE, help="Path to test dataset"
-    ),
+    test_data_path: Path = typer.Option(TEST_DATA_FILE, help="Path to test dataset"),
     train_data_path: Path = typer.Option(
         TRAIN_DATA_FILE, help="Path to training dataset (for label mapping)"
     ),
-    reports_dir: Path = typer.Option(
-        REPORTS_DIR, help="Directory to save evaluation reports"
-    ),
-    figures_dir: Path = typer.Option(
-        FIGURES_DIR, help="Directory to save evaluation figures"
-    ),
-    test_episodes: int = typer.Option(
-        15, help="Number of episodes to run for evaluation"
-    ),
-    max_steps_per_episode: int = typer.Option(
-        20000, help="Maximum steps per evaluation episode"
-    ),
-    save_predictions: bool = typer.Option(
-        True, help="Save detailed predictions to CSV"
-    ),
-    use_best_model: bool = typer.Option(
-        True, help="Use best model instead of final model"
-    ),
-    detailed_analysis: bool = typer.Option(
-        True, help="Perform detailed error analysis"
-    ),
+    reports_dir: Path = typer.Option(REPORTS_DIR, help="Directory to save evaluation reports"),
+    figures_dir: Path = typer.Option(FIGURES_DIR, help="Directory to save evaluation figures"),
+    test_episodes: int = typer.Option(15, help="Number of episodes to run for evaluation"),
+    max_steps_per_episode: int = typer.Option(20000, help="Maximum steps per evaluation episode"),
+    save_predictions: bool = typer.Option(True, help="Save detailed predictions to CSV"),
+    use_best_model: bool = typer.Option(True, help="Use best model instead of final model"),
+    detailed_analysis: bool = typer.Option(True, help="Perform detailed error analysis"),
     confidence_threshold: float = typer.Option(
         0.8, help="Confidence threshold for high-confidence predictions"
     ),
@@ -69,7 +53,8 @@ def main(
     if not test_data_path.exists():
         logger.error(f"❌ Test data not found: {test_data_path}")
         logger.info(
-            "💡 Please run 'python -m rl_ids.make_dataset' first to generate processed data")
+            "💡 Please run 'python -m rl_ids.make_dataset' first to generate processed data"
+        )
         raise typer.Exit(1)
 
     # Determine which model to use
@@ -97,10 +82,10 @@ def main(
     if train_data_path.exists():
         logger.info("📂 Loading training data for label mapping")
         train_df = pd.read_csv(train_data_path)
+        logger.info(f"Successfully loaded: \n{train_df.head()}")
 
     # Get feature columns (exclude label columns)
-    feature_cols = [col for col in test_df.columns if col not in [
-        "Label", "Label_Original"]]
+    feature_cols = [col for col in test_df.columns if col not in ["Label", "Label_Original"]]
 
     # Get dimensions
     input_dim = len(feature_cols)
@@ -112,29 +97,22 @@ def main(
 
     # Log test class distribution
     logger.info("📈 Test class distribution:")
-    test_dist = test_df['Label'].value_counts().sort_index()
+    test_dist = test_df["Label"].value_counts().sort_index()
     class_balance_info = {}
     for label, count in test_dist.items():
         percentage = count / len(test_df) * 100
-        class_balance_info[label] = {'count': count, 'percentage': percentage}
-        logger.info(
-            f"   Class {label}: {count:8,} samples ({percentage:5.1f}%)")
+        class_balance_info[label] = {"count": count, "percentage": percentage}
+        logger.info(f"   Class {label}: {count:8,} samples ({percentage:5.1f}%)")
 
     # Create label mapping for better interpretability
     label_mapping = {}
-    if 'Label_Original' in test_df.columns:
-        label_mapping = test_df.set_index(
-            'Label')['Label_Original'].drop_duplicates().to_dict()
-        logger.info(
-            f"🏷️  Label mapping available: {len(label_mapping)} classes")
+    if "Label_Original" in test_df.columns:
+        label_mapping = test_df.set_index("Label")["Label_Original"].drop_duplicates().to_dict()
+        logger.info(f"🏷️  Label mapping available: {len(label_mapping)} classes")
 
     # Initialize environment
     logger.info("🌍 Initializing test environment...")
-    env = IDSDetectionEnv(
-        data_path=test_data_path,
-        feature_cols=feature_cols,
-        label_col="Label"
-    )
+    env = IDSDetectionEnv(data_path=test_data_path, feature_cols=feature_cols, label_col="Label")
 
     # Load trained agent
     logger.info(f"🤖 Loading trained model from {model_path}")
@@ -150,7 +128,8 @@ def main(
     if device.type == "cuda":
         logger.info(f"🎮 GPU: {torch.cuda.get_device_name(0)}")
         logger.info(
-            f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory // (1024**3)} GB")
+            f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory // (1024**3)} GB"
+        )
 
     # Load model checkpoint
     try:
@@ -159,11 +138,9 @@ def main(
         training_info = checkpoint.get("training_info", {})
 
         if training_info:
-            logger.info(
-                f"📊 Model trained for {training_info.get('episode', 'unknown')} episodes")
-            if 'best_accuracy' in training_info:
-                logger.info(
-                    f"🎯 Best training accuracy: {training_info['best_accuracy']:.4f}")
+            logger.info(f"📊 Model trained for {training_info.get('episode', 'unknown')} episodes")
+            if "best_accuracy" in training_info:
+                logger.info(f"🎯 Best training accuracy: {training_info['best_accuracy']:.4f}")
 
     except Exception as e:
         logger.error(f"❌ Failed to load model: {str(e)}")
@@ -242,8 +219,7 @@ def main(
 
         # Calculate episode metrics
         if episode_true_labels:
-            episode_accuracy = accuracy_score(
-                episode_true_labels, episode_predictions)
+            episode_accuracy = accuracy_score(episode_true_labels, episode_predictions)
             episode_accuracies.append(episode_accuracy)
             episode_rewards.append(total_reward)
 
@@ -251,16 +227,18 @@ def main(
             avg_pred_time = np.mean(episode_prediction_times)
             prediction_times.extend(episode_prediction_times)
 
-            episode_details.append({
-                'episode': episode + 1,
-                'accuracy': episode_accuracy,
-                'reward': total_reward,
-                'steps': step_count,
-                'predictions': len(episode_predictions),
-                'avg_confidence': avg_confidence,
-                'avg_prediction_time_ms': avg_pred_time * 1000,
-                'duration_seconds': time.time() - episode_start_time
-            })
+            episode_details.append(
+                {
+                    "episode": episode + 1,
+                    "accuracy": episode_accuracy,
+                    "reward": total_reward,
+                    "steps": step_count,
+                    "predictions": len(episode_predictions),
+                    "avg_confidence": avg_confidence,
+                    "avg_prediction_time_ms": avg_pred_time * 1000,
+                    "duration_seconds": time.time() - episode_start_time,
+                }
+            )
 
             logger.debug(
                 f"Episode {episode + 1:2d}/{test_episodes}: "
@@ -286,13 +264,15 @@ def main(
 
     # High-confidence predictions analysis
     high_conf_mask = np.array(all_confidences) >= confidence_threshold
-    high_conf_accuracy = accuracy_score(
-        np.array(all_true_labels)[high_conf_mask],
-        np.array(all_predictions)[high_conf_mask]
-    ) if np.sum(high_conf_mask) > 0 else 0.0
+    high_conf_accuracy = (
+        accuracy_score(
+            np.array(all_true_labels)[high_conf_mask], np.array(all_predictions)[high_conf_mask]
+        )
+        if np.sum(high_conf_mask) > 0
+        else 0.0
+    )
 
-    high_conf_percentage = (np.sum(high_conf_mask) /
-                            len(all_confidences)) * 100
+    high_conf_percentage = (np.sum(high_conf_mask) / len(all_confidences)) * 100
 
     # Performance stability metrics
     # Coefficient of variation
@@ -301,13 +281,12 @@ def main(
 
     logger.info("\n" + "📊 ENHANCED EVALUATION RESULTS" + "\n" + "=" * 70)
     logger.info(f"🎯 Overall Accuracy: {overall_accuracy:.4f}")
+    logger.info(f"📈 Average Episode Accuracy: {avg_accuracy:.4f} (±{std_accuracy:.4f})")
     logger.info(
-        f"📈 Average Episode Accuracy: {avg_accuracy:.4f} (±{std_accuracy:.4f})")
-    logger.info(
-        f"🏆 High-Confidence Accuracy (≥{confidence_threshold:.1f}): {high_conf_accuracy:.4f}")
+        f"🏆 High-Confidence Accuracy (≥{confidence_threshold:.1f}): {high_conf_accuracy:.4f}"
+    )
     logger.info(f"💪 High-Confidence Predictions: {high_conf_percentage:.1f}%")
-    logger.info(
-        f"🎁 Average Reward per Episode: {avg_reward:.2f} (±{std_reward:.2f})")
+    logger.info(f"🎁 Average Reward per Episode: {avg_reward:.2f} (±{std_reward:.2f})")
     logger.info(f"📊 Total Predictions: {len(all_predictions):,}")
     logger.info(f"⚡ Average Prediction Time: {avg_prediction_time:.2f}ms")
     logger.info(f"📊 Accuracy Stability (CV): {accuracy_cv:.4f}")
@@ -319,8 +298,7 @@ def main(
 
     # Create class names
     if label_mapping:
-        class_names = [
-            f"{label_mapping.get(i, f'Class_{i}')}" for i in unique_labels]
+        class_names = [f"{label_mapping.get(i, f'Class_{i}')}" for i in unique_labels]
     else:
         class_names = [f"Class_{i}" for i in unique_labels]
 
@@ -363,8 +341,7 @@ def main(
 
     # Enhanced confusion matrix analysis
     logger.info("🔢 Generating enhanced confusion matrix...")
-    cm = confusion_matrix(
-        all_true_labels, all_predictions, labels=unique_labels)
+    cm = confusion_matrix(all_true_labels, all_predictions, labels=unique_labels)
 
     # Calculate per-class metrics
     precision, recall, f1, support = precision_recall_fscore_support(
@@ -378,11 +355,10 @@ def main(
     logger.success(f"🔢 Confusion matrix saved to: {cm_path}")
 
     # Enhanced confusion matrix plot
-    plt.figure(figsize=(max(12, len(unique_labels) * 1.2),
-               max(10, len(unique_labels) * 1.0)))
+    plt.figure(figsize=(max(12, len(unique_labels) * 1.2), max(10, len(unique_labels) * 1.0)))
 
     # Normalize confusion matrix for better visualization
-    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    cm_normalized = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
 
     # Create subplot for normalized confusion matrix
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
@@ -395,11 +371,10 @@ def main(
         cmap="Blues",
         xticklabels=class_names,
         yticklabels=class_names,
-        cbar_kws={'label': 'Count'},
-        ax=ax1
+        cbar_kws={"label": "Count"},
+        ax=ax1,
     )
-    ax1.set_title("Confusion Matrix - Raw Counts",
-                  fontsize=14, fontweight='bold')
+    ax1.set_title("Confusion Matrix - Raw Counts", fontsize=14, fontweight="bold")
     ax1.set_xlabel("Predicted Label", fontsize=12)
     ax1.set_ylabel("True Label", fontsize=12)
 
@@ -411,11 +386,10 @@ def main(
         cmap="Blues",
         xticklabels=class_names,
         yticklabels=class_names,
-        cbar_kws={'label': 'Percentage'},
-        ax=ax2
+        cbar_kws={"label": "Percentage"},
+        ax=ax2,
     )
-    ax2.set_title("Confusion Matrix - Normalized",
-                  fontsize=14, fontweight='bold')
+    ax2.set_title("Confusion Matrix - Normalized", fontsize=14, fontweight="bold")
     ax2.set_xlabel("Predicted Label", fontsize=12)
     ax2.set_ylabel("True Label", fontsize=12)
 
@@ -423,8 +397,7 @@ def main(
     cm_plot_path = figures_dir / "evaluation_confusion_matrix.png"
     plt.savefig(cm_plot_path, dpi=300, bbox_inches="tight")
     plt.close()
-    logger.success(
-        f"📊 Enhanced confusion matrix plot saved to: {cm_plot_path}")
+    logger.success(f"📊 Enhanced confusion matrix plot saved to: {cm_plot_path}")
 
     # Save enhanced episode details
     episodes_df = pd.DataFrame(episode_details)
@@ -448,10 +421,15 @@ def main(
                 correct_mask = class_predictions == label
 
                 class_confidence_stats[label] = {
-                    'avg_confidence': np.mean(class_confidences),
-                    'avg_confidence_correct': np.mean(class_confidences[correct_mask]) if np.sum(correct_mask) > 0 else 0,
-                    'avg_confidence_incorrect': np.mean(class_confidences[~correct_mask]) if np.sum(~correct_mask) > 0 else 0,
-                    'high_conf_ratio': np.sum(class_confidences >= confidence_threshold) / len(class_confidences)
+                    "avg_confidence": np.mean(class_confidences),
+                    "avg_confidence_correct": np.mean(class_confidences[correct_mask])
+                    if np.sum(correct_mask) > 0
+                    else 0,
+                    "avg_confidence_incorrect": np.mean(class_confidences[~correct_mask])
+                    if np.sum(~correct_mask) > 0
+                    else 0,
+                    "high_conf_ratio": np.sum(class_confidences >= confidence_threshold)
+                    / len(class_confidences),
                 }
 
                 # Error analysis
@@ -464,32 +442,41 @@ def main(
 
         # Create enhanced visualization
         create_enhanced_visualizations(
-            unique_labels, class_names, report_dict, class_confidence_stats,
-            class_error_analysis, episodes_df, figures_dir, confidence_threshold
+            unique_labels,
+            class_names,
+            report_dict,
+            class_confidence_stats,
+            class_error_analysis,
+            episodes_df,
+            figures_dir,
+            confidence_threshold,
         )
 
     # Save detailed predictions with confidence scores
     if save_predictions:
         logger.info("💾 Saving detailed predictions with confidence scores...")
-        predictions_df = pd.DataFrame({
-            "True_Label": all_true_labels,
-            "Predicted_Label": all_predictions,
-            "Confidence": all_confidences,
-            "Correct": np.array(all_true_labels) == np.array(all_predictions),
-            "High_Confidence": np.array(all_confidences) >= confidence_threshold,
-        })
+        predictions_df = pd.DataFrame(
+            {
+                "True_Label": all_true_labels,
+                "Predicted_Label": all_predictions,
+                "Confidence": all_confidences,
+                "Correct": np.array(all_true_labels) == np.array(all_predictions),
+                "High_Confidence": np.array(all_confidences) >= confidence_threshold,
+            }
+        )
 
         # Add original class names if available
         if label_mapping:
-            predictions_df["True_Class"] = [label_mapping.get(
-                label, f"Class_{label}") for label in all_true_labels]
-            predictions_df["Predicted_Class"] = [label_mapping.get(
-                label, f"Class_{label}") for label in all_predictions]
+            predictions_df["True_Class"] = [
+                label_mapping.get(label, f"Class_{label}") for label in all_true_labels
+            ]
+            predictions_df["Predicted_Class"] = [
+                label_mapping.get(label, f"Class_{label}") for label in all_predictions
+            ]
 
         predictions_path = reports_dir / "evaluation_detailed_predictions.csv"
         predictions_df.to_csv(predictions_path, index=False)
-        logger.success(
-            f"📝 Enhanced detailed predictions saved to: {predictions_path}")
+        logger.success(f"📝 Enhanced detailed predictions saved to: {predictions_path}")
 
     # Enhanced evaluation summary
     total_eval_time = time.time() - start_time
@@ -520,18 +507,22 @@ def main(
     # Add macro and weighted averages if available
     if report_dict:
         if "macro avg" in report_dict:
-            summary_dict.update({
-                "macro_avg_precision": report_dict["macro avg"]["precision"],
-                "macro_avg_recall": report_dict["macro avg"]["recall"],
-                "macro_avg_f1_score": report_dict["macro avg"]["f1-score"],
-            })
+            summary_dict.update(
+                {
+                    "macro_avg_precision": report_dict["macro avg"]["precision"],
+                    "macro_avg_recall": report_dict["macro avg"]["recall"],
+                    "macro_avg_f1_score": report_dict["macro avg"]["f1-score"],
+                }
+            )
 
         if "weighted avg" in report_dict:
-            summary_dict.update({
-                "weighted_avg_precision": report_dict["weighted avg"]["precision"],
-                "weighted_avg_recall": report_dict["weighted avg"]["recall"],
-                "weighted_avg_f1_score": report_dict["weighted avg"]["f1-score"],
-            })
+            summary_dict.update(
+                {
+                    "weighted_avg_precision": report_dict["weighted avg"]["precision"],
+                    "weighted_avg_recall": report_dict["weighted avg"]["recall"],
+                    "weighted_avg_f1_score": report_dict["weighted avg"]["f1-score"],
+                }
+            )
 
     summary_df = pd.DataFrame([summary_dict])
     summary_path = reports_dir / "evaluation_summary.csv"
@@ -540,28 +531,24 @@ def main(
 
     # Final enhanced summary
     logger.info("\n" + "✅ ENHANCED EVALUATION COMPLETED!" + "\n" + "=" * 70)
-    logger.info(
-        f"⏱️  Total evaluation time: {total_eval_time / 60:.1f} minutes")
+    logger.info(f"⏱️  Total evaluation time: {total_eval_time / 60:.1f} minutes")
     logger.info(f"📁 Reports saved to: {reports_dir}")
     logger.info(f"📈 Figures saved to: {figures_dir}")
-    logger.info(
-        f"🏆 Model type: {'Best Validation' if use_best_model else 'Final Training'}")
+    logger.info(f"🏆 Model type: {'Best Validation' if use_best_model else 'Final Training'}")
 
     print("\n" + "=" * 70)
     print("ENHANCED EVALUATION SUMMARY")
     print("=" * 70)
     print(f"Overall Accuracy: {overall_accuracy:.4f}")
     print(
-        f"High-Confidence Accuracy: {high_conf_accuracy:.4f} ({high_conf_percentage:.1f}% of predictions)")
-    print(
-        f"Average Episode Accuracy: {avg_accuracy:.4f} (±{std_accuracy:.4f})")
+        f"High-Confidence Accuracy: {high_conf_accuracy:.4f} ({high_conf_percentage:.1f}% of predictions)"
+    )
+    print(f"Average Episode Accuracy: {avg_accuracy:.4f} (±{std_accuracy:.4f})")
     print(f"Performance Stability (CV): {accuracy_cv:.4f}")
     if report_dict and "macro avg" in report_dict:
-        print(
-            f"Macro Avg Precision: {report_dict['macro avg']['precision']:.4f}")
+        print(f"Macro Avg Precision: {report_dict['macro avg']['precision']:.4f}")
         print(f"Macro Avg Recall: {report_dict['macro avg']['recall']:.4f}")
-        print(
-            f"Macro Avg F1-Score: {report_dict['macro avg']['f1-score']:.4f}")
+        print(f"Macro Avg F1-Score: {report_dict['macro avg']['f1-score']:.4f}")
     print(f"Average Prediction Time: {avg_prediction_time:.2f}ms")
     print(f"Total Predictions: {len(all_predictions):,}")
     print(f"Test Episodes: {test_episodes}")
@@ -579,9 +566,16 @@ def main(
     }
 
 
-def create_enhanced_visualizations(unique_labels, class_names, report_dict,
-                                   class_confidence_stats, class_error_analysis,
-                                   episodes_df, figures_dir, confidence_threshold):
+def create_enhanced_visualizations(
+    unique_labels,
+    class_names,
+    report_dict,
+    class_confidence_stats,
+    class_error_analysis,
+    episodes_df,
+    figures_dir,
+    confidence_threshold,
+):
     """Create enhanced visualizations for detailed analysis"""
 
     # 1. Performance metrics over episodes
@@ -590,47 +584,61 @@ def create_enhanced_visualizations(unique_labels, class_names, report_dict,
     # Episode accuracy and confidence trends
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
 
-    episodes = episodes_df['episode']
+    episodes = episodes_df["episode"]
 
     # Accuracy trend
-    ax1.plot(episodes, episodes_df['accuracy'], 'b-', linewidth=2, alpha=0.7)
-    ax1.axhline(y=episodes_df['accuracy'].mean(), color='r', linestyle='--',
-                label=f'Mean: {episodes_df["accuracy"].mean():.3f}')
-    ax1.set_title('Accuracy per Episode', fontweight='bold')
-    ax1.set_xlabel('Episode')
-    ax1.set_ylabel('Accuracy')
+    ax1.plot(episodes, episodes_df["accuracy"], "b-", linewidth=2, alpha=0.7)
+    ax1.axhline(
+        y=episodes_df["accuracy"].mean(),
+        color="r",
+        linestyle="--",
+        label=f"Mean: {episodes_df['accuracy'].mean():.3f}",
+    )
+    ax1.set_title("Accuracy per Episode", fontweight="bold")
+    ax1.set_xlabel("Episode")
+    ax1.set_ylabel("Accuracy")
     ax1.legend()
     ax1.grid(True, alpha=0.3)
 
     # Confidence trend
-    ax2.plot(episodes, episodes_df['avg_confidence'],
-             'g-', linewidth=2, alpha=0.7)
-    ax2.axhline(y=confidence_threshold, color='r', linestyle='--',
-                label=f'Threshold: {confidence_threshold}')
-    ax2.set_title('Average Confidence per Episode', fontweight='bold')
-    ax2.set_xlabel('Episode')
-    ax2.set_ylabel('Confidence')
+    ax2.plot(episodes, episodes_df["avg_confidence"], "g-", linewidth=2, alpha=0.7)
+    ax2.axhline(
+        y=confidence_threshold,
+        color="r",
+        linestyle="--",
+        label=f"Threshold: {confidence_threshold}",
+    )
+    ax2.set_title("Average Confidence per Episode", fontweight="bold")
+    ax2.set_xlabel("Episode")
+    ax2.set_ylabel("Confidence")
     ax2.legend()
     ax2.grid(True, alpha=0.3)
 
     # Reward trend
-    ax3.plot(episodes, episodes_df['reward'], 'purple', linewidth=2, alpha=0.7)
-    ax3.axhline(y=episodes_df['reward'].mean(), color='r', linestyle='--',
-                label=f'Mean: {episodes_df["reward"].mean():.1f}')
-    ax3.set_title('Reward per Episode', fontweight='bold')
-    ax3.set_xlabel('Episode')
-    ax3.set_ylabel('Reward')
+    ax3.plot(episodes, episodes_df["reward"], "purple", linewidth=2, alpha=0.7)
+    ax3.axhline(
+        y=episodes_df["reward"].mean(),
+        color="r",
+        linestyle="--",
+        label=f"Mean: {episodes_df['reward'].mean():.1f}",
+    )
+    ax3.set_title("Reward per Episode", fontweight="bold")
+    ax3.set_xlabel("Episode")
+    ax3.set_ylabel("Reward")
     ax3.legend()
     ax3.grid(True, alpha=0.3)
 
     # Prediction time trend
-    ax4.plot(episodes, episodes_df['avg_prediction_time_ms'],
-             'orange', linewidth=2, alpha=0.7)
-    ax4.axhline(y=episodes_df['avg_prediction_time_ms'].mean(), color='r', linestyle='--',
-                label=f'Mean: {episodes_df["avg_prediction_time_ms"].mean():.2f}ms')
-    ax4.set_title('Average Prediction Time per Episode', fontweight='bold')
-    ax4.set_xlabel('Episode')
-    ax4.set_ylabel('Time (ms)')
+    ax4.plot(episodes, episodes_df["avg_prediction_time_ms"], "orange", linewidth=2, alpha=0.7)
+    ax4.axhline(
+        y=episodes_df["avg_prediction_time_ms"].mean(),
+        color="r",
+        linestyle="--",
+        label=f"Mean: {episodes_df['avg_prediction_time_ms'].mean():.2f}ms",
+    )
+    ax4.set_title("Average Prediction Time per Episode", fontweight="bold")
+    ax4.set_xlabel("Episode")
+    ax4.set_ylabel("Time (ms)")
     ax4.legend()
     ax4.grid(True, alpha=0.3)
 
@@ -647,52 +655,56 @@ def create_enhanced_visualizations(unique_labels, class_names, report_dict,
         class_names_short = [class_names[i] for i in range(len(labels))]
 
         # Average confidence per class
-        avg_confidences = [class_confidence_stats[l]
-                           ['avg_confidence'] for l in labels]
-        bars1 = ax1.bar(range(len(labels)), avg_confidences,
-                        color='skyblue', alpha=0.7)
-        ax1.set_title('Average Confidence per Class')
-        ax1.set_ylabel('Confidence')
+        avg_confidences = [class_confidence_stats[label]["avg_confidence"] for label in labels]
+        bars1 = ax1.bar(range(len(labels)), avg_confidences, color="skyblue", alpha=0.7)
+        ax1.set_title("Average Confidence per Class")
+        ax1.set_ylabel("Confidence")
         ax1.set_xticks(range(len(labels)))
-        ax1.set_xticklabels(class_names_short, rotation=45, ha='right')
-        ax1.axhline(y=confidence_threshold, color='r',
-                    linestyle='--', alpha=0.7)
+        ax1.set_xticklabels(class_names_short, rotation=45, ha="right")
+        ax1.axhline(y=confidence_threshold, color="r", linestyle="--", alpha=0.7)
         for i, bar in enumerate(bars1):
             height = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                     f'{avg_confidences[i]:.3f}', ha='center', va='bottom')
+            ax1.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height + 0.01,
+                f"{avg_confidences[i]:.3f}",
+                ha="center",
+                va="bottom",
+            )
 
         # High confidence ratio per class
-        high_conf_ratios = [class_confidence_stats[l]
-                            ['high_conf_ratio'] for l in labels]
-        bars2 = ax2.bar(range(len(labels)), high_conf_ratios,
-                        color='lightgreen', alpha=0.7)
-        ax2.set_title(
-            f'High Confidence Ratio per Class (≥{confidence_threshold})')
-        ax2.set_ylabel('Ratio')
+        high_conf_ratios = [class_confidence_stats[label]["high_conf_ratio"] for label in labels]
+        bars2 = ax2.bar(range(len(labels)), high_conf_ratios, color="lightgreen", alpha=0.7)
+        ax2.set_title(f"High Confidence Ratio per Class (≥{confidence_threshold})")
+        ax2.set_ylabel("Ratio")
         ax2.set_xticks(range(len(labels)))
-        ax2.set_xticklabels(class_names_short, rotation=45, ha='right')
+        ax2.set_xticklabels(class_names_short, rotation=45, ha="right")
         for i, bar in enumerate(bars2):
             height = bar.get_height()
-            ax2.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                     f'{high_conf_ratios[i]:.3f}', ha='center', va='bottom')
+            ax2.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height + 0.01,
+                f"{high_conf_ratios[i]:.3f}",
+                ha="center",
+                va="bottom",
+            )
 
         # Confidence difference (correct vs incorrect)
-        conf_correct = [class_confidence_stats[l]
-                        ['avg_confidence_correct'] for l in labels]
-        conf_incorrect = [class_confidence_stats[l]
-                          ['avg_confidence_incorrect'] for l in labels]
+        conf_correct = [
+            class_confidence_stats[label]["avg_confidence_correct"] for label in labels
+        ]
+        conf_incorrect = [
+            class_confidence_stats[label]["avg_confidence_incorrect"] for label in labels
+        ]
 
         x = np.arange(len(labels))
         width = 0.35
-        ax3.bar(x - width/2, conf_correct, width,
-                label='Correct', alpha=0.8, color='green')
-        ax3.bar(x + width/2, conf_incorrect, width,
-                label='Incorrect', alpha=0.8, color='red')
-        ax3.set_title('Confidence: Correct vs Incorrect Predictions')
-        ax3.set_ylabel('Confidence')
+        ax3.bar(x - width / 2, conf_correct, width, label="Correct", alpha=0.8, color="green")
+        ax3.bar(x + width / 2, conf_incorrect, width, label="Incorrect", alpha=0.8, color="red")
+        ax3.set_title("Confidence: Correct vs Incorrect Predictions")
+        ax3.set_ylabel("Confidence")
         ax3.set_xticks(x)
-        ax3.set_xticklabels(class_names_short, rotation=45, ha='right')
+        ax3.set_xticklabels(class_names_short, rotation=45, ha="right")
         ax3.legend()
 
         # Performance metrics per class
@@ -704,11 +716,9 @@ def create_enhanced_visualizations(unique_labels, class_names, report_dict,
             for i, label in enumerate(labels):
                 class_key = class_names_short[i]
                 if class_key in report_dict:
-                    precisions.append(
-                        report_dict[class_key].get('precision', 0.0))
-                    recalls.append(report_dict[class_key].get('recall', 0.0))
-                    f1_scores.append(
-                        report_dict[class_key].get('f1-score', 0.0))
+                    precisions.append(report_dict[class_key].get("precision", 0.0))
+                    recalls.append(report_dict[class_key].get("recall", 0.0))
+                    f1_scores.append(report_dict[class_key].get("f1-score", 0.0))
                 else:
                     precisions.append(0.0)
                     recalls.append(0.0)
@@ -716,13 +726,13 @@ def create_enhanced_visualizations(unique_labels, class_names, report_dict,
 
             x = np.arange(len(labels))
             width = 0.25
-            ax4.bar(x - width, precisions, width, label='Precision', alpha=0.8)
-            ax4.bar(x, recalls, width, label='Recall', alpha=0.8)
-            ax4.bar(x + width, f1_scores, width, label='F1-Score', alpha=0.8)
-            ax4.set_title('Performance Metrics per Class')
-            ax4.set_ylabel('Score')
+            ax4.bar(x - width, precisions, width, label="Precision", alpha=0.8)
+            ax4.bar(x, recalls, width, label="Recall", alpha=0.8)
+            ax4.bar(x + width, f1_scores, width, label="F1-Score", alpha=0.8)
+            ax4.set_title("Performance Metrics per Class")
+            ax4.set_ylabel("Score")
             ax4.set_xticks(x)
-            ax4.set_xticklabels(class_names_short, rotation=45, ha='right')
+            ax4.set_xticklabels(class_names_short, rotation=45, ha="right")
             ax4.legend()
             ax4.set_ylim(0, 1)
 
