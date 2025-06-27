@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 ## 🖥️ Environment
 - OS: [e.g. Ubuntu 20.04, Windows 10, macOS 12]
 - Python version: [e.g. 3.9.7]
-- RL-IDS version: [e.g. 1.0.0]
+- RL-IDS version: [e.g. 1.2.0]
 - GPU: [e.g. NVIDIA RTX 3080, CPU only]
 
 ## 📋 Additional Context

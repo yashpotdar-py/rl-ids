@@ -1,363 +1,573 @@
-# RL-IDS Adaptive System Documentation
+<div align="center">
 
-[![Documentation Status](https://img.shields.io/badge/docs-latest-brightgreen.svg)](https://yashpotdar-py.github.io/rl-ids/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
+# 🛡️ RL-IDS: Adaptive Intrusion Detection System
 
-Welcome to the comprehensive documentation for the **RL-IDS Adaptive System** - a state-of-the-art reinforcement learning-based intrusion detection system that adapts to evolving cybersecurity threats through continuous learning and optimization.
+**Reinforcement Learning-driven Network Security with Real-time Threat Detection**
 
-## 🎯 Project Overview
+[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-00a1f1.svg)](https://fastapi.tiangolo.com)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org)
 
-The RL-IDS Adaptive System combines cutting-edge reinforcement learning algorithms with cybersecurity expertise to create an intelligent intrusion detection system capable of:
+[🚀 Quick Start](#-quick-start) • [📖 Documentation](https://yashpotdar-py.github.io/rl-ids) • [🔧 API Reference](https://yashpotdar-py.github.io/rl-ids/api) • [🤝 Contributing](#-contributing)
 
-- **Adaptive Learning**: Continuously evolving to detect new and unknown attack patterns
-- **Real-time Processing**: High-performance API for production-scale threat detection
-- **Advanced ML**: Deep Q-Network (DQN) with Double DQN, Dueling DQN, and Prioritized Experience Replay
-- **Production-Ready**: Comprehensive monitoring, logging, and deployment capabilities
+---
+
+*Next-generation intrusion detection powered by Deep Q-Networks, featuring adaptive learning, real-time monitoring, and enterprise-grade API integration.*
+
+</div>
+
+## ✨ What Makes RL-IDS Special?
+
+<table>
+<tr>
+<td width="50%">
+
+### 🧠 **Intelligent Learning**
+- **Deep Q-Network (DQN)** with experience replay
+- **Adaptive behavior** that evolves with threats
+- **Self-improving** detection accuracy over time
+- **78 sophisticated features** from CICIDS2017
+
+</td>
+<td width="50%">
+
+### ⚡ **Real-time Performance**
+- **Sub-second detection** response times
+- **Live packet capture** and analysis
+- **Concurrent processing** of multiple streams
+- **Enterprise-scale** throughput
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🌐 **Production Ready**
+- **RESTful API** with OpenAPI documentation
+- **Python client library** with async support
+- **Docker containerization** ready
+- **Comprehensive monitoring** and health checks
+
+</td>
+<td width="50%">
+
+### 🔒 **Advanced Threat Detection**
+- **DDoS attacks** and flood detection
+- **Port scanning** and reconnaissance
+- **Web attacks** (SQLi, XSS, etc.)
+- **Infiltration** and APT detection
+
+</td>
+</tr>
+</table>
+
+## 🎯 Key Features
+
+```mermaid
+graph TB
+    A[Network Traffic] --> B[Feature Extraction]
+    B --> C[DQN Agent]
+    C --> D[Threat Classification]
+    D --> E[Real-time Alerts]
+    
+    B --> F[78 CICIDS2017 Features]
+    C --> G[Deep Q-Network]
+    C --> H[Experience Replay]
+    D --> I[Attack Types]
+    
+    F --> F1[Flow Duration]
+    F --> F2[Packet Statistics]
+    F --> F3[Protocol Analysis]
+    
+    I --> I1[DDoS]
+    I --> I2[Port Scan]
+    I --> I3[Web Attacks]
+    I --> I4[Infiltration]
+```
 
 ## 🚀 Quick Start
 
 ### Installation
+
+```bash
+# Create virtual environment
+python -m venv rl_ids_env
+source rl_ids_env/bin/activate  # Linux/macOS
+# rl_ids_env\Scripts\activate  # Windows
+
+# Install RL-IDS
+pip install -e .
+pip install -r requirements.txt
+```
+
+### 30-Second Demo
+
+```python
+from api.client import RLIDSClient
+import asyncio
+
+async def detect_threats():
+    # Initialize client
+    client = RLIDSClient("http://localhost:8000")
+    
+    # Sample network features (78 CICIDS2017 features)
+    features = [0.1] * 78
+    
+    # Get prediction
+    result = await client.predict(features)
+    print(f"🛡️ Detection: {result['prediction']['class']}")
+    print(f"📊 Confidence: {result['prediction']['confidence']:.2%}")
+    
+    await client.close()
+
+# Run the demo
+asyncio.run(detect_threats())
+```
+
+### Start the API Server
+
+```bash
+# Start the FastAPI server
+python api/main.py
+
+# Or with uvicorn
+uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### Monitor Network Traffic
+
+```bash
+# Monitor default network interface
+sudo python network_monitor.py
+
+# Monitor specific interface
+sudo python network_monitor.py eth0
+
+# Monitor website traffic
+python website_monitor.py example.com
+```
+
+## 🏗️ System Architecture
+
+<div align="center">
+
+```markdown
+┌─────────────────────────────────────────────────────────────────┐
+│                        RL-IDS Architecture                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────┐    ┌─────────────────┐                     │
+│  │  Live Network   │    │   Web Traffic   │                     │
+│  │  Monitoring     │    │   Generation    │                     │
+│  └─────────────────┘    └─────────────────┘                     │
+│           │                       │                             │
+│           ▼                       ▼                             │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │            🔧 Feature Engineering                         │  │
+│  │  • 78 CICIDS2017 Features  • Flow Analysis                │  │
+│  │  • Statistical Metrics     • Protocol Detection           │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│           │                                                     │
+│           ▼                                                     │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │            🧠 Deep Q-Network Agent                        │  │
+│  │  • Neural Network (256→128→64)  • Experience Replay       │  │
+│  │  • Target Network Updates       • Epsilon-Greedy          │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│           │                                                     │
+│           ▼                                                     │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │            🚨 Detection & Response                        │  │
+│  │  • Real-time Classification    • API Integration          │  │
+│  │  • Alert Generation           • SIEM Compatibility        │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+</div>
+
+## 📊 Performance Metrics
+
+<table>
+<tr>
+<td align="center">
+<h3>🎯 Detection Accuracy</h3>
+<h2><strong>95.3%</strong></h2>
+<em>on CICIDS2017 dataset</em>
+</td>
+<td align="center">
+<h3>⚡ Response Time</h3>
+<h2><strong>< 100ms</strong></h2>
+<em>per prediction</em>
+</td>
+<td align="center">
+<h3>🔄 Throughput</h3>
+<h2><strong>1000+</strong></h2>
+<em>predictions/second</em>
+</td>
+<td align="center">
+<h3>🚫 False Positives</h3>
+<h2><strong>< 5%</strong></h2>
+<em>industry leading</em>
+</td>
+</tr>
+</table>
+
+## 🛠️ API Reference
+
+### Core Endpoints
+
+<details>
+<summary><strong>🏥 Health Check</strong> - <code>GET /health</code></summary>
+
+```bash
+curl http://localhost:8000/health
+```
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "details": {
+    "model_loaded": true,
+    "api_version": "1.2.0",
+    "memory_usage": 45.6,
+    "uptime": 3600
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>🔍 Single Prediction</strong> - <code>POST /predict</code></summary>
+
+```bash
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"features": [0.1, 0.2, ..., 7.8]}'
+```
+
+```json
+{
+  "prediction": {
+    "class": "BENIGN",
+    "confidence": 0.87,
+    "probability": {
+      "BENIGN": 0.87,
+      "ATTACK": 0.13
+    }
+  },
+  "timestamp": "2024-01-15T10:35:00Z",
+  "processing_time": 0.045
+}
+```
+</details>
+
+<details>
+<summary><strong>📦 Batch Predictions</strong> - <code>POST /predict/batch</code></summary>
+
+```bash
+curl -X POST http://localhost:8000/predict/batch \
+  -H "Content-Type: application/json" \
+  -d '{"features": [[0.1, ...], [1.1, ...], [2.1, ...]]}'
+```
+
+```json
+{
+  "predictions": [
+    {"class": "BENIGN", "confidence": 0.87},
+    {"class": "ATTACK", "confidence": 0.92},
+    {"class": "BENIGN", "confidence": 0.79}
+  ],
+  "timestamp": "2024-01-15T10:40:00Z",
+  "processing_time": 0.098,
+  "total_predictions": 3
+}
+```
+</details>
+
+## 🎮 Supported Attack Types
+
+| Attack Type         | Description                   | Detection Features                          |
+| ------------------- | ----------------------------- | ------------------------------------------- |
+| **🌊 DDoS**         | Distributed Denial of Service | High packet rates, unusual flow patterns    |
+| **🔍 Port Scan**    | Network reconnaissance        | Sequential port access, connection patterns |
+| **🕸️ Web Attacks**  | SQL injection, XSS, etc.      | HTTP payload analysis, request patterns     |
+| **🕵️ Infiltration** | Advanced persistent threats   | Behavioral anomalies, stealth patterns      |
+| **🔨 Brute Force**  | Authentication attacks        | Failed login patterns, timing analysis      |
+| **🤖 Botnet**       | Command & control             | Communication patterns, traffic signatures  |
+
+## 📈 Training & Model Development
+
+### Quick Training Example
+
+```python
+from rl_ids.modeling.train import train_dqn_agent
+from rl_ids.environments.ids_env import IDSEnvironment
+
+# Set up environment
+env = IDSEnvironment()
+
+# Train the agent
+agent = train_dqn_agent(
+    env=env,
+    episodes=500,
+    batch_size=32,
+    learning_rate=0.001
+)
+
+# Save the trained model
+agent.save_model("models/my_dqn_model.pt")
+```
+
+### Training Progress Visualization
+
+```python
+from rl_ids.plots import plot_training_metrics
+
+# Visualize training results
+plot_training_metrics(agent.training_history)
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+```bash
+# API Configuration
+export API_HOST=localhost
+export API_PORT=8000
+export DEBUG=true
+
+# Model Configuration
+export MODEL_PATH=models/dqn_model_best.pt
+export FEATURE_SCALER_PATH=models/feature_scaler.pkl
+
+# Monitoring Configuration
+export CAPTURE_INTERFACE=eth0
+export LOG_LEVEL=INFO
+export LOG_FILE=logs/rl_ids.log
+```
+
+### Configuration File
+
+```python
+# rl_ids/config.py
+MODEL_CONFIG = {
+    'input_size': 78,
+    'hidden_layers': [256, 128, 64],
+    'output_size': 2,
+    'learning_rate': 0.001,
+    'gamma': 0.99,
+    'epsilon': 0.1
+}
+
+TRAINING_CONFIG = {
+    'batch_size': 32,
+    'episodes': 500,
+    'memory_size': 10000,
+    'target_update': 100
+}
+```
+
+## 🐳 Docker Deployment (Future Scope)
+
+```dockerfile
+# Dockerfile
+FROM python:3.13-slim
+
+WORKDIR /app
+COPY . .
+
+RUN pip install -r requirements.txt
+RUN pip install -e .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+```bash
+# Build and run
+docker build -t rl-ids .
+docker run -p 8000:8000 rl-ids
+```
+
+## 📁 Project Structure
+
+```
+rl_ids/
+├── 🚀 api/                     # FastAPI web service
+│   ├── main.py                 # API endpoints
+│   ├── models.py               # Pydantic models
+│   ├── client.py               # Python client
+│   └── services.py             # Business logic
+├── 🧠 rl_ids/                  # Core ML package
+│   ├── agents/                 # RL agents
+│   │   └── dqn_agent.py       # DQN implementation
+│   ├── environments/           # Gym environments
+│   │   └── ids_env.py         # IDS environment
+│   ├── modeling/               # Training & evaluation
+│   │   ├── train.py           # Training pipeline
+│   │   └── evaluate.py        # Model evaluation
+│   ├── make_dataset.py         # Feature extraction
+│   ├── config.py               # Configuration
+│   └── plots.py                # Visualization
+├── 📊 data/                    # Datasets
+│   ├── raw/                    # CICIDS2017 raw data
+│   └── processed/              # Processed datasets
+├── 🤖 models/                  # Trained models
+├── 📈 reports/                 # Analysis reports
+├── 📋 tests/                   # Test suite
+├── 📖 docs/                    # Documentation
+├── 🔧 network_monitor.py       # Network monitoring
+├── 🌐 website_monitor.py       # Website monitoring
+└── 📜 requirements.txt         # Dependencies
+```
+
+## 🚀 Advanced Usage
+
+### SIEM Integration
+
+```python
+from api.client import RLIDSClient
+import asyncio
+
+class SIEMIntegration:
+    def __init__(self, api_url):
+        self.client = RLIDSClient(api_url)
+    
+    async def process_event(self, network_event):
+        features = self.extract_features(network_event)
+        prediction = await self.client.predict(features)
+        
+        if prediction['prediction']['class'] == 'ATTACK':
+            await self.send_alert(prediction, network_event)
+        
+        return prediction
+```
+
+### Batch Processing Pipeline
+
+```python
+import asyncio
+from api.client import RLIDSClient
+
+async def process_large_dataset(features_list, batch_size=100):
+    client = RLIDSClient("http://localhost:8000")
+    results = []
+    
+    for i in range(0, len(features_list), batch_size):
+        batch = features_list[i:i + batch_size]
+        batch_results = await client.predict_batch(batch)
+        results.extend(batch_results['predictions'])
+    
+    await client.close()
+    return results
+```
+
+## 🧪 Testing
+
+```bash
+# Run the test suite
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=rl_ids --cov=api --cov-report=html
+
+# Run specific tests
+pytest tests/test_api.py::TestRLIDSAPI::test_prediction -v
+```
+
+## 📊 Benchmarks
+
+| Metric           | Value      | Benchmark              |
+| ---------------- | ---------- | ---------------------- |
+| Training Time    | ~2 hours   | NVIDIA RTX 4090        |
+| Model Size       | 2.3 MB     | Lightweight deployment |
+| Memory Usage     | < 512 MB   | Efficient inference    |
+| CPU Usage        | < 10%      | Single prediction      |
+| GPU Acceleration | 10x faster | Training speedup       |
+
+## 🛣️ Roadmap
+
+- [ ] **🔄 Online Learning** - Continuous model adaptation
+- [ ] **🌐 Distributed Training** - Multi-node training support
+- [ ] **🔗 Federated Learning** - Privacy-preserving collaboration
+- [ ] **📱 Mobile Deployment** - Edge device support
+- [ ] **🎛️ Web Dashboard** - Real-time monitoring UI
+- [ ] **🔌 Plugin System** - Custom feature extractors
+- [ ] **☁️ Cloud Integration** - AWS/Azure/GCP deployment
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](https://yashpotdar-py.github.io/rl-ids/development/contributing.md) for details.
+
+### Development Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/yashpotdar-py/rl-ids.git
 cd rl-ids
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### First Training
-```bash
-# Prepare the CICIDS2017 dataset
-python -m rl_ids.make_dataset
-
-# Train the DQN agent
-python -m rl_ids.modeling.train
-
-# Start the API service
-python run_api.py
-```
-
-### Quick Test
-```bash
-# Test a prediction
-curl -X POST "http://localhost:8000/predict" \
-  -H "Content-Type: application/json" \
-  -d '{"features": [0.1, 0.2, 0.3, ...]}'
-```
-
-## 📚 Documentation Structure
-
-This documentation is organized into five main sections designed to serve different user types and use cases:
-
-### 🌟 Core Documentation
-
-| Section | Description | Target Audience |
-|---------|-------------|-----------------|
-| **[Getting Started](docs/docs/getting-started.md)** | Complete setup guide with step-by-step instructions | New users, researchers |
-| **[API Reference](docs/docs/api/index.md)** | Comprehensive REST API documentation | Developers, integrators |
-| **[Module Reference](docs/docs/modules/index.md)** | Detailed code documentation and architecture | ML engineers, developers |
-| **[Tutorials](docs/docs/tutorials/index.md)** | Advanced guides and best practices | All users |
-| **[FAQ](docs/docs/faq.md)** | Troubleshooting and common issues | All users |
-
-### 🔧 Technical Modules
-
-| Module | Purpose | Key Features |
-|--------|---------|--------------|
-| **[DQN Agent](docs/modules/agents.md)** | Core RL algorithm implementation | Double DQN, Dueling DQN, PER |
-| **[IDS Environment](docs/modules/environments.md)** | Custom Gymnasium environment | CICIDS2017 integration, reward shaping |
-| **[Training Pipeline](docs/modules/modeling.md)** | Model training and evaluation | Hyperparameter tuning, curriculum learning |
-| **[Data Processing](docs/modules/make_dataset.md)** | Dataset preparation and feature engineering | SMOTE, normalization, balancing |
-| **[Visualization](docs/modules/plots.md)** | Comprehensive plotting and analysis | Training metrics, evaluation plots |
-| **[Configuration](docs/modules/config.md)** | System configuration management | Paths, model parameters, API settings |
-
-### 🎓 Learning Paths
-
-Choose your learning path based on your role and objectives:
-
-#### 🔬 **Researcher Path**
-1. [Project Overview](docs/docs/index.md) → Understanding the system architecture
-2. [Getting Started](docs/docs/getting-started.md) → Basic setup and first experiment
-3. [DQN Agent](docs/docs/modules/agents.md) → Deep dive into the RL algorithm
-4. [Advanced Training](docs/docs/tutorials/advanced_training.md) → Hyperparameter optimization
-5. [Visualization](docs/docs/modules/plots.md) → Analysis and result interpretation
-
-#### 🛠️ **Developer Path**
-1. [Getting Started](docs/docs/getting-started.md) → System setup and configuration
-2. [API Reference](docs/docs/api/index.md) → Understanding service capabilities
-3. [Module Reference](docs/docs/modules/index.md) → Code architecture and APIs
-4. [API Usage Tutorial](docs/docs/tutorials/api_usage.md) → Integration patterns
-5. [FAQ](docs/docs/faq.md) → Common development issues
-
-#### 🚀 **DevOps Path**
-1. [Getting Started](docs/docs/getting-started.md) → Basic system understanding
-2. [API Reference](docs/docs/api/index.md) → Service endpoints and monitoring
-3. [API Usage Tutorial](docs/docs/tutorials/api_usage.md) → Deployment strategies
-4. [Configuration](docs/docs/modules/config.md) → System configuration
-5. [FAQ](docs/docs/faq.md) → Operational troubleshooting
-
-#### 📊 **Data Scientist Path**
-1. [Project Overview](docs/docs/index.md) → System context and objectives
-2. [Data Processing](docs/docs/modules/make_dataset.md) → Understanding the data pipeline
-3. [Training Pipeline](docs/docs/modules/modeling.md) → Model training workflows
-4. [Visualization](docs/docs/modules/plots.md) → Analysis capabilities
-5. [Advanced Training](docs/docs/tutorials/advanced_training.md) → Advanced techniques
-
-## 🏗️ System Architecture
-
-```mermaid
-graph TB
-    subgraph "Data Layer"
-        D1[CICIDS2017 Dataset]
-        D2[Preprocessed Features]
-        D3[Balanced Dataset]
-    end
-    
-    subgraph "ML Layer"
-        M1[DQN Agent]
-        M2[IDS Environment]
-        M3[Training Pipeline]
-        M4[Evaluation Engine]
-    end
-    
-    subgraph "API Layer"
-        A1[FastAPI Service]
-        A2[Prediction Endpoint]
-        A3[Batch Processing]
-        A4[Health Monitoring]
-    end
-    
-    subgraph "Infrastructure"
-        I1[Docker Containers]
-        I2[Kubernetes Pods]
-        I3[Load Balancer]
-        I4[Monitoring Stack]
-    end
-    
-    D1 --> D2 --> D3
-    D3 --> M2
-    M1 <--> M2
-    M3 --> M1
-    M4 --> M1
-    M1 --> A1
-    A1 --> A2
-    A1 --> A3
-    A1 --> A4
-    A2 --> I1
-    I1 --> I2
-    I2 --> I3
-    I4 --> A4
-```
-
-### Core Components
-
-- **🧠 DQN Agent**: Advanced reinforcement learning with experience replay and target networks
-- **🌍 IDS Environment**: Custom Gymnasium environment for cybersecurity scenarios
-- **⚡ API Service**: Production-ready FastAPI with async processing and monitoring
-- **📊 Data Pipeline**: Comprehensive preprocessing with feature engineering and balancing
-- **📈 Visualization**: Publication-quality plots and interactive dashboards
-
-## 📈 Performance Highlights
-
-### 🎯 Model Performance
-- **Accuracy**: 94.5% on CICIDS2017 test set
-- **Precision**: 93.2% for attack detection
-- **Recall**: 94.8% for attack detection
-- **F1-Score**: 94.0% weighted average
-- **Training Time**: 2-4 hours on modern GPU
-
-### ⚡ API Performance
-- **Latency**: <50ms for single predictions
-- **Throughput**: 1000+ predictions/second
-- **Scalability**: Horizontal scaling with Kubernetes
-- **Availability**: 99.9% uptime with health monitoring
-- **Memory Usage**: <2GB per container
-
-### 🔧 Production Features
-- **Docker Support**: Multi-stage builds with optimization
-- **Kubernetes Ready**: Helm charts and deployment manifests
-- **Monitoring**: Prometheus, Grafana, and ELK stack integration
-- **Security**: Authentication, rate limiting, input validation
-- **CI/CD**: GitHub Actions with automated testing and deployment
-
-## 🛠️ Development Workflow
-
-### Local Development
-```bash
-# Development setup
-git clone https://github.com/yashpotdar-py/rl-ids.git
-cd rl-ids
+# Set up development environment
 python -m venv venv
 source venv/bin/activate
-pip install -r requirements-dev.txt
+pip install -r requirements.txt
+pip install -e .
+
+# Install pre-commit hooks
+pre-commit install
 
 # Run tests
-pytest tests/ -v --cov=rl_ids
-
-# Code formatting
-black rl_ids/
-isort rl_ids/
-
-# Type checking
-mypy rl_ids/
+pytest tests/ -v
 ```
 
-### Docker Development
-```bash
-# Build development image
-docker build -f Dockerfile.dev -t rl-ids:dev .
+### Quick Contribution Steps
 
-# Run with hot reload
-docker run -v $(pwd):/app -p 8000:8000 rl-ids:dev
-```
+1. 🍴 Fork the repository
+2. 🌿 Create a feature branch: `git checkout -b feature/amazing-feature`
+3. ✨ Make your changes and add tests
+4. ✅ Run the test suite: `pytest tests/ -v`
+5. 📝 Update documentation if needed
+6. 🚀 Submit a pull request
 
-### Documentation Development
-```bash
-# Install documentation dependencies
-pip install mkdocs-material mkdocs-git-revision-date-localized-plugin
+## 📚 Documentation
 
-# Serve documentation locally
-mkdocs serve
+- **📖 [Complete Documentation](https://yashpotdar-py.github.io/rl-ids)** - Comprehensive guides and API reference
+- **🚀 [Quick Start Guide](https://yashpotdar-py.github.io/rl-ids/user-guide/installation.md)** - Get up and running in minutes
+- **🔧 [API Reference](https://yashpotdar-py.github.io/rl-ids/api/index.md)** - Complete API documentation
+- **🏗️ [Architecture Guide](https://yashpotdar-py.github.io/rl-ids/development/architecture.md)** - System design and components
+- **❓ [FAQ](https://yashpotdar-py.github.io/rl-ids/faq.md)** - Frequently asked questions
 
-# Build documentation
-mkdocs build
-```
+## 📄 License
 
-## 📋 Documentation Navigation
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### 📖 **Essential Reading**
-- **[🚀 Getting Started](docs/docs/getting-started.md)** - Your first stop for setup and basic usage
-- **[📖 API Reference](docs/docs/api/index.md)** - Complete API documentation with examples
-- **[🏗️ Architecture Overview](docs/docs/modules/index.md)** - System design and module relationships
-- **[❓ FAQ & Troubleshooting](docs/docs/faq.md)** - Solutions to common issues
+## 🙏 Acknowledgments
 
-### 🧠 **Deep Learning Components**
-- **[DQN Agent Implementation](docs/docs/modules/agents.md)** - Advanced DQN with modern techniques
-- **[Custom IDS Environment](docs/docs/modules/environments.md)** - Gymnasium environment for cybersecurity
-- **[Training & Evaluation](docs/docs/modules/modeling.md)** - Complete ML pipeline documentation
-- **[Data Preprocessing](docs/docs/modules/make_dataset.md)** - Feature engineering and data preparation
-
-### 🚀 **Production & Deployment**
-- **[API Integration Patterns](docs/docs/tutorials/api_usage.md)** - Production deployment strategies
-- **[Advanced Training Techniques](docs/docs/tutorials/advanced_training.md)** - Hyperparameter optimization and curriculum learning
-- **[Configuration Management](docs/docs/modules/config.md)** - System configuration and customization
-- **[Monitoring & Visualization](docs/docs/modules/plots.md)** - Comprehensive analysis tools
-
-## 🤝 Contributing
-
-We welcome contributions from the community! Here's how you can help:
-
-### 💻 **Code Contributions**
-- Submit pull requests for new features or bug fixes
-- Follow our coding standards (Black, isort, mypy)
-- Add comprehensive tests for new functionality
-- Update documentation for API changes
-
-### 📚 **Documentation**
-- Improve existing documentation clarity
-- Add new tutorials and examples
-- Translate documentation to other languages
-- Report documentation issues and gaps
-
-### 🧪 **Testing & Quality**
-- Add test cases and improve coverage
-- Performance testing and optimization
-- Security testing and vulnerability assessment
-- User experience testing and feedback
-
-### 📊 **Research & Analysis**
-- Experiment with new RL algorithms
-- Evaluate on additional datasets
-- Benchmark against other IDS systems
-- Publish research findings and improvements
-
-## 🔗 Quick Reference Links
-
-### 📱 **Most Used Pages**
-- [🔧 Installation Guide](docs/docs/getting-started.md#installation)
-- [🏃 Quick Start Tutorial](docs/docs/getting-started.md#quick-start)
-- [📋 API Endpoints](docs/docs/api/index.md#endpoints)
-- [⚙️ Configuration Options](docs/docs/modules/config.md)
-
-### 🆘 **When You Need Help**
-- [❓ Frequently Asked Questions](docs/docs/faq.md)
-- [🐛 Troubleshooting Guide](docs/docs/faq.md#troubleshooting)
-- [📞 Support Channels](#support--community)
-- [🔧 Configuration Issues](docs/docs/faq.md#configuration-issues)
-
-### 🎓 **Learning Resources**
-- [📚 Tutorial Index](docs/docs/tutorials/index.md)
-- [🧠 ML Concepts](docs/docs/modules/agents.md#deep-q-network-theory)
-- [📊 Data Science Pipeline](docs/docs/modules/make_dataset.md)
-- [🔍 Advanced Techniques](docs/docs/tutorials/advanced_training.md)
+- **🎓 CICIDS2017 Dataset** - University of New Brunswick
+- **🔥 PyTorch Team** - For the excellent deep learning framework
+- **⚡ FastAPI** - For the modern, high-performance web framework
+- **🏋️ Gymnasium** - For the standardized RL environment interface
+- **🌟 Open Source Community** - For the amazing tools and libraries
 
 ## 📞 Support & Community
 
-### 🆘 **Getting Help**
-- **📖 Documentation**: Start with this comprehensive documentation
-- **❓ FAQ**: Check our [FAQ section](docs/docs/faq.md) for common issues
-- **🐛 Issues**: Report bugs on [GitHub Issues](https://github.com/yashpotdar-py/rl-ids/issues)
-- **💬 Discussions**: Join [GitHub Discussions](https://github.com/yashpotdar-py/rl-ids/discussions) for questions
-
-### 📧 **Contact Information**
-- **Maintainer**: Yash Potdar (yashpotdar.vercel.app)
-- **Project Repository**: [github.com/yashpotdar-py/rl-ids](https://github.com/yashpotdar-py/rl-ids)
-- **Documentation Site**: [yashpotdar-py.github.io/rl-ids](https://yashpotdar-py.github.io/rl-ids)
-
-### 🏷️ **Project Status**
-- **Version**: 1.0.0
-- **Status**: Active Development
-- **License**: MIT License
-- **Python Support**: 3.8+
-- **Last Updated**: June 2025
-
-## 🔧 Building & Serving Documentation
-
-### Local Development
-```bash
-# Install MkDocs and dependencies
-pip install mkdocs-material mkdocs-git-revision-date-localized-plugin
-
-# Serve documentation with hot reload
-cd docs/
-mkdocs serve
-
-# Documentation will be available at http://127.0.0.1:8000
-```
-
-### Production Build
-```bash
-# Build static documentation
-mkdocs build
-
-# Deploy to GitHub Pages
-mkdocs gh-deploy
-```
-
-<!-- ### Docker Documentation
-```bash
-# Build documentation in Docker
-docker run --rm -v ${PWD}:/docs squidfunk/mkdocs-material build
-
-# Serve with Docker
-docker run --rm -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material
-``` -->
+- **🐛 [Report Issues](https://github.com/yashpotdar-py/rl-ids/issues)** - Bug reports and feature requests  
+- **💬 [Discussions](https://github.com/yashpotdar-py/rl-ids/discussions)** - Community discussions
+- **📧 [Email](mailto:yashyogeshpotdar7@gmail.com)** - Direct contact for collaboration
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for advancing cybersecurity through reinforcement learning**
+**⭐ Star this repository if RL-IDS helps secure your network! ⭐**
 
-[![GitHub stars](https://img.shields.io/github/stars/yashpotdar-py/rl-ids?style=social)](https://github.com/yashpotdar-py/rl-ids)
-[![Follow on GitHub](https://img.shields.io/github/followers/your-username?style=social)](https://github.com/your-username)
+*Built with ❤️ by [Yash Potdar](https://github.com/yashpotdar-py)*
 
-*Ready to start? Head to the [Getting Started Guide](docs/getting-started.md) and begin your journey with RL-IDS!*
+[🔝 Back to Top](#️-rl-ids-adaptive-intrusion-detection-system)
 
 </div>

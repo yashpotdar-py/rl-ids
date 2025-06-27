@@ -14,9 +14,7 @@ gymnasium
 torch
 torchvision
 seaborn
-mkdocs-material
-mkdocs-minify-plugin
-mkdocs-git-revision-date-localized-plugin
+mkdocs-shadcn
 
 # API Libraries
 fastapi

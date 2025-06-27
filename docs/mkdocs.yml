@@ -1,135 +1,38 @@
 site_name: RL-IDS Adaptive System
-site_description: 'Reinforcement Learning-based Intrusion Detection System with Adaptive Capabilities'
-site_author: Yash Potdar
-site_url: https://yashpotdar-py.github.io/rl-ids/
+site_description: Reinforcement Learning-driven Adaptive Intrusion Detection System with real-time threat detection capabilities
+site_author: Yash Yogesh Potdar
+site_url: https://yashpotdar-py.github.io/rl-ids
 
 # Repository
-repo_name: 'rl-ids'
-repo_url: 'https://github.com/yashpotdar-py/rl-ids'
-edit_uri: 'edit/main/docs/'
+repo_name: yashpotdar-py/rl-ids
+repo_url: https://github.com/yashpotdar-py/rl-ids
+edit_uri: edit/main/docs/docs/
 
-# Copyright
-copyright: 'Copyright &copy; 2025 Yash Potdar'
+copyright: Copyright &copy; 2025 Yash Yogesh Potdar. All rights reserved
 
-# Configuration
 theme:
-  name: material
-  language: en
-  palette:
-    # Palette toggle for light mode
-    - scheme: default
-      primary: blue
-      accent: blue
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    # Palette toggle for dark mode
-    - scheme: slate
-      primary: blue
-      accent: blue
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-  font:
-    text: Roboto
-    code: Roboto Mono
-  features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.expand
-    - navigation.top
-    - navigation.instant
-    - navigation.tracking
-    - search.highlight
-    - search.share
-    - content.code.copy
-    - content.code.annotate
+  name: shadcn
 
-# Plugins
-plugins:
-  - search:
-      lang: en
-      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-  - minify:
-      minify_html: true
-
-# Extensions
-markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.arithmatex:
-      generic: true
-  - footnotes
-  - meta
-  - def_list
-  - attr_list
-  - md_in_html
-  - toc:
-      permalink: true
-      toc_depth: 3
-  - pymdownx.betterem:
-      smart_enable: all
-  - pymdownx.caret
-  - pymdownx.mark
-  - pymdownx.tilde
-  - pymdownx.smartsymbols
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
-  - pymdownx.tasklist:
-      custom_checkbox: true
-
-# Extra JavaScript
-extra_javascript:
-  - javascripts/mathjax.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
-
-# Extra CSS
-extra_css:
-  - stylesheets/extra.css
-
-# Page tree - Fixed navigation
+# Navigation
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - API Reference: api/index.md
-  - Module Reference:
-    - Architecture: modules/index.md
-    - DQN Agent: modules/agents.md
-    - IDS Environment: modules/environments.md
-    - Training Pipeline: modules/modeling.md
-    - Data Processing: modules/make_dataset.md
-    - Visualization: modules/plots.md
-    - Configuration: modules/config.md
-  - Tutorials:
-    - Overview: tutorials/index.md
-    - Advanced Training: tutorials/advanced_training.md
-    - API Usage: tutorials/api_usage.md
-    - Basic Training: tutorials/training.md
-  - Release Notes: changelog.md
-  - FAQ & Troubleshooting: faq.md
-
-# Social links
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/yashpotdar-py/rl-ids
-    - icon: fontawesome/solid/user
-      link: https://yashpotdar.vercel.app
-    - icon: fontawesome/solid/paper-plane
-      link: mailto:yashyogeshpotdar7@gmail.com
-  version:
-    provider: mike
-    default: latest
+  - User Guide:
+      - Overview: user-guide/index.md
+      - Installation: user-guide/installation.md
+      - Network Monitoring: user-guide/network-monitoring.md
+      - Website Monitoring: user-guide/website-monitoring.md
+  - API Reference:
+      - Overview: api/index.md
+      - Python Client: api/python-client.md
+      - Examples: api/examples.md
+  - Modules:
+      - Core Components: modules/index.md
+      - RL Agents: modules/agents.md
+      - Feature Extraction: modules/features.md
+  - Development:
+      - Contributing: development/contributing.md
+      - Architecture: development/architecture.md
+      - Testing: development/testing.md
+  - FAQ: faq.md
+  - Changelog: changelog.md
+  - LICENSE: license.md

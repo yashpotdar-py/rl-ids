@@ -1,589 +1,370 @@
-# FAQ & Troubleshooting
+# Frequently Asked Questions
 
-## Frequently Asked Questions
+This FAQ addresses common questions about the RL-IDS (Reinforcement Learning Intrusion Detection System).
 
-### General Questions
+## General Questions
 
-#### Q: What is RL-IDS and how does it work?
+### What is RL-IDS?
 
-**A:** RL-IDS is a Reinforcement Learning-driven Adaptive Intrusion Detection System that uses Deep Q-Network (DQN) agents to detect network intrusions. Unlike traditional signature-based systems, RL-IDS learns to identify attack patterns through trial and error, making it adaptive to new and evolving threats.
+RL-IDS is a reinforcement learning-driven adaptive intrusion detection system that uses Deep Q-Network (DQN) algorithms to detect network intrusions in real-time. It combines traditional network monitoring with modern machine learning techniques to provide intelligent threat detection.
 
-The system works by:
-1. **Training Phase**: The DQN agent learns from the CICIDS2017 dataset, receiving rewards for correct classifications
-2. **Adaptation**: The agent continuously improves its detection strategy through reinforcement learning
-3. **Inference**: Trained models classify real-time network traffic with confidence scores
+### What makes RL-IDS different from traditional IDS?
 
-#### Q: What makes RL-IDS different from traditional IDS systems?
+- **Adaptive Learning**: Continuously learns from new data and adapts to evolving threats
+- **Reinforcement Learning**: Uses reward-based learning to improve detection accuracy
+- **Real-time Processing**: Provides immediate threat detection and response
+- **Feature-rich Analysis**: Analyzes 78 different network flow features
+- **API Integration**: Easy integration with existing security infrastructure
 
-**A:** Key differences include:
+### What types of attacks can RL-IDS detect?
 
-| Traditional IDS | RL-IDS |
-|----------------|--------|
-| Rule/signature-based detection | Learning-based adaptive detection |
-| Manual rule updates | Automatic learning from new data |
-| Binary decisions | Confidence-based predictions |
-| Static thresholds | Dynamic decision boundaries |
-| Limited to known attacks | Can detect novel attack patterns |
+Based on the CICIDS2017 dataset, RL-IDS can detect:
+- **DDoS Attacks**: Distributed Denial of Service
+- **Port Scan**: Network reconnaissance activities
+- **Web Attacks**: SQL injection, XSS, and other web-based attacks
+- **Infiltration**: Advanced persistent threats
+- **Brute Force**: Password and authentication attacks
+- **Botnet**: Command and control communications
 
-#### Q: What types of attacks can RL-IDS detect?
+## Installation and Setup
 
-**A:** The system can detect 15 different attack types from the CICIDS2017 dataset:
+### What are the system requirements?
 
-1. **BENIGN** - Normal network traffic
-2. **Web Attack – Brute Force** - Password brute force attacks
-3. **Web Attack – XSS** - Cross-site scripting attacks
-4. **Web Attack – SQL Injection** - Database injection attacks
-5. **FTP-Patator** - FTP brute force attacks
-6. **SSH-Patator** - SSH brute force attacks
-7. **DoS slowloris** - Slow HTTP denial of service
-8. **DoS Slowhttptest** - Slow HTTP test attacks
-9. **DoS Hulk** - HTTP Unbearable Load King attacks
-10. **DoS GoldenEye** - HTTP DoS attacks
-11. **Heartbleed** - OpenSSL vulnerability exploitation
-12. **Infiltration** - Network infiltration attempts
-13. **PortScan** - Network port scanning
-14. **DDoS** - Distributed denial of service
-15. **Bot** - Botnet traffic
+**Minimum Requirements:**
+- Python 3.13.0+
+- 8GB RAM (16GB recommended)
+- 10GB free disk space
+- Network interface with administrative privileges
 
-#### Q: How accurate is the RL-IDS system?
+**Recommended:**
+- Multi-core CPU (8+ cores for training)
+- NVIDIA GPU with CUDA support
+- Fast SSD storage
 
-**A:** The system typically achieves:
-- **Overall Accuracy**: >95% on CICIDS2017 test set
-- **Precision**: >94% across all attack types
-- **Recall**: >93% for most attack categories
-- **F1-Score**: >94% weighted average
-- **False Positive Rate**: <2% for normal traffic
+### Do I need root/administrator privileges?
 
-Performance varies by attack type, with some rare attacks having lower recall due to limited training data.
+For network monitoring features, you need:
+- **Linux**: Either root privileges or set capabilities: `sudo setcap cap_net_raw,cap_net_admin=eip $(which python)`
+- **Windows**: Run as administrator
+- **macOS**: Use `sudo` or configure appropriate permissions
 
----
+For API-only usage, no special privileges are required.
 
-### Installation & Setup
+### Can I run RL-IDS without a pre-trained model?
 
-#### Q: What are the system requirements?
+Yes, but with limitations:
+- You can train a new model using the provided training scripts
+- Training requires the CICIDS2017 dataset (or similar labeled data)
+- Initial training may take several hours depending on hardware
+- Pre-trained models provide immediate detection capabilities
 
-**A:** Minimum requirements:
-- **Python**: 3.13+ (required)
-- **RAM**: 8GB (16GB recommended)
-- **Storage**: 2GB for datasets and models
-- **OS**: Linux, macOS, or Windows
+## Usage and Configuration
 
-Recommended for training:
-- **GPU**: CUDA-compatible with 4GB+ VRAM
-- **CPU**: Multi-core processor (8+ cores)
-- **RAM**: 16GB+
+### How do I configure network monitoring?
 
-#### Q: I'm getting CUDA out of memory errors during training. What should I do?
-
-**A:** Try these solutions in order:
-
-1. **Reduce batch size**:
-   ```bash
-   python -m rl_ids.modeling.train --batch_size 16
+1. **Identify Network Interface**:
+   ```python
+   import psutil
+   print(list(psutil.net_if_addrs().keys()))
    ```
 
-2. **Force CPU training**:
-   ```bash
-   CUDA_VISIBLE_DEVICES="" python -m rl_ids.modeling.train
+2. **Update Configuration**:
+   ```python
+   # In network_monitor.py or configuration file
+   INTERFACE = "eth0"  # Replace with your interface
    ```
 
-3. **Reduce model size**:
+3. **Set Permissions** (Linux):
    ```bash
-   python -m rl_ids.modeling.train --hidden_dims "256,128"
+   sudo setcap cap_net_raw,cap_net_admin=eip $(which python)
    ```
 
-4. **Use gradient checkpointing** (if available in future versions)
+### How do I integrate RL-IDS with my existing security tools?
 
-#### Q: The data preprocessing is failing. What's wrong?
+**API Integration:**
+```python
+from api.client import RLIDSClient
 
-**A:** Common causes and solutions:
+client = RLIDSClient("http://localhost:8000")
+result = client.predict(network_features)
+```
 
-1. **Missing raw data files**:
-   ```bash
-   ls data/raw/
-   # Should show 8 CICIDS2017 CSV files
-   ```
+**Webhook Integration:**
+- Configure webhooks in your security tools
+- Send network data to RL-IDS API endpoints
+- Process responses for alerts and actions
 
-2. **Incorrect file names**: Ensure files match exactly:
-   - `Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv`
-   - `Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv`
-   - etc.
+**Log Integration:**
+- Configure RL-IDS to output to standard security log formats
+- Integrate with SIEM systems through log forwarding
 
-3. **Corrupted files**: Re-download from the official CICIDS2017 source
+### Can I customize the detection model?
 
-4. **Insufficient disk space**: Ensure 5GB+ free space
+Yes, several customization options are available:
 
-5. **Memory issues**: Close other applications or increase swap space
+**Model Parameters:**
+- Adjust neural network architecture in `rl_ids/agents/dqn_agent.py`
+- Modify training hyperparameters in `rl_ids/config.py`
+- Change reward functions in the environment
 
-#### Q: How do I verify my installation is correct?
+**Feature Engineering:**
+- Add new features to `rl_ids/make_dataset.py`
+- Modify existing feature calculations
+- Implement custom preprocessing pipelines
 
-**A:** Run these verification steps:
+**Training Data:**
+- Use your own labeled dataset
+- Combine multiple datasets
+- Implement active learning strategies
 
+## Performance and Scalability
+
+### What is the expected performance?
+
+**Detection Speed:**
+- Single prediction: < 100ms
+- Batch predictions: > 1000 predictions/second
+- Real-time monitoring: Handles typical enterprise network loads
+
+**Accuracy:**
+- Trained on CICIDS2017: > 95% accuracy
+- False positive rate: < 5%
+- Performance may vary with different network environments
+
+### How can I improve performance?
+
+**Hardware Optimizations:**
+- Use GPU acceleration for training and large-scale inference
+- Increase RAM for larger batch processing
+- Use SSD storage for faster data access
+
+**Software Optimizations:**
+- Adjust batch sizes based on available memory
+- Use multiple worker processes for API deployment
+- Implement caching for frequently accessed data
+
+**Network Optimizations:**
+- Optimize packet capture buffer sizes
+- Use appropriate network interface configurations
+- Consider distributed deployment for high-traffic environments
+
+### Can RL-IDS scale horizontally?
+
+Yes, through several approaches:
+
+**API Scaling:**
+- Deploy multiple API instances behind a load balancer
+- Use container orchestration (Docker, Kubernetes)
+- Implement distributed caching (Redis)
+
+**Data Processing:**
+- Distribute packet capture across multiple interfaces
+- Use message queues for processing pipelines
+- Implement microservices architecture
+
+## Troubleshooting
+
+### "Permission denied" errors during network monitoring
+
+**Solution:**
 ```bash
-# 1. Check Python version
-python --version  # Should be 3.13+
+# Linux - Set capabilities
+sudo setcap cap_net_raw,cap_net_admin=eip $(which python)
 
-# 2. Test RL-IDS import
-python -c "import rl_ids; print('✅ RL-IDS installed')"
+# Or run with sudo (not recommended for production)
+sudo python network_monitor.py
 
-# 3. Check dependencies
-python -c "import torch; print('✅ PyTorch installed')"
-python -c "import sklearn; print('✅ Scikit-learn installed')"
-
-# 4. Test CLI commands
-python -m rl_ids.modeling.train --help
-
-# 5. Check GPU availability (optional)
-python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
+# Windows - Run as administrator
+# Right-click Command Prompt → "Run as administrator"
 ```
 
----
+### "ModuleNotFoundError" when importing rl_ids
 
-### Training & Model Issues
+**Common Causes:**
+1. Virtual environment not activated
+2. Package not installed properly
+3. Python path issues
 
-#### Q: Training is very slow. How can I speed it up?
-
-**A:** Optimization strategies:
-
-1. **Use GPU acceleration**:
-   ```bash
-   # Check GPU availability
-   nvidia-smi
-   # Train with CUDA
-   python -m rl_ids.modeling.train --device cuda
-   ```
-
-2. **Increase batch size** (if GPU memory allows):
-   ```bash
-   python -m rl_ids.modeling.train --batch_size 128
-   ```
-
-3. **Reduce training episodes for testing**:
-   ```bash
-   python -m rl_ids.modeling.train --episodes 50
-   ```
-
-4. **Use curriculum learning**:
-   ```bash
-   python -m rl_ids.modeling.train --curriculum_learning
-   ```
-
-5. **Optimize data loading** (ensure data is on SSD)
-
-#### Q: My model isn't converging. What can I do?
-
-**A:** Training troubleshooting steps:
-
-1. **Check learning rate**:
-   ```bash
-   # Try lower learning rate
-   python -m rl_ids.modeling.train --lr 1e-5
-   ```
-
-2. **Enable advanced features**:
-   ```bash
-   python -m rl_ids.modeling.train --double_dqn --dueling --prioritized_replay
-   ```
-
-3. **Increase model capacity**:
-   ```bash
-   python -m rl_ids.modeling.train --hidden_dims "1024,512,256,128"
-   ```
-
-4. **Use curriculum learning**:
-   ```bash
-   python -m rl_ids.modeling.train --curriculum_learning --curriculum_stages 5
-   ```
-
-5. **Check data quality**: Ensure preprocessing completed successfully
-
-#### Q: How do I know if my training is working properly?
-
-**A:** Monitor these training indicators:
-
-1. **Reward trends**: Should generally increase over episodes
-2. **Accuracy**: Should improve and stabilize above 80%
-3. **Epsilon decay**: Should decrease from 1.0 to minimum value
-4. **Loss convergence**: Should decrease and stabilize
-
-**Good training output example**:
-```
-Episode 50/250: Reward=65.2, Accuracy=0.834, Confidence=0.892, Epsilon=0.61
-Episode 100/250: Reward=78.5, Accuracy=0.901, Confidence=0.923, Epsilon=0.37
-Episode 150/250: Reward=89.3, Accuracy=0.934, Confidence=0.945, Epsilon=0.22
-```
-
-#### Q: What's the difference between the various model files?
-
-**A:** Model file explanations:
-
-- `dqn_model_best.pt`: Best performing model (highest validation accuracy)
-- `dqn_model_final.pt`: Final model from training completion
-- `episodes/dqn_model_episode_X.pt`: Checkpoint from episode X
-- Models contain: weights, optimizer state, configuration, metadata
-
----
-
-### API & Deployment
-
-#### Q: The API server won't start. What's the issue?
-
-**A:** Common API startup issues:
-
-1. **Port already in use**:
-   ```bash
-   # Check what's using port 8000
-   lsof -i :8000
-   # Use different port
-   python -m api.main --port 8001
-   ```
-
-2. **Model file missing**:
-   ```bash
-   ls models/dqn_model_*.pt
-   # Train a model if none exist
-   python -m rl_ids.modeling.train
-   ```
-
-3. **Dependencies missing**:
-   ```bash
-   pip install fastapi uvicorn
-   ```
-
-4. **Permission issues**: Check file permissions and user access
-
-#### Q: API predictions are returning errors. How do I fix this?
-
-**A:** API troubleshooting:
-
-1. **Check input format**:
-   ```bash
-   # Correct format: exactly 77 features
-   curl -X POST "http://localhost:8000/predict" \
-        -H "Content-Type: application/json" \
-        -d '{"features": [/* 77 numeric values */]}'
-   ```
-
-2. **Validate feature count**:
-   ```python
-   import requests
-   features = [0.1] * 77  # Exactly 77 features
-   response = requests.post("http://localhost:8000/predict", 
-                           json={"features": features})
-   ```
-
-3. **Check model loading**:
-   ```bash
-   curl http://localhost:8000/health
-   # Should show "model_loaded": true
-   ```
-
-#### Q: How do I deploy RL-IDS in production?
-
-**A:** Production deployment checklist:
-
-1. **Docker deployment**:
-   ```bash
-   docker build -t rl-ids-api .
-   docker run -d -p 8000:8000 --name rl-ids rl-ids-api
-   ```
-
-2. **Environment configuration**:
-   ```bash
-   # Create .env file
-   RLIDS_HOST=0.0.0.0
-   RLIDS_PORT=8000
-   RLIDS_LOG_LEVEL=INFO
-   RLIDS_MODEL_PATH=models/dqn_model_best.pt
-   ```
-
-3. **Security measures**:
-   - Add authentication (API keys)
-   - Enable HTTPS/TLS
-   - Configure firewall rules
-   - Set up monitoring
-
-4. **Performance optimization**:
-   - Use multiple workers: `uvicorn --workers 4`
-   - Enable batch processing
-   - Configure load balancing
-   - Set up caching
-
-#### Q: How do I monitor the API performance?
-
-**A:** Monitoring strategies:
-
-1. **Health endpoint**:
-   ```bash
-   curl http://localhost:8000/health
-   ```
-
-2. **Metrics collection**:
-   - Response times
-   - Request rates
-   - Error rates
-   - System resources
-
-3. **Logging analysis**:
-   ```bash
-   # Check application logs
-   tail -f logs/api.log
-   ```
-
-4. **Performance testing**:
-   ```python
-   from api.client import benchmark_api_performance
-   import asyncio
-   
-   asyncio.run(benchmark_api_performance(100))
-   ```
-
----
-
-### Data & Features
-
-#### Q: Can I use my own dataset instead of CICIDS2017?
-
-**A:** Yes, but you'll need to:
-
-1. **Format compatibility**: Ensure your data has:
-   - Numeric features (77+ columns)
-   - Label column with attack types
-   - CSV format
-
-2. **Data preprocessing**: Modify `rl_ids/make_dataset.py` for your schema
-
-3. **Class mapping**: Update class names in the configuration
-
-4. **Feature engineering**: Ensure features are network traffic related
-
-#### Q: What do the 77 features represent?
-
-**A:** The features are network traffic characteristics extracted using CICFlowMeter:
-
-**Flow-based features**:
-- Flow duration, packet counts, byte counts
-- Forward/backward packet statistics
-- Inter-arrival time statistics
-
-**Packet-level features**:
-- Packet length statistics (mean, max, min, std)
-- Header information and flags
-- Window size and urgent pointer
-
-**Time-based features**:
-- Flow inter-arrival times
-- Active and idle time statistics
-- Subflow characteristics
-
-**Statistical features**:
-- Flow rate and packet rate
-- Bulk transfer characteristics
-- Protocol-specific features
-
-#### Q: How do I add new attack types?
-
-**A:** To extend the system for new attacks:
-
-1. **Data collection**: Gather labeled samples of new attack type
-
-2. **Data integration**: Add to training dataset with proper labels
-
-3. **Model retraining**: Retrain with updated class count:
-   ```bash
-   python -m rl_ids.modeling.train --action_dim 16  # If adding 1 new class
-   ```
-
-4. **Configuration update**: Update class names in API service
-
-5. **Validation**: Test detection performance on new attack type
-
----
-
-### Performance & Optimization
-
-#### Q: Why is inference slow on my deployment?
-
-**A:** Performance optimization checklist:
-
-1. **Model size**: Use smaller architectures for production:
-   ```python
-   config = DQNConfig(hidden_dims=[256, 128])  # Smaller model
-   ```
-
-2. **Batch processing**: Process multiple samples together:
-   ```python
-   # Use batch prediction endpoint
-   POST /predict/batch
-   ```
-
-3. **GPU inference**: Use GPU if available:
-   ```python
-   # Load model on GPU
-   agent.load_model("model.pt", map_location="cuda")
-   ```
-
-4. **Caching**: Implement result caching for repeated requests
-
-5. **Async processing**: Use FastAPI's async capabilities
-
-#### Q: How can I improve detection accuracy?
-
-**A:** Accuracy improvement strategies:
-
-1. **Advanced training features**:
-   ```bash
-   python -m rl_ids.modeling.train \
-       --double_dqn --dueling --prioritized_replay \
-       --curriculum_learning
-   ```
-
-2. **Hyperparameter tuning**:
-   - Lower learning rate: `--lr 5e-5`
-   - Larger model: `--hidden_dims "2048,1024,512,256"`
-   - More training: `--episodes 500`
-
-3. **Data augmentation**:
-   - Balance dataset with SMOTE
-   - Add noise for robustness
-   - Feature scaling/normalization
-
-4. **Ensemble methods**: Train multiple models and combine predictions
-
-#### Q: What's the expected memory usage?
-
-**A:** Typical memory requirements:
-
-**Training**:
-- Model: ~8-15 MB
-- Replay buffer: ~100-500 MB
-- Data loading: ~2-4 GB
-- GPU memory: ~2-4 GB
-- Total system: ~8-16 GB
-
-**Inference**:
-- Model: ~8-15 MB  
-- API service: ~100-200 MB
-- Total system: ~500 MB - 1 GB
-
-**Optimization tips**:
-- Use smaller replay buffers
-- Enable memory mapping for large datasets
-- Use gradient checkpointing
-- Process data in chunks
-
----
-
-### Error Messages & Solutions
-
-#### Error: `ModuleNotFoundError: No module named 'rl_ids'`
-
-**Solution**:
+**Solutions:**
 ```bash
-# Install in development mode
+# Activate virtual environment
+source venv/bin/activate  # Linux/macOS
+venv\Scripts\activate     # Windows
+
+# Reinstall package
 pip install -e .
 
-# Or add to Python path
-export PYTHONPATH="${PYTHONPATH}:/path/to/rl_ids"
+# Check installation
+python -c "import rl_ids; print('Success')"
 ```
 
-#### Error: `CUDA out of memory`
+### High memory usage during training
 
-**Solution**:
+**Solutions:**
+1. **Reduce Batch Size:**
+   ```python
+   # In training configuration
+   BATCH_SIZE = 32  # Reduce from default
+   ```
+
+2. **Enable Gradient Checkpointing:**
+   ```python
+   # In model configuration
+   USE_CHECKPOINT = True
+   ```
+
+3. **Use CPU Training:**
+   ```bash
+   export CUDA_VISIBLE_DEVICES=""
+   ```
+
+### Model not loading or giving errors
+
+**Check Model File:**
+```python
+import torch
+try:
+    model = torch.load("models/dqn_model_best.pt")
+    print("Model loaded successfully")
+except Exception as e:
+    print(f"Model loading error: {e}")
+```
+
+**Regenerate Model:**
 ```bash
-# Option 1: Reduce batch size
-python -m rl_ids.modeling.train --batch_size 16
+# Retrain model
+python rl_ids/modeling/train.py
 
-# Option 2: Use CPU
-CUDA_VISIBLE_DEVICES="" python -m rl_ids.modeling.train
-
-# Option 3: Clear GPU memory
-python -c "import torch; torch.cuda.empty_cache()"
+# Or download pre-trained model (if available)
+python -c "from rl_ids.modeling.train import download_pretrained_model; download_pretrained_model()"
 ```
 
-#### Error: `FileNotFoundError: No such file or directory: 'data/processed/train.csv'`
+### API connection issues
 
-**Solution**:
+**Check API Status:**
 ```bash
-# Run data preprocessing first
-python -m rl_ids.make_dataset
+# Test API connectivity
+curl http://localhost:8000/health
 
-# Check if raw data exists
-ls data/raw/
+# Check if API is running
+ps aux | grep "uvicorn\|python.*api"
 ```
 
-#### Error: `ValidationError: Features list cannot be empty`
+**Common Solutions:**
+1. Ensure API server is running
+2. Check firewall settings
+3. Verify correct host/port configuration
+4. Test with different client (curl, browser)
 
-**Solution**:
-```bash
-# Ensure exactly 77 features in API request
-curl -X POST "http://localhost:8000/predict" \
-     -H "Content-Type: application/json" \
-     -d '{"features": [/* exactly 77 numeric values */]}'
+## Development and Contribution
+
+### How can I contribute to RL-IDS?
+
+1. **Fork the Repository**: Create your own fork on GitHub
+2. **Set Up Development Environment**: Follow the development setup guide
+3. **Make Changes**: Implement features or fix bugs
+4. **Write Tests**: Ensure your changes are tested
+5. **Submit Pull Request**: Follow the contribution guidelines
+
+### How do I add new attack detection capabilities?
+
+1. **Data Collection**: Gather labeled examples of the new attack type
+2. **Feature Analysis**: Identify distinguishing features
+3. **Model Training**: Retrain with expanded dataset
+4. **Validation**: Test detection accuracy
+5. **Integration**: Update classification labels and API responses
+
+### How do I extend the API?
+
+1. **Add Endpoints**: Define new routes in `api/main.py`
+2. **Create Models**: Add Pydantic models in `api/models.py`
+3. **Implement Logic**: Add business logic in `api/services.py`
+4. **Update Client**: Extend the Python client library
+5. **Document**: Update API documentation
+
+## Advanced Usage
+
+### Can I use RL-IDS with custom datasets?
+
+Yes, follow these steps:
+
+1. **Format Data**: Ensure data matches CICIDS2017 feature format (78 features)
+2. **Update Labels**: Map your attack types to the expected categories
+3. **Preprocessing**: Apply the same preprocessing pipeline
+4. **Training**: Retrain the model with your dataset
+5. **Validation**: Test performance on representative data
+
+### How do I implement custom reward functions?
+
+Modify the reward function in the IDS environment:
+
+```python
+# In rl_ids/environments/ids_env.py
+def _calculate_reward(self, predicted_class, actual_class):
+    # Custom reward logic
+    if predicted_class == actual_class:
+        if actual_class == 'BENIGN':
+            return 1.0  # Correct benign classification
+        else:
+            return 2.0  # Correct attack detection (higher reward)
+    else:
+        if actual_class == 'BENIGN':
+            return -2.0  # False positive (high penalty)
+        else:
+            return -1.0  # False negative
 ```
 
-#### Error: `RuntimeError: Expected tensor for argument`
+### Can I deploy RL-IDS in a distributed environment?
 
-**Solution**:
-```bash
-# Check PyTorch compatibility
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+Yes, consider these approaches:
 
-# For CUDA
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+**Microservices Deployment:**
+- Separate services for data collection, processing, and detection
+- Use message queues (RabbitMQ, Kafka) for communication
+- Implement service discovery and load balancing
+
+**Container Orchestration:**
+```yaml
+# docker-compose.yml example
+version: '3.8'
+services:
+  rl-ids-api:
+    image: rl-ids:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=/app/models/dqn_model_best.pt
+  
+  rl-ids-monitor:
+    image: rl-ids:latest
+    command: python network_monitor.py
+    network_mode: host
+    privileged: true
 ```
 
----
+## Getting Help
 
-### Best Practices
+### Where can I find more information?
 
-#### Training Best Practices
+- **Documentation**: Complete documentation is available in this site
+- **GitHub Repository**: Source code and issue tracking
+- **API Reference**: Interactive API documentation at `/docs` endpoint
+- **Code Examples**: Sample implementations in the repository
 
-1. **Start small**: Begin with 50-100 episodes to test setup
-2. **Monitor progress**: Watch accuracy and reward trends
-3. **Use validation**: Enable validation dataset for early stopping
-4. **Save checkpoints**: Regular model saving during training
-5. **Experiment tracking**: Use MLflow for experiment management
+### How do I report bugs or request features?
 
-#### Production Best Practices
+1. **Check Existing Issues**: Search GitHub issues for similar problems
+2. **Create Detailed Report**: Include error messages, environment details, and steps to reproduce
+3. **Provide Context**: Explain your use case and expected behavior
+4. **Follow Up**: Respond to questions and provide additional information
 
-1. **Model validation**: Thoroughly test before deployment
-2. **Monitoring**: Set up comprehensive health monitoring
-3. **Backup strategies**: Keep model backpoints and rollback plans
-4. **Security**: Implement authentication and input validation
-5. **Performance testing**: Load test API endpoints
-6. **Documentation**: Maintain deployment and operational docs
+### How do I get support for production deployment?
 
-#### Development Best Practices
+For production deployments:
+1. **Review Best Practices**: Follow the deployment and security guidelines
+2. **Performance Testing**: Conduct thorough testing in your environment
+3. **Monitoring Setup**: Implement comprehensive logging and monitoring
+4. **Backup Strategy**: Ensure model and configuration backup procedures
+5. **Update Plan**: Establish procedures for updates and maintenance
 
-1. **Version control**: Use Git for code and model versioning
-2. **Testing**: Write unit tests for critical components
-3. **Code quality**: Use linting and formatting tools
-4. **Documentation**: Keep documentation updated
-5. **Reproducibility**: Use seeds and configuration files
-
----
-
-### Getting Additional Help
-
-#### Community Resources
-- **GitHub Issues**: Report bugs and request features
-- **Discussions**: Join community discussions
-- **Documentation**: Comprehensive guides and tutorials
-
-#### Professional Support
-- **Consulting**: Custom implementation and optimization
-- **Training**: Team training and workshops
-- **Integration**: Help with enterprise integration
-
-#### Contributing
-- **Bug Reports**: Submit detailed bug reports
-- **Feature Requests**: Suggest new features
-- **Code Contributions**: Submit pull requests
-- **Documentation**: Improve documentation and examples
-
-For specific issues not covered here, please create a detailed issue report including:
-- Error messages and stack traces
-- System information and environment
-- Steps to reproduce the problem
-- Expected vs. actual behavior
+Remember to never include sensitive network data or security configurations in support requests.

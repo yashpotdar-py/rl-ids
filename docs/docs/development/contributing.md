@@ -2,7 +2,7 @@
 
 We welcome contributions from the community! This document provides guidelines for contributing to the RL-IDS Adaptive System.
 
-## 🚀 Quick Start
+## Quick Start
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
@@ -11,7 +11,7 @@ We welcome contributions from the community! This document provides guidelines f
 5. Update documentation if needed
 6. Submit a pull request
 
-## 📋 Development Setup
+## Development Setup
 
 ### Prerequisites
 - Python 3.8+
@@ -37,7 +37,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Running Tests
 ```bash
@@ -58,7 +58,7 @@ pytest tests/integration/ -v
 - Follow the naming convention: `test_*.py`
 - Use descriptive test names: `test_dqn_agent_training_convergence`
 
-## 📝 Code Style
+## Code Style
 
 We use several tools to maintain code quality:
 
@@ -80,7 +80,7 @@ flake8 rl_ids/ tests/
 - Write docstrings for modules, classes, and functions
 - Keep line length under 88 characters (Black default)
 
-## 📚 Documentation
+## Documentation
 
 ### Building Documentation
 ```bash
@@ -101,7 +101,7 @@ mkdocs build
 - Keep examples up-to-date and tested
 - Use clear, concise language
 
-## 🐛 Bug Reports
+## Bug Reports
 
 When reporting bugs, please include:
 
@@ -120,7 +120,7 @@ When reporting bugs, please include:
    - Log outputs
    - Screenshots (if applicable)
 
-## ✨ Feature Requests
+## Feature Requests
 
 For new features:
 
@@ -129,7 +129,7 @@ For new features:
 3. **Propose a solution** or implementation approach
 4. **Consider backwards compatibility**
 
-## 📦 Pull Request Process
+## Pull Request Process
 
 ### Before Submitting
 - [ ] Tests pass: `pytest tests/ -v`
@@ -162,7 +162,7 @@ Brief description of changes
 - [ ] CHANGELOG.md updated
 ```
 
-## 🏗️ Architecture Guidelines
+## Architecture Guidelines
 
 ### Code Organization
 ```
@@ -187,7 +187,7 @@ api/
 - **Configuration**: Make components configurable
 - **Documentation**: Document public APIs
 
-## 🎯 Contribution Areas
+## Contribution Areas
 
 ### High Priority
 - Performance optimizations
@@ -207,18 +207,18 @@ api/
 - Example scripts and tutorials
 - Typo fixes and documentation clarity
 
-## 📞 Getting Help
+## Getting Help
 
-- **Documentation**: Check [docs/](docs/) for comprehensive guides
+- **Documentation**: Check [docs/](../index.md) for comprehensive guides
 - **Issues**: Search existing issues or create a new one
 - **Discussions**: Use GitHub Discussions for questions
 - **Email**: Contact maintainers for security issues
 
-## 🙏 Recognition
+## Recognition
 
 Contributors will be recognized in:
 - README.md contributors section
 - Release notes
 - Documentation credits
 
-Thank you for contributing to RL-IDS! 🚀
+Thank you for contributing to RL-IDS!
