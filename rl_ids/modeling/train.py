@@ -18,56 +18,40 @@ app = typer.Typer()
 
 @app.command()
 def main(
-    train_data_path: Path = typer.Option(
-        TRAIN_DATA_FILE, help="Path to training data"
-    ),
-    val_data_path: Path = typer.Option(
-        VAL_DATA_FILE, help="Path to validation data"
-    ),
+    train_data_path: Path = typer.Option(TRAIN_DATA_FILE, help="Path to training data"),
+    val_data_path: Path = typer.Option(VAL_DATA_FILE, help="Path to validation data"),
     models_dir: Path = MODELS_DIR,
     reports_dir: Path = REPORTS_DIR,
     episodes_dir: Path = EPISODES_DIR,
     num_episodes: int = typer.Option(500, help="Number of training episodes"),
-    target_update_interval: int = typer.Option(
-        10, help="Target network update interval"
-    ),
+    target_update_interval: int = typer.Option(10, help="Target network update interval"),
     lr: float = typer.Option(1e-4, help="Learning Rate"),
     lr_scheduler: str = typer.Option(
-        "cosine", help="Learning rate scheduler: cosine, step, or none"),
+        "cosine", help="Learning rate scheduler: cosine, step, or none"
+    ),
     gamma: float = typer.Option(0.995, help="Discount Factor"),
     epsilon: float = typer.Option(1.0, help="Initial Exploration Rate"),
     eps_decay: float = typer.Option(0.9995, help="Epsilon Decay Rate"),
     eps_min: float = typer.Option(0.01, help="Minimum Epsilon Value"),
     memory_size: int = typer.Option(100000, help="Replay Buffer Size"),
     batch_size: int = typer.Option(256, help="Training Batch Size"),
-    warmup_steps: int = typer.Option(
-        1000, help="Warmup steps before training"),
+    warmup_steps: int = typer.Option(1000, help="Warmup steps before training"),
     hidden_dims: str = typer.Option(
-        "1024,512,256,128", help="Hidden layer dimensions (comma-separated)"),
-    dropout_rate: float = typer.Option(
-        0.2, help="Dropout rate for regularization"),
+        "1024,512,256,128", help="Hidden layer dimensions (comma-separated)"
+    ),
+    dropout_rate: float = typer.Option(0.2, help="Dropout rate for regularization"),
     use_layer_norm: bool = typer.Option(True, help="Use layer normalization"),
     save_interval: int = typer.Option(50, help="Model Save Interval"),
-    max_steps_per_episode: int = typer.Option(
-        15000, help="Max steps per episode"
-    ),
-    validation_interval: int = typer.Option(
-        5, help="Validation evaluation interval"
-    ),
-    early_stopping_patience: int = typer.Option(
-        30, help="Early stopping patience (episodes)"
-    ),
+    max_steps_per_episode: int = typer.Option(15000, help="Max steps per episode"),
+    validation_interval: int = typer.Option(5, help="Validation evaluation interval"),
+    early_stopping_patience: int = typer.Option(30, help="Early stopping patience (episodes)"),
     grad_clip: float = typer.Option(1.0, help="Gradient clipping value"),
-    weight_decay: float = typer.Option(
-        1e-5, help="Weight decay for regularization"),
-    prioritized_replay: bool = typer.Option(
-        False, help="Use prioritized experience replay"),
+    weight_decay: float = typer.Option(1e-5, help="Weight decay for regularization"),
+    prioritized_replay: bool = typer.Option(False, help="Use prioritized experience replay"),
     double_dqn: bool = typer.Option(True, help="Use Double DQN"),
     dueling: bool = typer.Option(True, help="Use Dueling DQN architecture"),
-    curriculum_learning: bool = typer.Option(
-        True, help="Use curriculum learning"),
-    curriculum_stages: int = typer.Option(
-        3, help="Number of curriculum stages"),
+    curriculum_learning: bool = typer.Option(True, help="Use curriculum learning"),
+    curriculum_stages: int = typer.Option(3, help="Number of curriculum stages"),
 ):
     """Train Enhanced DQN Agent on IDS Detection Task with advanced optimizations"""
     start_time = time.time()
@@ -78,7 +62,8 @@ def main(
     if not train_data_path.exists():
         logger.error(f"❌ Training data not found: {train_data_path}")
         logger.info(
-            "💡 Please run 'python -m rl_ids.make_dataset' first to generate processed data")
+            "💡 Please run 'python -m rl_ids.make_dataset' first to generate processed data"
+        )
         raise typer.Exit(1)
 
     use_validation = val_data_path.exists()
@@ -97,8 +82,7 @@ def main(
         val_df = pd.read_csv(val_data_path)
 
     # Get feature columns (exclude label columns)
-    feature_cols = [col for col in train_df.columns if col not in [
-        "Label", "Label_Original"]]
+    feature_cols = [col for col in train_df.columns if col not in ["Label", "Label_Original"]]
 
     # Get dimensions
     input_dim = len(feature_cols)
@@ -112,19 +96,17 @@ def main(
 
     # Log class distributions
     logger.info("📈 Training class distribution:")
-    train_dist = train_df['Label'].value_counts().sort_index()
+    train_dist = train_df["Label"].value_counts().sort_index()
     for label, count in train_dist.items():
         percentage = count / len(train_df) * 100
-        logger.info(
-            f"   Class {label}: {count:8,} samples ({percentage:5.1f}%)")
+        logger.info(f"   Class {label}: {count:8,} samples ({percentage:5.1f}%)")
 
     if use_validation:
         logger.info("📈 Validation class distribution:")
-        val_dist = val_df['Label'].value_counts().sort_index()
+        val_dist = val_df["Label"].value_counts().sort_index()
         for label, count in val_dist.items():
             percentage = count / len(val_df) * 100
-            logger.info(
-                f"   Class {label}: {count:8,} samples ({percentage:5.1f}%)")
+            logger.info(f"   Class {label}: {count:8,} samples ({percentage:5.1f}%)")
 
     # Determine device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -133,28 +115,26 @@ def main(
     if device.type == "cuda":
         logger.info(f"🎮 GPU: {torch.cuda.get_device_name(0)}")
         logger.info(
-            f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory // (1024**3)} GB")
+            f"💾 GPU Memory: {torch.cuda.get_device_properties(0).total_memory // (1024**3)} GB"
+        )
 
     # Parse hidden dimensions
     hidden_dims_list = [int(x.strip()) for x in hidden_dims.split(",")]
     logger.info(
-        f"🏗️  Network architecture: {input_dim} → {' → '.join(map(str, hidden_dims_list))} → {n_classes}")
+        f"🏗️  Network architecture: {input_dim} → {' → '.join(map(str, hidden_dims_list))} → {n_classes}"
+    )
 
     # Initialize environments
     logger.info("🌍 Initializing training environment...")
     train_env = IDSDetectionEnv(
-        data_path=train_data_path,
-        feature_cols=feature_cols,
-        label_col="Label"
+        data_path=train_data_path, feature_cols=feature_cols, label_col="Label"
     )
 
     val_env = None
     if use_validation:
         logger.info("🌍 Initializing validation environment...")
         val_env = IDSDetectionEnv(
-            data_path=val_data_path,
-            feature_cols=feature_cols,
-            label_col="Label"
+            data_path=val_data_path, feature_cols=feature_cols, label_col="Label"
         )
 
     # Initialize enhanced agent with configuration
@@ -223,11 +203,9 @@ def main(
             start_ep = i * stage_size
             end_ep = min((i + 1) * stage_size, num_episodes)
             curriculum_episodes.append((start_ep, end_ep, i + 1))
-        logger.info(
-            f"📚 Curriculum learning enabled with {curriculum_stages} stages")
+        logger.info(f"📚 Curriculum learning enabled with {curriculum_stages} stages")
 
-    logger.info(
-        f"🏋️  Starting enhanced training for {num_episodes} episodes...")
+    logger.info(f"🏋️  Starting enhanced training for {num_episodes} episodes...")
     logger.info(f"⏱️  Max steps per episode: {max_steps_per_episode}")
     logger.info(f"🧠 Warmup steps: {warmup_steps}")
     logger.info(f"🎯 Target update interval: {target_update_interval}")
@@ -259,8 +237,7 @@ def main(
 
         # Adaptive episode length based on curriculum
         if curriculum_learning:
-            adaptive_max_steps = int(
-                max_steps_per_episode * (0.5 + 0.5 * stage_progress))
+            adaptive_max_steps = int(max_steps_per_episode * (0.5 + 0.5 * stage_progress))
         else:
             adaptive_max_steps = max_steps_per_episode
 
@@ -271,12 +248,10 @@ def main(
             action = agent.act(state=state, training=True)
 
             # Environment step
-            next_state, reward, done, truncated, info = train_env.step(
-                action=action)
+            next_state, reward, done, truncated, info = train_env.step(action=action)
 
             # Store experience in replay buffer
-            agent.remember(state, action, reward,
-                           next_state, done or truncated)
+            agent.remember(state, action, reward, next_state, done or truncated)
 
             # Train agent (after warmup)
             if len(agent.memory) >= warmup_steps:
@@ -286,8 +261,7 @@ def main(
 
                     # Apply gradient clipping
                     if grad_clip > 0:
-                        torch.nn.utils.clip_grad_norm_(
-                            agent.model.parameters(), grad_clip)
+                        torch.nn.utils.clip_grad_norm_(agent.model.parameters(), grad_clip)
 
             # Track accuracy
             actual_label = info.get("actual_label", -1)
@@ -313,7 +287,7 @@ def main(
         # Calculate training metrics
         train_accuracy = correct_predictions / max(total_predictions, 1)
         avg_train_loss = np.mean(episode_losses) if episode_losses else 0.0
-        current_lr = agent.optimizer.param_groups[0]['lr']
+        current_lr = agent.optimizer.param_groups[0]["lr"]
         episode_duration = time.time() - episode_start_time
 
         # Store training metrics
@@ -333,9 +307,7 @@ def main(
 
         if use_validation and episode % validation_interval == 0:
             logger.debug(f"🔍 Running validation at episode {episode}")
-            val_accuracy, val_reward = validate_agent(
-                agent, val_env, adaptive_max_steps
-            )
+            val_accuracy, val_reward = validate_agent(agent, val_env, adaptive_max_steps)
             val_accuracies.append(val_accuracy)
             val_rewards.append(val_reward)
 
@@ -345,15 +317,13 @@ def main(
                 patience_counter = 0
                 # Save best model
                 agent.save_model(best_model_path)
-                logger.debug(
-                    f"💾 New best model saved (val_acc: {val_accuracy:.4f})")
+                logger.debug(f"💾 New best model saved (val_acc: {val_accuracy:.4f})")
             else:
                 patience_counter += 1
 
             if patience_counter >= early_stopping_patience:
                 logger.info(f"🛑 Early stopping triggered at episode {episode}")
-                logger.info(
-                    f"🏆 Best validation accuracy: {best_val_accuracy:.4f}")
+                logger.info(f"🏆 Best validation accuracy: {best_val_accuracy:.4f}")
                 break
 
         # Enhanced logging
@@ -409,10 +379,8 @@ def main(
                 val_idx += 1
             else:
                 # Use last known validation value
-                extended_val_acc.append(
-                    extended_val_acc[-1] if extended_val_acc else 0.0)
-                extended_val_reward.append(
-                    extended_val_reward[-1] if extended_val_reward else 0.0)
+                extended_val_acc.append(extended_val_acc[-1] if extended_val_acc else 0.0)
+                extended_val_reward.append(extended_val_reward[-1] if extended_val_reward else 0.0)
 
         metrics_data["Val_Accuracy"] = extended_val_acc
         metrics_data["Val_Reward"] = extended_val_reward
@@ -430,25 +398,19 @@ def main(
     avg_episode_length = np.mean(episode_lengths)
 
     # Training stability metrics
-    recent_rewards = train_rewards[-50:] if len(
-        train_rewards) >= 50 else train_rewards
-    reward_stability = np.std(recent_rewards) / \
-        (np.mean(recent_rewards) + 1e-8)
+    recent_rewards = train_rewards[-50:] if len(train_rewards) >= 50 else train_rewards
+    reward_stability = np.std(recent_rewards) / (np.mean(recent_rewards) + 1e-8)
 
-    recent_accuracies = train_accuracies[-50:] if len(
-        train_accuracies) >= 50 else train_accuracies
+    recent_accuracies = train_accuracies[-50:] if len(train_accuracies) >= 50 else train_accuracies
     accuracy_stability = np.std(recent_accuracies)
 
     logger.info("\n" + "🎉 ENHANCED TRAINING COMPLETED!" + "\n" + "=" * 70)
     logger.info(f"⏱️  Total training time: {total_time / 60:.1f} minutes")
     logger.info(f"📊 Training Episodes: {len(train_rewards)}")
-    logger.info(
-        f"🏆 Final average train reward (last 20): {final_train_reward:.2f}")
-    logger.info(
-        f"🎯 Final average train accuracy (last 20): {final_train_accuracy:.4f}")
+    logger.info(f"🏆 Final average train reward (last 20): {final_train_reward:.2f}")
+    logger.info(f"🎯 Final average train accuracy (last 20): {final_train_accuracy:.4f}")
     logger.info(f"📈 Maximum train accuracy: {max_train_accuracy:.4f}")
-    logger.info(
-        f"📊 Best training accuracy achieved: {best_train_accuracy:.4f}")
+    logger.info(f"📊 Best training accuracy achieved: {best_train_accuracy:.4f}")
     logger.info(f"⚡ Average episode length: {avg_episode_length:.1f} steps")
     logger.info(f"📊 Reward stability (CV): {reward_stability:.4f}")
     logger.info(f"📊 Accuracy stability (std): {accuracy_stability:.4f}")

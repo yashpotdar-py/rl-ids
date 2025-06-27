@@ -106,6 +106,7 @@ jobs:
     - name: Test package installation
       run: |
         pip install dist/*.whl
+        pip install -r requirements.txt
         python -c "import rl_ids; print('Package import successful')"
 
   security-scan:

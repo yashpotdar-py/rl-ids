@@ -58,8 +58,7 @@ class DataGenerator:
                 df.columns = df.columns.str.strip()
                 data_frames.append(df)
                 total_rows += len(df)
-                logger.debug(
-                    f"✅ Successfully loaded {file} with {len(df):,} rows")
+                logger.debug(f"✅ Successfully loaded {file} with {len(df):,} rows")
             except Exception as e:
                 logger.error(f"❌ Failed to load {file}: {str(e)}")
                 continue
@@ -74,8 +73,7 @@ class DataGenerator:
             data = pd.concat(data_frames, ignore_index=True)
             pbar.update(1)
 
-        logger.info(
-            f"📊 Combined dataset shape: {data.shape} ({len(data):,} total rows)")
+        logger.info(f"📊 Combined dataset shape: {data.shape} ({len(data):,} total rows)")
 
         # Data preprocessing steps
         logger.info("🧹 Starting data preprocessing...")
@@ -84,8 +82,7 @@ class DataGenerator:
         # Store processed data
         self.processed_data = data
 
-        logger.success(
-            f"✅ Data loading and preprocessing complete! Final shape: {data.shape}")
+        logger.success(f"✅ Data loading and preprocessing complete! Final shape: {data.shape}")
         return data
 
     def _preprocess_data(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -102,8 +99,7 @@ class DataGenerator:
             data.dropna(axis=1, how="all", inplace=True)
             removed_cols = initial_cols - data.shape[1]
             if removed_cols > 0:
-                logger.info(
-                    f"🗑️  Removed {removed_cols} columns with all null values")
+                logger.info(f"🗑️  Removed {removed_cols} columns with all null values")
             pbar.update(1)
 
             # Fill remaining null values
@@ -114,8 +110,7 @@ class DataGenerator:
             pbar.update(1)
 
             # Handle infinite values
-            inf_count = np.isinf(data.select_dtypes(
-                include=[np.number])).sum().sum()
+            inf_count = np.isinf(data.select_dtypes(include=[np.number])).sum().sum()
             if inf_count > 0:
                 logger.info(f"♾️  Replacing {inf_count:,} infinite values")
                 data.replace([np.inf, -np.inf], 0, inplace=True)
@@ -131,18 +126,17 @@ class DataGenerator:
                 data["Label"] = self.label_encoder.fit_transform(data["Label"])
                 unique_labels = len(self.label_encoder.classes_)
                 logger.info(f"📊 Encoded {unique_labels} unique labels")
-                logger.info(
-                    "💾 Original labels preserved in 'Label_Original' column")
+                logger.info("💾 Original labels preserved in 'Label_Original' column")
 
                 # Log label distribution
-                label_dist = data['Label'].value_counts().sort_index()
+                label_dist = data["Label"].value_counts().sort_index()
                 logger.info("📈 Label distribution:")
                 for label, count in label_dist.items():
-                    original_label = self.label_encoder.inverse_transform([label])[
-                        0]
+                    original_label = self.label_encoder.inverse_transform([label])[0]
                     percentage = count / len(data) * 100
                     logger.info(
-                        f"   {label} ({original_label}): {count:,} samples ({percentage:.1f}%)")
+                        f"   {label} ({original_label}): {count:,} samples ({percentage:.1f}%)"
+                    )
             else:
                 logger.warning("⚠️  No 'Label' column found in dataset")
             pbar.update(1)
@@ -151,7 +145,7 @@ class DataGenerator:
             logger.info("⚡ Optimizing data types...")
             numeric_cols = data.select_dtypes(include=[np.number]).columns
             for col in numeric_cols:
-                if col not in ['Label', 'Label_Original']:
+                if col not in ["Label", "Label_Original"]:
                     # Convert to float32 to save memory
                     data[col] = data[col].astype(np.float32)
             pbar.update(1)
@@ -183,7 +177,8 @@ class DataGenerator:
             data.to_csv(output_path, index=False)
             file_size = output_path.stat().st_size / 1024**2
             logger.success(
-                f"✅ Successfully saved {len(data):,} rows to {output_path} ({file_size:.1f} MB)")
+                f"✅ Successfully saved {len(data):,} rows to {output_path} ({file_size:.1f} MB)"
+            )
             return output_path
         except Exception as e:
             logger.error(f"❌ Failed to save processed data: {str(e)}")
@@ -201,10 +196,7 @@ class DataProcessor:
         tqdm.pandas(desc="Processing", dynamic_ncols=True)
 
     def normalize_data(
-        self,
-        df: pd.DataFrame,
-        method: str = 'robust',
-        handle_outliers: bool = True
+        self, df: pd.DataFrame, method: str = "robust", handle_outliers: bool = True
     ) -> pd.DataFrame:
         """
         Improved normalization with outlier handling
@@ -215,20 +207,17 @@ class DataProcessor:
             handle_outliers: Whether to handle outliers before normalization
         """
         # Validate method parameter
-        valid_methods = ['standard', 'robust', 'minmax']
+        valid_methods = ["standard", "robust", "minmax"]
         if method not in valid_methods:
-            raise ValueError(
-                f"Method must be one of {valid_methods}, got '{method}'")
+            raise ValueError(f"Method must be one of {valid_methods}, got '{method}'")
 
-        logger.info(
-            f"🔄 Starting data normalization using {method.upper()} scaler")
+        logger.info(f"🔄 Starting data normalization using {method.upper()} scaler")
         logger.info(f"📊 Input shape: {df.shape}")
 
         # Separate features and labels
-        feature_cols = [col for col in df.columns if col not in [
-            'Label', 'Label_Original']]
+        feature_cols = [col for col in df.columns if col not in ["Label", "Label_Original"]]
         X = df[feature_cols].copy()
-        y = df[['Label', 'Label_Original']].copy()
+        y = df[["Label", "Label_Original"]].copy()
 
         logger.info(f"📈 Processing {len(feature_cols)} features")
 
@@ -244,7 +233,8 @@ class DataProcessor:
             total_nans = nan_counts.sum()
             if total_nans > 0:
                 logger.warning(
-                    f"⚠️  Found {total_nans:,} NaN values across {(nan_counts > 0).sum()} columns")
+                    f"⚠️  Found {total_nans:,} NaN values across {(nan_counts > 0).sum()} columns"
+                )
                 for col, count in nan_counts[nan_counts > 0].items():
                     logger.debug(f"   {col}: {count:,} NaN values")
             pbar.update(1)
@@ -261,13 +251,13 @@ class DataProcessor:
 
         # Choose and apply scaler
         logger.info(f"⚙️  Applying {method.upper()} normalization...")
-        if method == 'standard':
+        if method == "standard":
             self.scaler = StandardScaler()
             logger.debug("Using StandardScaler (mean=0, std=1)")
-        elif method == 'robust':
+        elif method == "robust":
             self.scaler = RobustScaler()
             logger.debug("Using RobustScaler (median and IQR based)")
-        elif method == 'minmax':
+        elif method == "minmax":
             self.scaler = MinMaxScaler()
             logger.debug("Using MinMaxScaler (range [0,1])")
 
@@ -278,8 +268,7 @@ class DataProcessor:
             X_scaled = self.scaler.transform(X)
             pbar.update(1)
 
-        X_scaled_df = pd.DataFrame(
-            X_scaled, columns=feature_cols, index=X.index)
+        X_scaled_df = pd.DataFrame(X_scaled, columns=feature_cols, index=X.index)
 
         # Store feature columns for later use
         self.feature_columns = feature_cols
@@ -287,21 +276,20 @@ class DataProcessor:
         # Combine with labels
         df_normalized = pd.concat([X_scaled_df, y], axis=1)
 
-        logger.success(
-            f"✅ Normalization complete! Shape: {df_normalized.shape}")
+        logger.success(f"✅ Normalization complete! Shape: {df_normalized.shape}")
         logger.info(
-            f"📏 Feature range after scaling: [{X_scaled.min():.3f}, {X_scaled.max():.3f}]")
+            f"📏 Feature range after scaling: [{X_scaled.min():.3f}, {X_scaled.max():.3f}]"
+        )
 
         return df_normalized
 
-    def _handle_outliers(self, X: pd.DataFrame, method: str = 'iqr') -> pd.DataFrame:
+    def _handle_outliers(self, X: pd.DataFrame, method: str = "iqr") -> pd.DataFrame:
         """Handle outliers using IQR method or percentile capping"""
-        logger.info(
-            f"🔍 Detecting and handling outliers using {method.upper()} method")
+        logger.info(f"🔍 Detecting and handling outliers using {method.upper()} method")
 
         outlier_counts = {}
 
-        if method == 'iqr':
+        if method == "iqr":
             # IQR method for each column with progress bar
             for col in tqdm(X.columns, desc="Processing columns", unit="col"):
                 Q1 = X[col].quantile(0.25)
@@ -311,22 +299,20 @@ class DataProcessor:
                 upper_bound = Q3 + 1.5 * IQR
 
                 # Count outliers before clipping
-                outliers = ((X[col] < lower_bound) |
-                            (X[col] > upper_bound)).sum()
+                outliers = ((X[col] < lower_bound) | (X[col] > upper_bound)).sum()
                 if outliers > 0:
                     outlier_counts[col] = outliers
 
                 X[col] = X[col].clip(lower_bound, upper_bound)
 
-        elif method == 'percentile':
+        elif method == "percentile":
             # Percentile capping (1st and 99th percentiles)
             for col in tqdm(X.columns, desc="Processing columns", unit="col"):
                 lower_bound = X[col].quantile(0.01)
                 upper_bound = X[col].quantile(0.99)
 
                 # Count outliers before clipping
-                outliers = ((X[col] < lower_bound) |
-                            (X[col] > upper_bound)).sum()
+                outliers = ((X[col] < lower_bound) | (X[col] > upper_bound)).sum()
                 if outliers > 0:
                     outlier_counts[col] = outliers
 
@@ -335,7 +321,8 @@ class DataProcessor:
         total_outliers = sum(outlier_counts.values())
         if total_outliers > 0:
             logger.info(
-                f"📈 Handled {total_outliers:,} outliers across {len(outlier_counts)} columns")
+                f"📈 Handled {total_outliers:,} outliers across {len(outlier_counts)} columns"
+            )
             for col, count in sorted(outlier_counts.items(), key=lambda x: x[1], reverse=True)[:5]:
                 logger.debug(f"   {col}: {count:,} outliers")
         else:
@@ -346,58 +333,53 @@ class DataProcessor:
     def smart_balance_data(
         self,
         df: pd.DataFrame,
-        strategy: str = 'smart_sampling',
+        strategy: str = "smart_sampling",
         max_samples_per_class: int = 50000,
-        min_samples_per_class: int = 1000
+        min_samples_per_class: int = 1000,
     ) -> pd.DataFrame:
         """
         Intelligent balancing strategy that doesn't create unnecessarily large datasets
         """
         # Validate strategy parameter
-        valid_strategies = ['smart_sampling',
-                            'smote', 'combined', 'hierarchical']
+        valid_strategies = ["smart_sampling", "smote", "combined", "hierarchical"]
         if strategy not in valid_strategies:
-            raise ValueError(
-                f"Strategy must be one of {valid_strategies}, got '{strategy}'")
+            raise ValueError(f"Strategy must be one of {valid_strategies}, got '{strategy}'")
 
+        logger.info(f"⚖️  Starting data balancing using {strategy.upper()} strategy")
         logger.info(
-            f"⚖️  Starting data balancing using {strategy.upper()} strategy")
-        logger.info(
-            f"🎯 Target: {min_samples_per_class:,} - {max_samples_per_class:,} samples per class")
+            f"🎯 Target: {min_samples_per_class:,} - {max_samples_per_class:,} samples per class"
+        )
 
-        original_counts = df['Label'].value_counts().sort_index()
-        logger.info(
-            f"📊 Original distribution across {len(original_counts)} classes:")
+        original_counts = df["Label"].value_counts().sort_index()
+        logger.info(f"📊 Original distribution across {len(original_counts)} classes:")
 
         # Create a nice distribution table
         total_samples = len(df)
         for label, count in original_counts.items():
             percentage = (count / total_samples) * 100
-            logger.info(
-                f"   Class {label}: {count:8,} samples ({percentage:5.1f}%)")
+            logger.info(f"   Class {label}: {count:8,} samples ({percentage:5.1f}%)")
 
         logger.info(f"📈 Total samples: {total_samples:,}")
         logger.info(
-            f"📊 Class imbalance ratio: {original_counts.max() / original_counts.min():.1f}:1")
+            f"📊 Class imbalance ratio: {original_counts.max() / original_counts.min():.1f}:1"
+        )
 
         start_time = time.time()
 
-        if strategy == 'smart_sampling':
-            result = self._smart_sampling_balance(
-                df, max_samples_per_class, min_samples_per_class)
-        elif strategy == 'smote':
+        if strategy == "smart_sampling":
+            result = self._smart_sampling_balance(df, max_samples_per_class, min_samples_per_class)
+        elif strategy == "smote":
             result = self._smote_balance(df, max_samples_per_class)
-        elif strategy == 'combined':
+        elif strategy == "combined":
             result = self._combined_balance(df, max_samples_per_class)
-        elif strategy == 'hierarchical':
-            result = self._hierarchical_balance(
-                df, max_samples_per_class, min_samples_per_class)
+        elif strategy == "hierarchical":
+            result = self._hierarchical_balance(df, max_samples_per_class, min_samples_per_class)
 
         duration = time.time() - start_time
         logger.success(f"✅ Balancing completed in {duration:.1f}s")
 
         # Log final distribution
-        final_counts = result['Label'].value_counts().sort_index()
+        final_counts = result["Label"].value_counts().sort_index()
         final_total = len(result)
 
         logger.info("📊 Final distribution:")
@@ -406,18 +388,22 @@ class DataProcessor:
             change = count - original_counts[label]
             change_symbol = "+" if change > 0 else ""
             logger.info(
-                f"   Class {label}: {count:8,} samples ({percentage:5.1f}%) [{change_symbol}{change:,}]")
+                f"   Class {label}: {count:8,} samples ({percentage:5.1f}%) [{change_symbol}{change:,}]"
+            )
 
         logger.info(
-            f"📈 Final total: {final_total:,} samples ({final_total/total_samples:.1f}x original)")
+            f"📈 Final total: {final_total:,} samples ({final_total / total_samples:.1f}x original)"
+        )
 
         return result
 
-    def _smart_sampling_balance(self, df: pd.DataFrame, max_per_class: int, min_per_class: int) -> pd.DataFrame:
+    def _smart_sampling_balance(
+        self, df: pd.DataFrame, max_per_class: int, min_per_class: int
+    ) -> pd.DataFrame:
         """Smart sampling that creates reasonable dataset sizes while maintaining class balance"""
         logger.info("🧠 Using smart sampling strategy")
 
-        class_counts = df['Label'].value_counts()
+        class_counts = df["Label"].value_counts()
         majority_size = class_counts.max()
 
         # Calculate target sizes based on class hierarchy
@@ -433,9 +419,9 @@ class DataProcessor:
 
         balanced_dfs = []
 
-        unique_labels = sorted(df['Label'].unique())
+        unique_labels = sorted(df["Label"].unique())
         for label in tqdm(unique_labels, desc="Balancing classes", unit="class"):
-            class_df = df[df['Label'] == label]
+            class_df = df[df["Label"] == label]
             current_size = len(class_df)
             target_size = calculate_target_size(current_size)
 
@@ -443,21 +429,14 @@ class DataProcessor:
                 # Oversample
                 additional_samples = target_size - current_size
                 oversampled = resample(
-                    class_df,
-                    n_samples=additional_samples,
-                    random_state=42,
-                    replace=True
+                    class_df, n_samples=additional_samples, random_state=42, replace=True
                 )
-                combined_df = pd.concat(
-                    [class_df, oversampled], ignore_index=True)
+                combined_df = pd.concat([class_df, oversampled], ignore_index=True)
                 action = f"oversampled (+{additional_samples:,})"
             elif target_size < current_size:
                 # Undersample (for very large classes)
                 combined_df = resample(
-                    class_df,
-                    n_samples=target_size,
-                    random_state=42,
-                    replace=False
+                    class_df, n_samples=target_size, random_state=42, replace=False
                 )
                 action = f"undersampled (-{current_size - target_size:,})"
             else:
@@ -465,8 +444,7 @@ class DataProcessor:
                 action = "unchanged"
 
             balanced_dfs.append(combined_df)
-            logger.debug(
-                f"   Class {label}: {current_size:,} -> {len(combined_df):,} ({action})")
+            logger.debug(f"   Class {label}: {current_size:,} -> {len(combined_df):,} ({action})")
 
         logger.info("🔀 Shuffling balanced dataset...")
         result = pd.concat(balanced_dfs, ignore_index=True)
@@ -477,7 +455,7 @@ class DataProcessor:
         logger.info("🎨 Using SMOTE (Synthetic Minority Oversampling) strategy")
 
         X = df[self.feature_columns]
-        y = df['Label']
+        y = df["Label"]
 
         # Calculate sampling strategy to avoid huge datasets
         class_counts = y.value_counts()
@@ -488,26 +466,21 @@ class DataProcessor:
             for label, count in class_counts.items()
         }
 
-        logger.info(
-            f"🎯 SMOTE target sizes: {dict(sorted(sampling_strategy.items()))}")
+        logger.info(f"🎯 SMOTE target sizes: {dict(sorted(sampling_strategy.items()))}")
 
         try:
             with tqdm(total=3, desc="SMOTE processing", unit="step") as pbar:
-                smote = SMOTE(sampling_strategy=sampling_strategy,
-                              random_state=42, k_neighbors=3)
+                smote = SMOTE(sampling_strategy=sampling_strategy, random_state=42, k_neighbors=3)
                 pbar.update(1)
 
                 X_resampled, y_resampled = smote.fit_resample(X, y)
                 pbar.update(1)
 
-                result_df = pd.DataFrame(
-                    X_resampled, columns=self.feature_columns)
-                result_df['Label'] = y_resampled
+                result_df = pd.DataFrame(X_resampled, columns=self.feature_columns)
+                result_df["Label"] = y_resampled
 
-                label_mapping = df.set_index(
-                    'Label')['Label_Original'].drop_duplicates().to_dict()
-                result_df['Label_Original'] = result_df['Label'].map(
-                    label_mapping)
+                label_mapping = df.set_index("Label")["Label_Original"].drop_duplicates().to_dict()
+                result_df["Label_Original"] = result_df["Label"].map(label_mapping)
                 pbar.update(1)
 
             logger.success("✅ SMOTE completed successfully")
@@ -523,27 +496,23 @@ class DataProcessor:
         logger.info("🔄 Using combined SMOTE-Tomek strategy")
 
         X = df[self.feature_columns]
-        y = df['Label']
+        y = df["Label"]
 
         try:
             with tqdm(total=3, desc="Combined sampling", unit="step") as pbar:
                 smote_tomek = SMOTETomek(
-                    smote=SMOTE(random_state=42, k_neighbors=3),
-                    random_state=42
+                    smote=SMOTE(random_state=42, k_neighbors=3), random_state=42
                 )
                 pbar.update(1)
 
                 X_resampled, y_resampled = smote_tomek.fit_resample(X, y)
                 pbar.update(1)
 
-                result_df = pd.DataFrame(
-                    X_resampled, columns=self.feature_columns)
-                result_df['Label'] = y_resampled
+                result_df = pd.DataFrame(X_resampled, columns=self.feature_columns)
+                result_df["Label"] = y_resampled
 
-                label_mapping = df.set_index(
-                    'Label')['Label_Original'].drop_duplicates().to_dict()
-                result_df['Label_Original'] = result_df['Label'].map(
-                    label_mapping)
+                label_mapping = df.set_index("Label")["Label_Original"].drop_duplicates().to_dict()
+                result_df["Label_Original"] = result_df["Label"].map(label_mapping)
                 pbar.update(1)
 
             logger.success("✅ Combined sampling completed successfully")
@@ -554,11 +523,13 @@ class DataProcessor:
             logger.info("🔄 Falling back to smart sampling strategy")
             return self._smart_sampling_balance(df, max_per_class, 1000)
 
-    def _hierarchical_balance(self, df: pd.DataFrame, max_per_class: int, min_per_class: int) -> pd.DataFrame:
+    def _hierarchical_balance(
+        self, df: pd.DataFrame, max_per_class: int, min_per_class: int
+    ) -> pd.DataFrame:
         """Hierarchical balancing based on class size tiers"""
         logger.info("🏗️  Using hierarchical balancing strategy")
 
-        class_counts = df['Label'].value_counts().sort_values(ascending=False)
+        class_counts = df["Label"].value_counts().sort_values(ascending=False)
 
         # Define tiers
         tier_1_threshold = class_counts.iloc[0] * 0.1  # Large classes
@@ -568,16 +539,16 @@ class DataProcessor:
         logger.info("📊 Class tiers defined:")
         logger.info(f"   Tier 1 (Large): ≥{tier_1_threshold:,.0f} samples")
         logger.info(
-            f"   Tier 2 (Medium): {tier_2_threshold:,.0f} - {tier_1_threshold:,.0f} samples")
-        logger.info(
-            f"   Tier 3 (Small): {tier_3_threshold} - {tier_2_threshold:,.0f} samples")
+            f"   Tier 2 (Medium): {tier_2_threshold:,.0f} - {tier_1_threshold:,.0f} samples"
+        )
+        logger.info(f"   Tier 3 (Small): {tier_3_threshold} - {tier_2_threshold:,.0f} samples")
         logger.info(f"   Tier 4 (Tiny): <{tier_3_threshold} samples")
 
         balanced_dfs = []
         tier_stats = {"Large": 0, "Medium": 0, "Small": 0, "Tiny": 0}
 
         for label, count in tqdm(class_counts.items(), desc="Processing tiers", unit="class"):
-            class_df = df[df['Label'] == label]
+            class_df = df[df["Label"] == label]
 
             if count >= tier_1_threshold:
                 # Tier 1: Undersample large classes to reasonable size
@@ -585,8 +556,7 @@ class DataProcessor:
                 tier_name = "Large"
             elif count >= tier_2_threshold:
                 # Tier 2: Keep as is or slight oversampling
-                target_size = min(
-                    max(count, min_per_class // 2), max_per_class // 2)
+                target_size = min(max(count, min_per_class // 2), max_per_class // 2)
                 tier_name = "Medium"
             elif count >= tier_3_threshold:
                 # Tier 3: Moderate oversampling
@@ -602,18 +572,18 @@ class DataProcessor:
             if target_size > count:
                 additional_samples = target_size - count
                 oversampled = resample(
-                    class_df, n_samples=additional_samples, random_state=42, replace=True)
-                combined_df = pd.concat(
-                    [class_df, oversampled], ignore_index=True)
+                    class_df, n_samples=additional_samples, random_state=42, replace=True
+                )
+                combined_df = pd.concat([class_df, oversampled], ignore_index=True)
             elif target_size < count:
                 combined_df = resample(
-                    class_df, n_samples=target_size, random_state=42, replace=False)
+                    class_df, n_samples=target_size, random_state=42, replace=False
+                )
             else:
                 combined_df = class_df
 
             balanced_dfs.append(combined_df)
-            logger.debug(
-                f"   Class {label} ({tier_name}): {count:,} -> {len(combined_df):,}")
+            logger.debug(f"   Class {label} ({tier_name}): {count:,} -> {len(combined_df):,}")
 
         logger.info(f"📈 Tier distribution: {dict(tier_stats)}")
 
@@ -625,23 +595,22 @@ class DataProcessor:
         df: pd.DataFrame,
         test_size: float = 0.2,
         val_size: float = 0.1,
-        random_state: int = 42
+        random_state: int = 42,
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """Smart data splitting with stratification and size validation"""
         logger.info("✂️  Starting stratified data splitting")
         logger.info(
-            f"🎯 Split ratios - Test: {test_size:.1%}, Validation: {val_size:.1%}, Train: {1-test_size-val_size:.1%}")
+            f"🎯 Split ratios - Test: {test_size:.1%}, Validation: {val_size:.1%}, Train: {1 - test_size - val_size:.1%}"
+        )
 
         with tqdm(total=4, desc="Data splitting", unit="step") as pbar:
             # Use StratifiedShuffleSplit for better control
             splitter = StratifiedShuffleSplit(
-                n_splits=1,
-                test_size=test_size,
-                random_state=random_state
+                n_splits=1, test_size=test_size, random_state=random_state
             )
             pbar.update(1)
 
-            train_idx, test_idx = next(splitter.split(df, df['Label']))
+            train_idx, test_idx = next(splitter.split(df, df["Label"]))
             train_df = df.iloc[train_idx]
             test_df = df.iloc[test_idx]
             pbar.update(1)
@@ -650,13 +619,10 @@ class DataProcessor:
             if val_size > 0:
                 val_relative_size = val_size / (1 - test_size)
                 val_splitter = StratifiedShuffleSplit(
-                    n_splits=1,
-                    test_size=val_relative_size,
-                    random_state=random_state
+                    n_splits=1, test_size=val_relative_size, random_state=random_state
                 )
 
-                train_idx, val_idx = next(
-                    val_splitter.split(train_df, train_df['Label']))
+                train_idx, val_idx = next(val_splitter.split(train_df, train_df["Label"]))
                 val_df = train_df.iloc[val_idx]
                 train_df = train_df.iloc[train_idx]
             else:
@@ -665,27 +631,27 @@ class DataProcessor:
 
             # Reset indices
             train_df = train_df.reset_index(drop=True)
-            val_df = val_df.reset_index(
-                drop=True) if not val_df.empty else val_df
+            val_df = val_df.reset_index(drop=True) if not val_df.empty else val_df
             test_df = test_df.reset_index(drop=True)
             pbar.update(1)
 
         logger.info("📊 Split results:")
         logger.info(
-            f"   🏋️  Train set: {train_df.shape[0]:,} samples ({train_df.shape[0]/len(df):.1%})")
+            f"   🏋️  Train set: {train_df.shape[0]:,} samples ({train_df.shape[0] / len(df):.1%})"
+        )
         if not val_df.empty:
             logger.info(
-                f"   ✅ Validation set: {val_df.shape[0]:,} samples ({val_df.shape[0]/len(df):.1%})")
+                f"   ✅ Validation set: {val_df.shape[0]:,} samples ({val_df.shape[0] / len(df):.1%})"
+            )
         logger.info(
-            f"   🧪 Test set: {test_df.shape[0]:,} samples ({test_df.shape[0]/len(df):.1%})")
+            f"   🧪 Test set: {test_df.shape[0]:,} samples ({test_df.shape[0] / len(df):.1%})"
+        )
 
         # Verify stratification worked
-        train_dist = train_df['Label'].value_counts(
-            normalize=True).sort_index()
-        test_dist = test_df['Label'].value_counts(normalize=True).sort_index()
+        train_dist = train_df["Label"].value_counts(normalize=True).sort_index()
+        test_dist = test_df["Label"].value_counts(normalize=True).sort_index()
         max_diff = abs(train_dist - test_dist).max()
-        logger.info(
-            f"📈 Stratification quality: max distribution difference = {max_diff:.3f}")
+        logger.info(f"📈 Stratification quality: max distribution difference = {max_diff:.3f}")
 
         return train_df, val_df, test_df
 
@@ -693,18 +659,20 @@ class DataProcessor:
 @app.command()
 def main(
     raw_dir: Path = typer.Option(RAW_DATA_DIR, help="Raw data directory"),
-    output_dir: Path = typer.Option(
-        PROCESSED_DATA_DIR, help="Output directory for splits"),
+    output_dir: Path = typer.Option(PROCESSED_DATA_DIR, help="Output directory for splits"),
     normalize_method: str = typer.Option(
-        'robust', help="Normalization method: standard, robust, or minmax"),
+        "robust", help="Normalization method: standard, robust, or minmax"
+    ),
     balance_strategy: str = typer.Option(
-        'smart_sampling', help="Balancing strategy: smart_sampling, smote, combined, or hierarchical"),
+        "smart_sampling",
+        help="Balancing strategy: smart_sampling, smote, combined, or hierarchical",
+    ),
     max_samples_per_class: int = 30000,
     min_samples_per_class: int = 1000,
     test_size: float = 0.2,
     val_size: float = 0.1,
     handle_outliers: bool = True,
-    save_intermediate: bool = False
+    save_intermediate: bool = False,
 ):
     """
     Complete data processing pipeline: Load → Preprocess → Normalize → Balance → Split
@@ -733,9 +701,7 @@ def main(
     # 3. Normalize
     logger.info("\n2️⃣  NORMALIZATION PHASE")
     df_normalized = processor.normalize_data(
-        df_raw,
-        method=normalize_method,
-        handle_outliers=handle_outliers
+        df_raw, method=normalize_method, handle_outliers=handle_outliers
     )
 
     # 4. Balance
@@ -744,15 +710,13 @@ def main(
         df_normalized,
         strategy=balance_strategy,
         max_samples_per_class=max_samples_per_class,
-        min_samples_per_class=min_samples_per_class
+        min_samples_per_class=min_samples_per_class,
     )
 
     # 5. Split data
     logger.info("\n4️⃣  SPLITTING PHASE")
     train_df, val_df, test_df = processor.smart_split_data(
-        df_balanced,
-        test_size=test_size,
-        val_size=val_size
+        df_balanced, test_size=test_size, val_size=val_size
     )
 
     # 6. Save results
@@ -771,8 +735,7 @@ def main(
         file_path = output_dir / filename
         data.to_csv(file_path, index=False)
         file_size = file_path.stat().st_size / 1024**2
-        logger.success(
-            f"💾 {description} saved to {file_path} ({file_size:.1f} MB)")
+        logger.success(f"💾 {description} saved to {file_path} ({file_size:.1f} MB)")
 
     # Final summary
     total_time = time.time() - start_time
@@ -781,26 +744,23 @@ def main(
     logger.info("\n" + "🎉 PROCESSING COMPLETE!" + "\n" + "=" * 60)
     logger.info(f"⏱️  Total processing time: {total_time:.1f} seconds")
     logger.info(f"📊 Original samples: {len(df_raw):,}")
-    logger.info(
-        f"📈 Final samples: {total_samples:,} ({total_samples/len(df_balanced):.1f}x)")
+    logger.info(f"📈 Final samples: {total_samples:,} ({total_samples / len(df_balanced):.1f}x)")
     logger.info(f"🔧 Normalization method: {normalize_method.upper()}")
     logger.info(f"⚖️  Balancing strategy: {balance_strategy.upper()}")
     logger.info(f"🎯 Max samples per class: {max_samples_per_class:,}")
     logger.info(f"📂 Output directory: {output_dir}")
-    logger.info(
-        f"🚀 Processing speed: {total_samples/total_time:,.0f} samples/second")
+    logger.info(f"🚀 Processing speed: {total_samples / total_time:,.0f} samples/second")
     logger.info("=" * 60)
 
     # Class distribution summary
-    final_counts = df_balanced['Label'].value_counts().sort_index()
+    final_counts = df_balanced["Label"].value_counts().sort_index()
     logger.info("📊 Final class distribution summary:")
     logger.info(f"   Classes: {len(final_counts)}")
     logger.info(f"   Min class size: {final_counts.min():,}")
     logger.info(f"   Max class size: {final_counts.max():,}")
     logger.info(f"   Mean class size: {final_counts.mean():,.0f}")
     logger.info(f"   Std class size: {final_counts.std():,.0f}")
-    logger.info(
-        f"   Balance ratio: {final_counts.max()/final_counts.min():.1f}:1")
+    logger.info(f"   Balance ratio: {final_counts.max() / final_counts.min():.1f}:1")
 
 
 if __name__ == "__main__":
