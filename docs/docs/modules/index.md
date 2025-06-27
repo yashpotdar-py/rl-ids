@@ -1,196 +1,265 @@
-# Module Reference
+# RL-IDS Modules
+
+This section provides detailed documentation for all RL-IDS system modules, covering their architecture, functionality, and usage.
 
 ## Overview
 
-The RL-IDS system is organized into several key modules, each handling specific aspects of the reinforcement learning-based intrusion detection system. This reference provides comprehensive documentation for all major components, classes, and functions.
+The RL-IDS system is built with a modular architecture that separates concerns and enables easy extension and maintenance. Each module handles specific aspects of the intrusion detection pipeline.
 
 ## Core Modules
 
-| Module | Description | Key Components |
-|--------|-------------|----------------|
-| [`rl_ids.agents`](agents.md) | Enhanced DQN agent implementation | `DQNAgent`, `DQNConfig`, `DQN` |
-| [`rl_ids.environments`](environments.md) | Custom Gymnasium environment | `IDSDetectionEnv` |
-| [`rl_ids.modeling`](modeling.md) | Training and evaluation pipelines | `train`, `evaluate` |
-| [`api`](../api/index.md) | FastAPI service for predictions | `IDSPredictionService`, `main` |
+### [Reinforcement Learning Agents](agents.md)
+The heart of the RL-IDS system, implementing Deep Q-Network (DQN) algorithms for adaptive threat detection.
 
-## Utility Modules
+**Key Components:**
+- **DQN Agent**: Main reinforcement learning agent
+- **Neural Networks**: Q-network and target network architectures
+- **Experience Replay**: Memory management for training
+- **Training Pipeline**: Complete training and evaluation framework
 
-| Module | Description | Key Components |
-|--------|-------------|----------------|
-| [`rl_ids.config`](config.md) | Configuration and path management | Paths, logging setup, environment variables |
-| [`rl_ids.make_dataset`](make_dataset.md) | Data preprocessing pipeline | `DataGenerator`, `DataPreprocessor` |
-| [`rl_ids.plots`](plots.md) | Advanced visualization tools | `IDSPlotter` |
+**Features:**
+- Adaptive learning from network traffic patterns
+- Real-time decision making for threat classification
+- Continuous improvement through reward-based learning
+- Support for various network environments
 
-## Architecture Overview
+### [Feature Extraction](features.md)
+Comprehensive feature engineering module that transforms raw network data into meaningful representations for machine learning.
 
-### Data Flow
+**Key Components:**
+- **CICIDS2017 Features**: 78 standardized network flow features
+- **Flow Tracking**: Bidirectional flow analysis and aggregation
+- **Statistical Analysis**: Time-series and distribution analysis
+- **Data Preprocessing**: Normalization and validation
+
+**Features:**
+- Real-time feature extraction from network packets
+- Statistical traffic characterization
+- Protocol-specific feature analysis
+- Scalable processing pipeline
+
+## Supporting Modules
+
+### Configuration Module (`rl_ids/config.py`)
+Central configuration management for all system components.
+
+**Features:**
+- Environment-based configuration
+- Model and training parameters
+- Network monitoring settings
+- API and service configuration
+
+**Key Settings:**
+```python
+# Model Configuration
+MODEL_CONFIG = {
+    'input_size': 78,
+    'hidden_layers': [256, 128, 64],
+    'output_size': 2,  # Binary classification
+    'learning_rate': 0.001,
+    'gamma': 0.99,
+    'epsilon': 0.1
+}
+
+# Training Configuration
+TRAINING_CONFIG = {
+    'batch_size': 32,
+    'episodes': 500,
+    'memory_size': 10000,
+    'target_update': 100
+}
+
+# Environment Configuration
+ENV_CONFIG = {
+    'max_steps': 1000,
+    'reward_function': 'balanced',
+    'state_normalization': True
+}
 ```
-Raw CICIDS2017 Data → Data Preprocessing → Feature Engineering → Train/Val/Test Split
-                                            ↓
-Training Environment ← Custom Gym Environment ← Processed Data
-        ↓
-DQN Agent Training → Model Checkpoints → Best Model Selection
-        ↓
-Model Evaluation → Performance Reports → Visualization
-        ↓
-Production API → Real-time Predictions → Monitoring
-```
 
-### Component Interactions
+### Environment Module (`rl_ids/environments/ids_env.py`)
+Gymnasium-compatible environment for training RL agents on intrusion detection tasks.
 
-**Training Pipeline:**
-1. **Data Module** (`make_dataset`) processes raw CICIDS2017 data
-2. **Environment Module** (`environments`) provides Gym interface for RL training
-3. **Agent Module** (`agents`) implements DQN algorithm with advanced features
-4. **Modeling Module** (`modeling`) orchestrates training and evaluation
-5. **Plotting Module** (`plots`) generates comprehensive visualizations
+**Features:**
+- CICIDS2017 dataset integration
+- Configurable reward functions
+- Episode management
+- State space normalization
 
-**Inference Pipeline:**
-1. **API Module** (`api`) provides REST interface for predictions
-2. **Service Layer** (`api.services`) handles model loading and predictions
-3. **Models** (`api.models`) define request/response schemas
-4. **Client** (`api.client`) provides programmatic API access
+**Environment Specifications:**
+- **State Space**: 78-dimensional continuous space (network features)
+- **Action Space**: Discrete space for classification decisions
+- **Reward Structure**: Based on detection accuracy and false positive rates
+- **Episode Length**: Configurable based on dataset size
+
+### Plotting and Visualization (`rl_ids/plots.py`)
+Comprehensive visualization tools for training analysis and model evaluation.
+
+**Features:**
+- Training progress visualization
+- Performance metrics plotting
+- Confusion matrix generation
+- Feature importance analysis
+
+**Available Plots:**
+- Training loss and reward curves
+- Episode performance trends
+- Classification performance metrics
+- Feature distribution analysis
 
 ## Module Dependencies
 
 ```
-rl_ids/
-├── config.py              # Base configuration (imported by all modules)
-├── make_dataset.py         # Data preprocessing (depends on: config)
-├── agents/
-│   └── dqn_agent.py       # DQN implementation (depends on: config)
-├── environments/
-│   └── ids_env.py         # Gym environment (depends on: config)
-├── modeling/
-│   ├── train.py           # Training pipeline (depends on: agents, environments, config)
-│   └── evaluate.py        # Evaluation pipeline (depends on: agents, environments, plots)
-└── plots.py               # Visualization (depends on: config)
-
-api/
-├── main.py                # FastAPI app (depends on: services, models)
-├── services.py            # Prediction service (depends on: rl_ids.agents, config)
-├── models.py              # Pydantic schemas (standalone)
-└── client.py              # API client (depends on: models)
+┌─────────────────────────────────────────────────────────────┐
+│                    Module Dependency Graph                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                            │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    │
+│  │   Config    │    │   Features  │    │   Agents    │    │
+│  │             │◄───┤             │◄───┤             │    │
+│  └─────────────┘    └─────────────┘    └─────────────┘    │
+│        ▲                   ▲                   ▲          │
+│        │                   │                   │          │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    │
+│  │   Plots     │    │Environment  │    │  Training   │    │
+│  │             │    │             │    │             │    │
+│  └─────────────┘    └─────────────┘    └─────────────┘    │
+│                                                           │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Quick Reference
+## Integration Patterns
 
-### Essential Classes
-
-| Class | Module | Purpose |
-|-------|--------|---------|
-| `DQNAgent` | `rl_ids.agents` | Main reinforcement learning agent |
-| `DQNConfig` | `rl_ids.agents` | Agent configuration and hyperparameters |
-| `IDSDetectionEnv` | `rl_ids.environments` | Custom Gym environment for training |
-| `IDSPredictionService` | `api.services` | Production prediction service |
-| `IDSPlotter` | `rl_ids.plots` | Comprehensive visualization tools |
-
-### Key Functions
-
-| Function | Module | Purpose |
-|----------|--------|---------|
-| `main()` | `rl_ids.modeling.train` | Training pipeline entry point |
-| `main()` | `rl_ids.modeling.evaluate` | Evaluation pipeline entry point |
-| `load_and_process_data()` | `rl_ids.make_dataset` | Data preprocessing function |
-| `predict()` | `api.services` | Single prediction function |
-| `predict_batch()` | `api.services` | Batch prediction function |
-
-### Configuration Classes
-
-| Config Class | Module | Purpose |
-|--------------|--------|---------|
-| `DQNConfig` | `rl_ids.agents` | DQN agent hyperparameters |
-| `IDSPredictionRequest` | `api.models` | API request schema |
-| `IDSPredictionResponse` | `api.models` | API response schema |
-
-## Usage Patterns
-
-### Training Workflow
+### Data Flow Integration
 ```python
-from rl_ids.agents.dqn_agent import DQNAgent, DQNConfig
-from rl_ids.environments.ids_env import IDSDetectionEnv
-from rl_ids.config import TRAIN_DATA_FILE
+# Example: Complete detection pipeline
+from rl_ids.make_dataset import extract_features
+from rl_ids.agents.dqn_agent import DQNAgent
+from rl_ids.config import MODEL_CONFIG
 
-# Configure agent
-config = DQNConfig(state_dim=77, action_dim=15)
-agent = DQNAgent(config)
+# Initialize components
+agent = DQNAgent(MODEL_CONFIG)
+raw_data = capture_network_traffic()
 
-# Setup environment
-env = IDSDetectionEnv(data_path=TRAIN_DATA_FILE, 
-                      feature_cols=feature_columns)
-
-# Training loop
-for episode in range(episodes):
-    state, _ = env.reset()
-    while True:
-        action = agent.act(state)
-        next_state, reward, done, _, info = env.step(action)
-        agent.remember(state, action, reward, next_state, done)
-        
-        if len(agent.memory) > batch_size:
-            agent.replay()
-        
-        if done:
-            break
-        state = next_state
+# Process data through pipeline
+features = extract_features(raw_data)
+prediction = agent.predict(features)
 ```
 
-### API Usage
+### Training Integration
 ```python
-from api.client import IDSAPIClient
-import asyncio
+# Example: Training pipeline integration
+from rl_ids.environments.ids_env import IDSEnvironment
+from rl_ids.modeling.train import train_dqn_agent
+from rl_ids.plots import plot_training_metrics
 
-async def predict_sample():
-    client = IDSAPIClient("http://localhost:8000")
+# Set up training environment
+env = IDSEnvironment()
+agent = train_dqn_agent(env, episodes=500)
+
+# Visualize results
+plot_training_metrics(agent.training_history)
+```
+
+### API Integration
+```python
+# Example: API service integration
+from api.main import app
+from rl_ids.agents.dqn_agent import DQNAgent
+
+# Load trained model for API
+agent = DQNAgent.load_model('models/dqn_model_best.pt')
+
+# API automatically uses loaded model for predictions
+```
+
+## Module Configuration
+
+### Environment Variables
+```bash
+# Model Configuration
+MODEL_PATH=models/dqn_model_best.pt
+FEATURE_SCALER_PATH=models/feature_scaler.pkl
+
+# Training Configuration
+EPISODES=500
+BATCH_SIZE=32
+LEARNING_RATE=0.001
+
+# Environment Configuration
+MAX_STEPS=1000
+REWARD_TYPE=balanced
+```
+
+### Configuration Files
+```python
+# config.py structure
+class Config:
+    # Model settings
+    MODEL_CONFIG = {...}
     
-    # Single prediction
-    features = [0.1] * 77  # Network traffic features
-    result = await client.predict(features)
+    # Training settings
+    TRAINING_CONFIG = {...}
     
-    print(f"Prediction: {result['predicted_class']}")
-    print(f"Confidence: {result['confidence']:.3f}")
-    print(f"Is Attack: {result['is_attack']}")
-
-asyncio.run(predict_sample())
+    # Environment settings
+    ENV_CONFIG = {...}
+    
+    # API settings
+    API_CONFIG = {...}
 ```
 
-### Visualization
-```python
-from rl_ids.plots import IDSPlotter
-from rl_ids.config import REPORTS_DIR, FIGURES_DIR
+## Performance Considerations
 
-plotter = IDSPlotter(figures_dir=FIGURES_DIR, dpi=300)
+### Memory Usage
+- **Feature Extraction**: O(n) where n is the number of flows
+- **Agent Memory**: Configurable replay buffer size
+- **Training**: Batch processing for memory efficiency
+- **Inference**: Single-pass processing for real-time performance
 
-# Generate comprehensive evaluation plots
-plotter.plot_evaluation_overview(REPORTS_DIR)
-plotter.plot_class_analysis(REPORTS_DIR)
-plotter.plot_error_analysis(REPORTS_DIR)
-```
+### Computational Complexity
+- **Feature Calculation**: Linear with packet count
+- **Model Inference**: Constant time per prediction
+- **Training**: Depends on dataset size and architecture
+- **Environment**: Minimal overhead for state transitions
 
-## See Also
+### Scalability
+- **Horizontal**: Multiple agent instances for load distribution
+- **Vertical**: GPU acceleration for training and inference
+- **Memory**: Configurable buffer sizes and batch processing
+- **Storage**: Efficient model checkpointing and data handling
 
-- [Getting Started Guide](../getting-started.md) - Setup and first steps
-- [API Reference](../api/index.md) - REST API documentation
-- [Tutorials](../tutorials/index.md) - Hands-on guides and examples
-- [FAQ & Troubleshooting](../faq.md) - Common issues and solutions
+## Best Practices
 
-rl_ids/
-├── agents/
-│   └── dqn_agent.py → torch, gymnasium
-├── environments/
-│   └── ids_env.py   → gymnasium, pandas
-├── modeling/
-│   ├── train.py     → agents, environments
-│   └── evaluate.py  → agents, environments
-└── plots.py         → matplotlib, seaborn
-```
+### Module Usage
+1. **Initialize Configuration First**: Load configuration before other modules
+2. **Use Consistent Interfaces**: Follow established patterns for integration
+3. **Handle Errors Gracefully**: Implement proper error handling and logging
+4. **Monitor Performance**: Use built-in metrics and monitoring tools
 
-## Quick Navigation
+### Extension Guidelines
+1. **Follow Module Structure**: Maintain consistent organization
+2. **Document Interfaces**: Provide clear API documentation
+3. **Write Tests**: Include unit tests for new functionality
+4. **Maintain Compatibility**: Ensure backward compatibility when possible
 
-- [DQN Agent Documentation](agents.md)
-- [Environment Documentation](environments.md) 
-- [Training & Evaluation](modeling.md)
-- [API Service](../api/index.md)
-- [Configuration](config.md)
-- [Data Processing](make_dataset.md)
-- [Visualization](plots.md)
+### Development Workflow
+1. **Local Testing**: Use provided test datasets and configurations
+2. **Integration Testing**: Test module interactions thoroughly
+3. **Performance Testing**: Benchmark against expected performance
+4. **Documentation**: Update documentation for any changes
+
+## Getting Started
+
+### Quick Start
+1. **Read Module Documentation**: Start with [Agents](agents.md) and [Features](features.md)
+2. **Review Configuration**: Check `rl_ids/config.py` for available settings
+3. **Run Examples**: Execute provided example scripts
+4. **Explore API**: Use the API documentation for integration examples
+
+### Development Setup
+1. **Install Dependencies**: Follow installation guide
+2. **Configure Environment**: Set up configuration files
+3. **Run Tests**: Verify module functionality
+4. **Start Development**: Begin with existing examples and extend
+
+For detailed information about each module, please refer to their individual documentation pages.

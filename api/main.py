@@ -53,7 +53,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="RL-based Intrusion Detection System API",
     description="RESTful API for real-time network intrusion detection using Deep Q-Learning",
-    version="1.0.0",
+    version="1.2.0",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -74,7 +74,7 @@ async def root():
     """Root endpoint with service information."""
     return {
         "service": "RL-based Intrusion Detection System API",
-        "version": "1.0.0",
+        "version": "1.2.0",
         "status": "running",
         "docs": "/docs"
     }

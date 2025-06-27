@@ -21,7 +21,7 @@ class TestRLIDSAPI:
         assert response.status_code == 200
         data = response.json()
         assert data["service"] == "RL-based Intrusion Detection System API"
-        assert data["version"] == "1.0.0"
+        assert data["version"] == "1.2.0"
         assert data["status"] == "running"
     
     def test_health_check(self):
