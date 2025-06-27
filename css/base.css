@@ -2651,17 +2651,24 @@
       text-decoration-line: underline;
     }
   }
+  &:where(.dark, .dark *) {
+    &::after {
+      content: var(--tw-content);
+      --tw-invert: invert(100%);
+      filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
+    }
+  }
 }
 .typography details summary::marker {
   content: "";
 }
 .typography details summary::after {
-  display: inline-block;
-  position: absolute;
-  right: 6px;
   content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>');
 }
 .typography details summary::after {
+  position: absolute;
+  right: calc(var(--spacing) * 1.5);
+  display: inline-block;
   aspect-ratio: 1 / 1;
   transition-property: all;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -3157,5 +3164,10 @@
 }
 @property --tw-ease {
   syntax: "*";
+  inherits: false;
+}
+@property --tw-content {
+  syntax: "*";
+  initial-value: "";
   inherits: false;
 }
