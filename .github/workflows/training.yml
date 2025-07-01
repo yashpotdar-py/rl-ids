@@ -98,7 +98,7 @@ jobs:
       
     - name: Upload model artifacts
       if: steps.check_model.outputs.model_exists == 'false'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: trained-model-${{ github.run_number }}
         path: |
@@ -107,7 +107,7 @@ jobs:
         retention-days: 90
         
     - name: Upload training reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: training-reports-${{ github.run_number }}
         path: |
@@ -117,7 +117,7 @@ jobs:
         
     - name: Upload training logs
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: training-logs-${{ github.run_number }}
         path: |
